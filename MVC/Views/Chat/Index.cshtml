@@ -1,0 +1,628 @@
+@{
+    ViewData["Title"] = "Support Chatbot";
+}
+
+
+<!-- Floating Bot Icon -->
+<div id="bot-icon"></div>
+
+<!-- Styles -->
+<style>
+    #bot-greeting {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .chat-bubble {
+        background-color: #fff;
+        color: #333;
+        padding: 10px 15px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        font-size: 14px;
+        max-width: 240px;
+    }
+
+    #bot-icon {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        cursor: pointer;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: url('/img/Robot.gif') no-repeat center center / cover;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        animation: bounce 2s infinite;
+    }
+
+    #bot-icon:hover {
+        transform: scale(1.1);
+        background-color: rgb(
+            calc(255 * var(--random-r, 1)),
+            calc(255 * var(--random-g, 1)),
+            calc(255 * var(--random-b, 1))
+        );
+    }
+
+    #bot-icon:hover::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.2);
+        mix-blend-mode: overlay;
+    }
+
+    @@keyframes randomColor {
+        0% {
+            --random-r: 1;
+            --random-g: 0;
+            --random-b: 0;
+        }
+        33% {
+            --random-r: 0;
+            --random-g: 1;
+            --random-b: 0;
+        }
+        66% {
+            --random-r: 0;
+            --random-g: 0;
+            --random-b: 1;
+        }
+        100% {
+            --random-r: 1;
+            --random-g: 0;
+            --random-b: 0;
+        }
+    }
+
+    #bot-icon:hover {
+        transform: scale(1.1);
+    }
+
+    @@keyframes bounce {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<!-- Optional Script to Show Greeting on Load -->
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const greeting = document.getElementById('bot-greeting');
+        setTimeout(() => {
+            greeting.style.display = 'flex';
+        }, 1000);
+    });
+</script>
+
+
+<!-- Chatbot Box -->
+<div id="chat-popup" style="
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 340px;
+    height: 480px;
+    display: none;
+    flex-direction: column;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+    z-index: 1001;
+    transform: scale(0.6);
+    opacity: 0;
+    transition: all 0.35s ease;
+">
+
+    <!-- Header -->
+    <div
+        style="background: linear-gradient(to right, #007bff, #00bfff); color: white; padding: 14px 16px; font-weight: bold; font-size: 16px;">
+        Careerlink Assistant
+        <span style="float: right; cursor: pointer;" id="close-chat">&times;</span>
+    </div>
+
+    <!-- Messages -->
+    <div id="chat-box" style="flex: 1; padding: 14px; overflow-y: auto; font-size: 14px;"></div>
+    <!-- Add Color Picker -->
+
+
+    <!-- Input -->
+    <div style="padding: 10px; border-top: 1px solid #ddd; background: #f8f9fa;">
+        <div style="display: flex; gap: 6px;">
+            <input type="color" id="color-picker" title="Pick a color"
+                style="width: 40px; height: 40px; border: none; cursor: pointer; border-radius: 100%;" />
+            <input type="text" id="user-input" class="form-control" placeholder="Type a message..." style="flex: 1;" />
+            <button id="send-btn" class="btn btn-primary">Send</button>
+        </div>
+    </div>
+</div>
+
+<!-- Audio for idle -->
+<audio id="idle-audio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
+<style>
+    #chat-box {
+        flex: 1;
+        padding: 14px;
+        overflow-y: auto;
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        /* Add spacing between messages */
+    }
+
+    .chat-bubble {
+        max-width: 80%;
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        border-radius: 16px;
+        animation: fadeIn 0.4s ease-in-out;
+        display: inline-block;
+        line-height: 1.4;
+        white-space: pre-wrap;
+    }
+
+    .user {
+        background-color: #007bff;
+        color: white;
+        align-self: flex-end;
+        text-align: right;
+        margin-left: auto;
+        border-bottom-right-radius: 0;
+    }
+
+    .bot {
+        background-color: #e9ecef;
+        color: black;
+        align-self: flex-start;
+        margin-right: auto;
+        border-bottom-left-radius: 0;
+    }
+
+    .typing {
+        font-style: italic;
+        color: #6c757d;
+        padding: 6px 10px;
+        animation: blink 1s infinite;
+    }
+
+    @@keyframes blink {
+
+        0%,
+        100% {
+            opacity: 0.2;
+        }
+
+        50% {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<style>
+    #chat-box {
+        flex: 1;
+        padding: 14px;
+        overflow-y: auto;
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        /* Add spacing between messages */
+    }
+
+    .chat-bubble {
+        max-width: 80%;
+        padding: 8px 12px;
+        border-radius: 16px;
+        animation: fadeIn 0.4s ease-in-out;
+        display: inline-block;
+        line-height: 1.4;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        /* Ensure long text wraps properly */
+    }
+
+    .user {
+        background-color: #007bff;
+        color: white;
+        align-self: flex-end;
+        /* Align user messages to the right */
+        text-align: right;
+        border-bottom-right-radius: 0;
+    }
+
+    .bot {
+        background-color: #e9ecef;
+        color: black;
+        align-self: flex-start;
+        /* Align bot messages to the left */
+        border-bottom-left-radius: 0;
+    }
+</style>
+@section Scripts {
+    <script>
+        const botIcon = document.getElementById("bot-icon");
+        const chatPopup = document.getElementById("chat-popup");
+        const closeBtn = document.getElementById("close-chat");
+        const userInput = document.getElementById("user-input");
+        const sendBtn = document.getElementById("send-btn");
+        const chatBox = document.getElementById("chat-box");
+        const idleAudio = document.getElementById("idle-audio");
+
+        let isOpen = false;
+        let idleTimer;
+
+        // Speech Recognition Setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+        if (recognition) {
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+
+            recognition.addEventListener("result", (event) => {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+
+                // Automatically send the message after voice input
+                sendBtn.click();
+            });
+
+            recognition.addEventListener("end", () => {
+                console.log("Speech recognition ended.");
+            });
+        } else {
+            console.warn("Speech Recognition API is not supported in this browser.");
+        }
+
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            idleAudio.pause();
+            idleAudio.currentTime = 0;
+
+            idleTimer = setTimeout(() => {
+                idleAudio.play();
+            }, 20000);
+        }
+
+        botIcon.addEventListener("mouseover", () => {
+            botIcon.querySelector("img").style.transform = "scale(1.1)";
+        });
+        botIcon.addEventListener("mouseout", () => {
+            botIcon.querySelector("img").style.transform = "scale(1)";
+        });
+
+
+        botIcon.addEventListener("click", () => {
+            if (!isOpen) {
+                chatPopup.style.display = "flex";
+                setTimeout(() => {
+                    chatPopup.style.transform = "scale(1)";
+                    chatPopup.style.opacity = "1";
+                    resetIdleTimer();
+                }, 10);
+            } else {
+                chatPopup.style.transform = "scale(0.6)";
+                chatPopup.style.opacity = "0";
+                setTimeout(() => {
+                    chatPopup.style.display = "none";
+                    clearTimeout(idleTimer);
+                    idleAudio.pause();
+                    idleAudio.currentTime = 0;
+                }, 300);
+            }
+            isOpen = !isOpen;
+        });
+
+        closeBtn.addEventListener("click", () => {
+            chatPopup.style.transform = "scale(0.6)";
+            chatPopup.style.opacity = "0";
+            setTimeout(() => {
+                chatPopup.style.display = "none";
+                clearTimeout(idleTimer);
+                idleAudio.pause();
+                idleAudio.currentTime = 0;
+            }, 300);
+            isOpen = false;
+        });
+
+        function speakText(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'hi-IN'; // Set language to Hindi
+            speechSynthesis.speak(utterance);
+        }
+
+        function addTypingIndicator(side = "bot") {
+            const bubble = document.createElement("div");
+            bubble.className = "chat-bubble typing " + (side === "user" ? "user" : "bot");
+            bubble.textContent = side === "user" ? "Typing..." : "Bot is typing...";
+            bubble.id = `${side}-typing`;
+            chatBox.appendChild(bubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeTypingIndicator(side = "bot") {
+            const typing = document.getElementById(`${side}-typing`);
+            if (typing) typing.remove();
+        }
+
+        function appendMessage(text, side = "bot") {
+            const msg = document.createElement("div");
+            msg.className = `chat-bubble ${side}`;
+            msg.textContent = text;
+            chatBox.appendChild(msg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        sendBtn.addEventListener("click", function () {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            addTypingIndicator("user");
+
+            setTimeout(() => {
+                removeTypingIndicator("user");
+                appendMessage(message, "user");
+            }, 300);
+
+            userInput.value = "";
+            resetIdleTimer();
+
+            addTypingIndicator("bot");
+
+            fetch("/Chat/GetResponse", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `message=${encodeURIComponent(message)}`
+            })
+                .then(res => res.json())
+                .then(data => {
+                    setTimeout(() => {
+                        removeTypingIndicator("bot");
+                        const botReply = data.botResponse;
+                        appendMessage(botReply, "bot");
+                        speakText(botReply);
+                        resetIdleTimer();
+                    }, 3000); // 5 seconds typing simulation
+                });
+        });
+
+        userInput.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                sendBtn.click();
+            }
+        });
+
+        // Add a button for voice input
+        const voiceInputBtn = document.createElement("button");
+        voiceInputBtn.textContent = "🎤";
+        voiceInputBtn.className = "btn btn-secondary";
+        voiceInputBtn.style.marginLeft = "6px";
+        voiceInputBtn.addEventListener("click", () => {
+            if (recognition) {
+            // Add a "listening" animation to the chatbox
+            const listeningIndicator = document.createElement("div");
+            listeningIndicator.className = "chat-bubble bot listening";
+            listeningIndicator.innerHTML = `
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            `;
+            chatBox.appendChild(listeningIndicator);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            recognition.start();
+
+            // Remove the "listening" indicator when recognition ends
+            recognition.addEventListener("end", () => {
+                listeningIndicator.remove();
+            });
+            } else {
+            alert("Speech Recognition is not supported in this browser.");
+            }
+        });
+
+        // Add styles for the listening animation
+        const style = document.createElement("style");
+        style.textContent = `
+            .chat-bubble.listening {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            }
+            .chat-bubble.listening .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #007bff;
+            border-radius: 50%;
+            animation: wave 1.5s infinite;
+            }
+            .chat-bubble.listening .dot:nth-child(1) {
+            animation-delay: 0s;
+            }
+            .chat-bubble.listening .dot:nth-child(2) {
+            animation-delay: 0.3s;
+            }
+            .chat-bubble.listening .dot:nth-child(3) {
+            animation-delay: 0.6s;
+            }
+            @@keyframes wave {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Append the voice input button next to the send button
+        sendBtn.parentNode.appendChild(voiceInputBtn);
+    </script>
+    <script>
+        const colorPicker = document.getElementById("color-picker");
+
+        // Change text color dynamically
+        colorPicker.addEventListener("input", (event) => {
+            const selectedColor = event.target.value;
+            document.querySelectorAll(".chat-bubble").forEach(bubble => {
+                bubble.style.color = selectedColor;
+            });
+        });
+
+        // Ensure new messages also use the selected color
+        function appendMessage(text, side = "bot") {
+            const msgContainer = document.createElement("div");
+            msgContainer.style.display = "flex";
+            msgContainer.style.alignItems = "center";
+            msgContainer.style.gap = "10px";
+            msgContainer.style.marginBottom = "10px";
+
+            const avatar = document.createElement("img");
+            avatar.style.width = "30px";
+            avatar.style.height = "30px";
+            avatar.style.borderRadius = "100%";
+
+            if (side === "user") {
+                avatar.src = "https://cdn-icons-png.flaticon.com/512/2922/2922510.png"; // User avatar
+                msgContainer.style.flexDirection = "row-reverse";
+            } else {
+                avatar.src = "https://cdn-icons-png.flaticon.com/512/4712/4712027.png"; // Bot avatar
+            }
+
+            const msg = document.createElement("div");
+            msg.className = `chat-bubble ${side}`;
+            msg.textContent = text;
+            msg.style.color = colorPicker.value; // Apply the selected color
+
+            // Add timestamp
+            const timestamp = document.createElement("span");
+            timestamp.style.display = "block";
+            timestamp.style.fontSize = "10px";
+            timestamp.style.color = "#6c757d";
+            timestamp.textContent = new Date().toLocaleTimeString();
+            msg.appendChild(timestamp);
+
+            // Add click-to-select functionality
+            msg.addEventListener("click", () => {
+                if (msg.classList.contains("selected")) {
+                    msg.classList.remove("selected");
+                } else {
+                    msg.classList.add("selected");
+                }
+            });
+
+            // Allow editing for user messages only
+            if (side === "user") {
+                msg.addEventListener("dblclick", () => {
+                    const newText = prompt("Edit your message:", text);
+                    if (newText !== null && newText.trim() !== "") {
+                        msg.firstChild.textContent = newText; // Update the message text
+                    }
+                });
+            }
+
+            // Add swipe-to-delete functionality
+            let startX;
+            msg.addEventListener("touchstart", (e) => {
+                startX = e.touches[0].clientX;
+            });
+
+            msg.addEventListener("touchend", (e) => {
+                const endX = e.changedTouches[0].clientX;
+                if (startX - endX > 50) { // Swipe left threshold
+                    msgContainer.remove();
+                }
+            });
+
+            msg.addEventListener("mousedown", (e) => {
+                startX = e.clientX;
+            });
+
+            msg.addEventListener("mouseup", (e) => {
+                const endX = e.clientX;
+                if (startX - endX > 50) { // Swipe left threshold for desktop
+                    msgContainer.remove();
+                }
+            });
+
+            msgContainer.appendChild(avatar);
+            msgContainer.appendChild(msg);
+            chatBox.appendChild(msgContainer);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Add a delete button
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete Selected";
+        deleteBtn.className = "btn btn-danger";
+        deleteBtn.style.marginTop = "10px";
+        deleteBtn.addEventListener("click", () => {
+            document.querySelectorAll(".chat-bubble.selected").forEach(selectedMsg => {
+            selectedMsg.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+            selectedMsg.style.opacity = "0";
+            selectedMsg.style.transform = "translateX(100%) scale(0.5)"; // Telegram-like animation
+            setTimeout(() => {
+                selectedMsg.parentNode.remove();
+            }, 500); // Wait for the animation to complete
+            });
+        });
+
+        // Append the delete button below the chat box
+        chatBox.parentNode.appendChild(deleteBtn); 
+    </script>
+
+    <style>
+        .chat-bubble.selected {
+            border: 2px solid red;
+            /* Highlight selected messages */
+        }
+    </style>
+}

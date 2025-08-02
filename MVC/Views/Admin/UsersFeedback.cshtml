@@ -1,0 +1,1194 @@
+@{
+    ViewData["Title"] = "User Feedback Management";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h2><i class="fas fa-comments me-2"></i>User Feedback</h2>
+    <div class="actions">
+        @* <button id="refresh-data" class="btn btn-primary">
+            <i class="fas fa-sync-alt me-1"></i> Refresh
+        </button> *@
+        <button id="export-csv" class="btn btn-success ms-2">
+            <i class="fas fa-file-export me-1"></i> Export CSV
+        </button>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-xl-3 col-lg-6 col-md-5 mb-0">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Feedback</h5>
+                <h2 id="total-feedback-count" class="card-text">--</h2>
+                <p class="card-text"><small>All time</small></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-5 mb-0">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Positive Rating</h5>
+                <h2 id="positive-rating-count" class="card-text">--</h2>
+                <p class="card-text"><small>Ratings 4-5</small></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-5 mb-0">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h5 class="card-title">Neutral Rating</hhe>
+                <h2 id="neutral-rating-count" class="card-text">--</h2>
+                <p class="card-text"><small>Rating 3</small></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-5 mb-0">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <h5 class="card-title">Negative Rating</h5>
+                <h2 id="negative-rating-count" class="card-text">--</h5>
+                <p class="card-text"><small>Ratings 1-2</small></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Active Filters Display -->
+<div id="active-filters" class="mb-3" style="display: none;"></div>
+
+<!-- Feedback Table -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="feedback-table" class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>User Type</th>
+                        <th>Email</th>
+                        <th>Rating</th>
+                        <th>Feedback</th>
+                        <th>Status</th>
+                        @* <th>Actions</th> *@
+                    </tr>
+                </thead>
+                <tbody id="feedback-data">
+                    <!-- Data will be loaded here via AJAX -->
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading feedback data...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="showing-entries">
+                Showing <span id="showing-start">0</span> to <span id="showing-end">0</span> of <span id="total-entries">0</span> entries
+            </div>
+            <div class="d-flex align-items-center">
+                <select id="page-size" class="form-select form-select-sm me-2" style="width: auto;">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <nav aria-label="Feedback pagination">
+                    <ul class="pagination mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" id="previous-page">Previous</a>
+                        </li>
+                        <li class="page-item active">
+                            <a class="page-link" href="#">1</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" id="next-page">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Detail Modal -->
+<div class="modal fade" id="feedback-detail-modal" tabindex="-1" aria-labelledby="feedbackDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackDetailModalLabel">Feedback Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ID:</label>
+                            <p id="detail-id" class="mb-0"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">User Type:</label>
+                            <p id="detail-user-type" class="mb-0"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email:</label>
+                            <p id="detail-email" class="mb-0"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Date Submitted:</label>
+                            <p id="detail-date" class="mb-0"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Rating:</label>
+                            <div id="detail-rating" class="mb-0"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Status:</label>
+                            <select id="detail-status" class="form-select">
+                                <option value="New">New</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Resolved">Resolved</option>
+                                <option value="Closed">Closed</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Feedback:</label>
+                    <div id="detail-feedback" class="p-3 bg-light rounded"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="admin-response" class="form-label fw-bold">Admin Response:</label>
+                    <textarea id="admin-response" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="save-response" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+            let feedbackData = [];
+            let currentPage = 1;
+            let pageSize = 10;
+            let totalPages = 1;
+            let filters = {
+                dateFrom: '',
+                dateTo: '',
+                userType: '',
+                rating: '',
+                search: ''
+            };
+
+            // Initialize date pickers with today's date and 30 days ago
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            
+            $('#date-to').val(formatDate(today));
+            $('#date-from').val(formatDate(thirtyDaysAgo));
+            
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            // Load data on page load
+            loadFeedbackData();
+
+            // Refresh button
+            $('#refresh-data').on('click', function() {
+                loadFeedbackData();
+            });
+
+            // Apply filters
+            $('#apply-filters').on('click', function() {
+                filters.dateFrom = $('#date-from').val();
+                filters.dateTo = $('#date-to').val();
+                filters.userType = $('#user-type-filter').val();
+                filters.rating = $('#rating-filter').val();
+                filters.search = $('#search-input').val();
+                currentPage = 1;
+                loadFeedbackData();
+            });
+
+            // Page size change
+            $('#page-size').on('change', function() {
+                pageSize = parseInt($(this).val());
+                currentPage = 1;
+                loadFeedbackData();
+            });
+
+            // Pagination
+            $('#previous-page').on('click', function(e) {
+                e.preventDefault();
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadFeedbackData();
+                }
+            });
+
+            $('#next-page').on('click', function(e) {
+                e.preventDefault();
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    loadFeedbackData();
+                }
+            });
+
+            // Quick search input
+            $('#search-input').on('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    filters.search = $(this).val();
+                    currentPage = 1;
+                    loadFeedbackData();
+                }
+            });
+
+            // Export CSV button
+            $('#export-csv').on('click', function() {
+                exportToCSV();
+            });
+
+            // Save response in modal
+            $('#save-response').on('click', function() {
+                const feedbackId = $('#detail-id').text();
+                const status = $('#detail-status').val();
+                const response = $('#admin-response').val();
+                
+                saveFeedbackResponse(feedbackId, status, response);
+            });
+
+            // Add these event listeners for real-time filter updates
+            $('#date-from, #date-to').on('change', function() {
+                // Only update if both dates are selected
+                if ($('#date-from').val() && $('#date-to').val()) {
+                    // Add visual feedback that filters are being applied
+                    $(this).addClass('border-primary');
+                    applyFiltersWithDelay();
+                }
+            });
+            
+            $('#user-type-filter, #rating-filter').on('change', function() {
+                // Add visual feedback that filters are being applied
+                $(this).addClass('border-primary');
+                applyFiltersWithDelay();
+            });
+            
+            // Debounce search input to avoid too many requests
+            let searchTimeout;
+            $('#search-input').on('keyup', function() {
+                $(this).addClass('border-primary');
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    applyFiltersWithDelay();
+                }, 500); // Wait 500ms after user stops typing
+            });
+            
+            // Function to apply filters with a small delay and visual feedback
+            function applyFiltersWithDelay() {
+                // Show loading indicator
+                $('#apply-filters').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Applying...');
+                $('#apply-filters').prop('disabled', true);
+                
+                // Small delay to show the loading state
+                setTimeout(function() {
+                    filters.dateFrom = $('#date-from').val();
+                    filters.dateTo = $('#date-to').val();
+                    filters.userType = $('#user-type-filter').val();
+                    filters.rating = $('#rating-filter').val();
+                    filters.search = $('#search-input').val();
+                    currentPage = 1;
+                    loadFeedbackData();
+                    
+                    // Reset button state
+                    $('#apply-filters').html('Apply Filters');
+                    $('#apply-filters').prop('disabled', false);
+                    
+                    // Remove highlights after a delay
+                    setTimeout(function() {
+                        $('.form-control, .form-select').removeClass('border-primary');
+                    }, 1000);
+                }, 300);
+            }
+
+            // Add this function to update the active filters display
+            function updateActiveFiltersDisplay() {
+                const activeFilters = [];
+                
+                if (filters.dateFrom && filters.dateTo) {
+                    activeFilters.push(`<span class="badge bg-light text-dark me-2 p-2">
+                        <i class="fas fa-calendar-alt me-1"></i> 
+                        ${filters.dateFrom} to ${filters.dateTo}
+                        <button class="btn-close ms-1 btn-close-white" data-filter="date" aria-label="Clear date filter"></button>
+                    </span>`);
+                }
+                
+                if (filters.userType) {
+                    const userTypeLabel = filters.userType === 'candidate' ? 'Job Seekers' : 'Recruiters';
+                    activeFilters.push(`<span class="badge bg-light text-dark me-2 p-2">
+                        <i class="fas fa-user me-1"></i> 
+                        ${userTypeLabel}
+                        <button class="btn-close ms-1 btn-close-white" data-filter="userType" aria-label="Clear user type filter"></button>
+                    </span>`);
+                }
+                
+                if (filters.rating) {
+                    activeFilters.push(`<span class="badge bg-light text-dark me-2 p-2">
+                        <i class="fas fa-star me-1"></i> 
+                        Rating: ${filters.rating}
+                        <button class="btn-close ms-1 btn-close-white" data-filter="rating" aria-label="Clear rating filter"></button>
+                    </span>`);
+                }
+                
+                if (filters.search) {
+                    activeFilters.push(`<span class="badge bg-light text-dark me-2 p-2">
+                        <i class="fas fa-search me-1"></i> 
+                        "${filters.search}"
+                        <button class="btn-close ms-1 btn-close-white" data-filter="search" aria-label="Clear search filter"></button>
+                    </span>`);
+                }
+                
+                if (activeFilters.length > 0) {
+                    $('#active-filters').html(`
+                        <div class="d-flex align-items-center">
+                            <small class="text-muted me-2">Active filters:</small>
+                            ${activeFilters.join('')}
+                            <button class="btn btn-sm btn-outline-secondary" id="clear-all-filters">
+                                Clear All
+                            </button>
+                        </div>
+                    `);
+                    $('#active-filters').show();
+                    
+                    // Add event listeners for filter removal
+                    $('.btn-close[data-filter]').on('click', function() {
+                        const filterType = $(this).data('filter');
+                        clearFilter(filterType);
+                    });
+                    
+                    $('#clear-all-filters').on('click', function() {
+                        clearAllFilters();
+                    });
+                } else {
+                    $('#active-filters').hide();
+                }
+            }
+
+            // Function to clear a specific filter
+            function clearFilter(filterType) {
+                if (filterType === 'date') {
+                    filters.dateFrom = '';
+                    filters.dateTo = '';
+                    $('#date-from, #date-to').val('');
+                } else if (filterType === 'userType') {
+                    filters.userType = '';
+                    $('#user-type-filter').val('');
+                } else if (filterType === 'rating') {
+                    filters.rating = '';
+                    $('#rating-filter').val('');
+                } else if (filterType === 'search') {
+                    filters.search = '';
+                    $('#search-input').val('');
+                }
+                
+                currentPage = 1;
+                loadFeedbackData();
+            }
+
+            // Function to clear all filters
+            function clearAllFilters() {
+                filters = {
+                    dateFrom: '',
+                    dateTo: '',
+                    userType: '',
+                    rating: '',
+                    search: ''
+                };
+                
+                $('#date-from, #date-to').val('');
+                $('#user-type-filter, #rating-filter').val('');
+                $('#search-input').val('');
+                
+                currentPage = 1;
+                loadFeedbackData();
+            }
+
+            function loadFeedbackData() {
+                // Show loading state
+                $('#feedback-data').html(`
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading feedback data...</p>
+                        </td>
+                    </tr>
+                `);
+
+                // Gather filter parameters
+                const filterParams = new URLSearchParams();
+                
+                // Add filter parameters if they exist
+                if (filters.dateFrom) filterParams.append('dateFrom', filters.dateFrom);
+                if (filters.dateTo) filterParams.append('dateTo', filters.dateTo);
+                if (filters.userType) filterParams.append('userType', filters.userType);
+                if (filters.rating) filterParams.append('rating', filters.rating);
+                if (filters.search) filterParams.append('search', filters.search);
+                
+                // Add pagination parameters
+                filterParams.append('page', currentPage);
+                filterParams.append('pageSize', pageSize);
+                
+                // Build the URL with query parameters
+                const apiUrl = `http://localhost:5086/api/Feedback/GetFeedbacks?${filterParams.toString()}`;
+                
+                // Make API call
+                $.ajax({
+                    url: apiUrl,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        console.log('Feedback data loaded:', response);
+                        
+                        // Handle API that returns paginated data with metadata
+                        if (response.data && response.totalCount !== undefined) {
+                            feedbackData = response.data;
+                            const totalItems = response.totalCount;
+                            totalPages = Math.ceil(totalItems / pageSize);
+                            
+                            // Update summary cards - if API provides these metrics
+                            if (response.metrics) {
+                                $('#total-feedback-count').text(response.metrics.total || 0);
+                                $('#positive-rating-count').text(response.metrics.positive || 0);
+                                $('#neutral-rating-count').text(response.metrics.neutral || 0);
+                                $('#negative-rating-count').text(response.metrics.negative || 0);
+                            } else {
+                                // Calculate metrics from the current data
+                                updateSummaryCardsFromTotal(totalItems, response.metrics);
+                            }
+                            
+                            // Calculate pagination
+                            const startIndex = (currentPage - 1) * pageSize;
+                            const endIndex = Math.min(startIndex + pageSize, totalItems);
+                            
+                            // Update pagination UI
+                            updatePaginationUI(startIndex, endIndex, totalItems);
+                            
+                            // Display the data
+                            displayFeedbackData(feedbackData);
+                        } 
+                        // Handle API that returns all data without pagination
+                        else {
+                            // Save the original data
+                            feedbackData = response;
+                            
+                            // Apply filters if the API doesn't support filtering
+                            let filteredData = applyFilters(feedbackData);
+                            
+                            // Update summary cards
+                            updateSummaryCards(filteredData);
+                            
+                            // Calculate pagination
+                            totalPages = Math.ceil(filteredData.length / pageSize);
+                            const startIndex = (currentPage - 1) * pageSize;
+                            const endIndex = Math.min(startIndex + pageSize, filteredData.length);
+                            
+                            // Update pagination UI
+                            updatePaginationUI(startIndex, endIndex, filteredData.length);
+                            
+                            // Display the current page data
+                            displayFeedbackData(filteredData.slice(startIndex, endIndex));
+                        }
+
+                        // Call this at the end of the success callback
+                        updateActiveFiltersDisplay();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error loading feedback data:', error);
+                        $('#feedback-data').html(`
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="alert alert-danger" role="alert">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Error loading feedback data. Please try again.
+                                    </div>
+                                </td>
+                            </tr>
+                        `);
+                    }
+                });
+            }
+
+            function applyFilters(data) {
+                return data.filter(function(item) {
+                    // Date filter
+                    let passesDate = true;
+                    if (filters.dateFrom && filters.dateTo) {
+                        const itemDate = new Date(item.feedback_date);
+                        const fromDate = new Date(filters.dateFrom);
+                        const toDate = new Date(filters.dateTo);
+                        // Adjust toDate to end of day
+                        toDate.setHours(23, 59, 59, 999);
+                        passesDate = itemDate >= fromDate && itemDate <= toDate;
+                    }
+                    
+                    // User type filter
+                    let passesUserType = true;
+                    if (filters.userType) {
+                        passesUserType = item.c_role.toLowerCase() === filters.userType.toLowerCase();
+                    }
+                    
+                    // Rating filter
+                    let passesRating = true;
+                    if (filters.rating) {
+                        passesRating = parseInt(item.c_rating) === parseInt(filters.rating);
+                    }
+                    
+                    // Search filter
+                    let passesSearch = true;
+                    if (filters.search) {
+                        const searchTerm = filters.search.toLowerCase();
+                        passesSearch = 
+                            (item.c_user_email && item.c_user_email.toLowerCase().includes(searchTerm)) || 
+                            (item.c_feedback_msg && item.c_feedback_msg.toLowerCase().includes(searchTerm));
+                    }
+                    
+                    return passesDate && passesUserType && passesRating && passesSearch;
+                });
+            }
+
+            function displayFeedbackData(data) {
+                if (data.length === 0) {
+                    $('#feedback-data').html(`
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="fas fa-search me-2"></i>
+                                No feedback matching your filters was found
+                            </td>
+                        </tr>
+                    `);
+                    return;
+                }
+                
+                let html = '';
+                data.forEach(function(item) {
+                    const date = new Date(item.c_date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    
+                    const userType = item.c_role === 'recruiter' ? 
+                        '<span class="badge bg-primary">Recruiter</span>' : 
+                        '<span class="badge bg-info">Job Seeker</span>';
+                    
+                    const rating = getRatingEmojis(item.c_rating);
+                    
+                    const status = item.status || 'New';
+                    const statusBadge = getStatusBadge(status);
+                    
+                    const feedbackTruncated = truncateText(item.c_feedback_msg, 80);
+                    
+                    html += `
+                        <tr data-id="${item.id}">
+                            <td>${date}</td>
+                            <td>${userType}</td>
+                            <td><a href="mailto:${item.c_user_email}">${item.c_user_email}</a></td>
+                            <td>${rating}</td>
+                            <td>${feedbackTruncated}</td>
+                            <td>${statusBadge}</td>
+                            @* <td>
+                                <button class="btn btn-sm btn-outline-primary view-details" data-id="${item.id}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td> *@
+                        </tr>
+                    `;
+                });
+                
+                $('#feedback-data').html(html);
+                
+                // Attach event listeners to the view details buttons
+                $('.view-details').on('click', function() {
+                    const id = $(this).data('id');
+                    openFeedbackDetail(id);
+                });
+            }
+
+            function updateSummaryCards(data) {
+                const totalFeedback = data.length;
+                
+                const positiveRatings = data.filter(item => parseInt(item.c_rating) >= 4).length;
+                const neutralRatings = data.filter(item => parseInt(item.c_rating) === 3).length;
+                const negativeRatings = data.filter(item => parseInt(item.c_rating) <= 2).length;
+                
+                $('#total-feedback-count').text(totalFeedback);
+                $('#positive-rating-count').text(positiveRatings);
+                $('#neutral-rating-count').text(neutralRatings);
+                $('#negative-rating-count').text(negativeRatings);
+            }
+
+            function updatePaginationUI(startIndex, endIndex, totalItems) {
+                $('#showing-start').text(startIndex + 1);
+                $('#showing-end').text(endIndex);
+                $('#total-entries').text(totalItems);
+                
+                // Update pagination buttons
+                $('.pagination').html('');
+                
+                // Previous button
+                let prevDisabled = currentPage === 1 ? 'disabled' : '';
+                $('.pagination').append(`
+                    <li class="page-item ${prevDisabled}">
+                        <a class="page-link" href="#" id="previous-page">Previous</a>
+                    </li>
+                `);
+                
+                // Page numbers
+                const maxPages = 5; // Maximum number of page links to show
+                const startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
+                const endPage = Math.min(totalPages, startPage + maxPages - 1);
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const active = i === currentPage ? 'active' : '';
+                    $('.pagination').append(`
+                        <li class="page-item ${active}">
+                            <a class="page-link page-number" href="#" data-page="${i}">${i}</a>
+                        </li>
+                    `);
+                }
+                
+                // Next button
+                let nextDisabled = currentPage === totalPages ? 'disabled' : '';
+                $('.pagination').append(`
+                    <li class="page-item ${nextDisabled}">
+                        <a class="page-link" href="#" id="next-page">Next</a>
+                    </li>
+                `);
+                
+                // Reattach event listeners
+                $('#previous-page').on('click', function(e) {
+                    e.preventDefault();
+                    if (currentPage > 1) {
+                        currentPage--;
+                        loadFeedbackData();
+                    }
+                });
+                
+                $('#next-page').on('click', function(e) {
+                    e.preventDefault();
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        loadFeedbackData();
+                    }
+                });
+                
+                $('.page-number').on('click', function(e) {
+                    e.preventDefault();
+                    currentPage = parseInt($(this).data('page'));
+                    loadFeedbackData();
+                });
+            }
+
+            function openFeedbackDetail(id) {
+                const item = feedbackData.find(feedback => feedback.id == id);
+                
+                if (!item) {
+                    alert('Feedback details not found');
+                    return;
+                }
+                
+                // Format date for display
+                const date = new Date(item.c_date).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                $('#detail-id').text(item.id);
+                $('#detail-user-type').text(item.c_role === 'recruiter' ? 'Recruiter' : 'Job Seeker');
+                $('#detail-email').text(item.c_user_email);
+                $('#detail-date').text(item.c_date);
+                $('#detail-rating').html(getRatingEmojis(item.c_rating, true)); // Larger emojis for modal
+                $('#detail-feedback').text(item.c_feedback_msg);
+                
+                // Set status
+                $('#detail-status').val(item.status || 'New');
+                
+                // Set admin response if it exists
+                $('#admin-response').val(item.admin_response || '');
+                
+                // Open the modal
+                var myModal = new bootstrap.Modal(document.getElementById('feedback-detail-modal'));
+                myModal.show();
+            }
+
+            function saveFeedbackResponse(id, status, response) {
+                // Show loading state
+                const saveBtn = $('#save-response');
+                const originalText = saveBtn.text();
+                saveBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+                saveBtn.attr('disabled', true);
+                
+                // Make API call to save response
+                // Note: You would need to create this endpoint in your API
+                $.ajax({
+                    url: `http://localhost:5086/api/Feedback/UpdateFeedback`,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        id: parseInt(id),
+                        status: status,
+                        admin_response: response
+                    }),
+                    success: function(data) {
+                        // Update the local data
+                        const index = feedbackData.findIndex(item => item.id == id);
+                        if (index !== -1) {
+                            feedbackData[index].status = status;
+                            feedbackData[index].admin_response = response;
+                        }
+                        
+                        // Show success message
+                        alert('Feedback response saved successfully!');
+                        
+                        // Close the modal
+                        bootstrap.Modal.getInstance(document.getElementById('feedback-detail-modal')).hide();
+                        
+                        // Refresh the data display
+                        loadFeedbackData();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error saving feedback response:', error);
+                        alert('Error saving response. Please try again.');
+                    },
+                    complete: function() {
+                        // Reset button state
+                        saveBtn.html(originalText);
+                        saveBtn.attr('disabled', false);
+                    }
+                });
+            }
+
+            function getRatingEmojis(rating, large = false) {
+                const size = large ? '24px' : '18px';
+                const ratingInt = parseInt(rating);
+                let emoji;
+                let color;
+                
+                switch(ratingInt) {
+                    case 5:
+                        emoji = '😄';
+                        color = '#28a745';
+                        break;
+                    case 4:
+                        emoji = '🙂';
+                        color = '#5cb85c';
+                        break;
+                    case 3:
+                        emoji = '😐';
+                        color = '#ffc107';
+                        break;
+                    case 2:
+                        emoji = '😕';
+                        color = '#fd7e14';
+                        break;
+                    case 1:
+                        emoji = '😡';
+                        color = '#dc3545';
+                        break;
+                    default:
+                        emoji = '❓';
+                        color = '#6c757d';
+                }
+                
+                return `
+                    <div class="d-flex align-items-center">
+                        <span style="font-size: ${size};">${emoji}</span>
+                        <span class="ms-2 badge" style="background-color: ${color};">${rating}/5</span>
+                    </div>
+                `;
+            }
+
+            function getStatusBadge(status) {
+                let color;
+                let icon;
+                
+                switch(status) {
+                    case 'New':
+                        color = 'bg-info';
+                        icon = 'fa-bell';
+                        break;
+                    case 'In Progress':
+                        color = 'bg-warning';
+                        icon = 'fa-spinner';
+                        break;
+                    case 'Resolved':
+                        color = 'bg-success';
+                        icon = 'fa-check';
+                        break;
+                    case 'Closed':
+                        color = 'bg-secondary';
+                        icon = 'fa-archive';
+                        break;
+                    default:
+                        color = 'bg-info';
+                        icon = 'fa-bell';
+                }
+                
+                return `<span class="badge ${color}"><i class="fas ${icon} me-1"></i> ${status}</span>`;
+            }
+
+            function truncateText(text, maxLength) {
+                if (!text) return '';
+                if (text.length <= maxLength) return text;
+                return text.substring(0, maxLength) + '...';
+            }
+
+            function exportToCSV() {
+                const filteredData = applyFilters(feedbackData);
+                if (filteredData.length === 0) {
+                    alert('No data to export');
+                    return;
+                }
+                
+                // Create CSV content
+                let csvContent = 'ID,Date,User Type,Email,Rating,Feedback,Status,Admin Response\n';
+                
+                filteredData.forEach(function(item) {
+                    // Clean the text fields to handle commas and quotes
+                    const cleanFeedback = item.c_feedback_msg ? 
+                        `"${item.c_feedback_msg.replace(/"/g, '""')}"` : '';
+                    const cleanResponse = item.admin_response ? 
+                        `"${item.admin_response.replace(/"/g, '""')}"` : '';
+                    
+                    // Format date
+                    const date = new Date(item.feedback_date).toISOString().split('T')[0];
+                    
+                    csvContent += [
+                        item.id,
+                        date,
+                        item.c_role,
+                        item.c_user_email,
+                        item.c_rating,
+                        cleanFeedback,
+                        item.status || 'New',
+                        cleanResponse
+                    ].join(',') + '\n';
+                });
+                
+                // Create and trigger download
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'feedback_export_' + formatDate(new Date()) + '.csv');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            function updateSummaryCardsFromTotal(totalCount, metrics) {
+                if (metrics) {
+                    // If we have metrics from the API
+                    $('#total-feedback-count').text(totalCount);
+                    $('#positive-rating-count').text(metrics.positive || 0);
+                    $('#neutral-rating-count').text(metrics.neutral || 0);
+                    $('#negative-rating-count').text(metrics.negative || 0);
+                } else {
+                    // Just show the total count
+                    $('#total-feedback-count').text(totalCount);
+                    // Leave the other metrics as-is or set to -- if needed
+                }
+            }
+        });
+    </script>
+}
+
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-dark: #3a4db5;
+        --secondary: #6c757d;
+        --success: #28a745;
+        --info: #17a2b8;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --gray-100: #f8f9fa;
+        --gray-200: #e9ecef;
+        --gray-300: #dee2e6;
+        --gray-400: #ced4da;
+        --gray-500: #adb5bd;
+        --gray-600: #6c757d;
+        --gray-700: #495057;
+        --gray-800: #343a40;
+        --gray-900: #212529;
+        --border-radius: 0.5rem;
+        --border-radius-lg: 1rem;
+        --box-shadow: 0 2px 16px 0 rgba(60, 72, 88, 0.08);
+        --box-shadow-hover: 0 8px 32px 0 rgba(60, 72, 88, 0.18);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .admin-dashboard {
+        background: var(--gray-100);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .page-header {
+        background: white;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        border-radius: var(--border-radius-lg);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--box-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-header h2 i {
+        font-size: 1.5rem;
+        color: var(--gray-800);
+    }
+
+    .page-header .actions {
+        display: none;
+    }
+
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .card {
+        background: white;
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: var(--transition);
+        border: none;
+        min-height: 80px;
+    }
+
+    .card.bg-primary {
+        background: white !important;
+        border-left: 2px solid var(--primary);
+    }
+
+    .card.bg-success {
+        background: white !important;
+        border-left: 2px solid var(--success);
+    }
+
+    .card.bg-warning {
+        background: white !important;
+        border-left: 2px solid var(--warning);
+    }
+
+    .card.bg-danger {
+        background: white !important;
+        border-left: 2px solid var(--danger);
+    }
+
+    .card:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--box-shadow-hover);
+    }
+
+    .card-body {
+        padding: 0;
+        width: 100%;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        color: var(--gray-600);
+        margin-bottom: 0.125rem;
+        font-weight: 500;
+    }
+
+    .card-text {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--gray-900);
+        margin-bottom: 0.125rem;
+    }
+
+    .card-text small{
+        font-size: 0.925rem;
+        color: var(--gray-700);
+        font-weight: 900;
+    }
+
+    .table-responsive {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .table {
+        margin-bottom: 0;
+        width: 100%;
+    }
+
+    .table th {
+        background: white;
+        padding: 1rem;
+        font-weight: 500;
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        text-transform: none;
+        letter-spacing: normal;
+        border-bottom: none;
+        text-align: center;
+    }
+
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        text-align: center;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .table tr:hover {
+        background: var(--gray-100);
+    }
+
+    .pagination {
+        margin: 0;
+        gap: 0.5rem;
+    }
+
+    .page-item .page-link {
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--gray-200);
+        color: var(--gray-700);
+        font-size: 0.875rem;
+    }
+
+    .page-item.active .page-link {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    .page-item.disabled .page-link {
+        color: var(--gray-400);
+        background: var(--gray-100);
+    }
+
+    .showing-entries {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+    }
+
+    .form-select {
+        padding: 0.25rem 2rem 0.25rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--gray-200);
+    }
+
+    @@media (max-width: 991px) {
+        .table th {
+            display: none;
+        }
+
+        .table td {
+            display: block;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table td::before {
+            content: attr(data-label);
+            font-weight: 500;
+            color: var(--gray-600);
+            margin-right: 0.5rem;
+        }
+    }
+
+    .badge {
+        font-size: 0.875rem;
+        font-weight: 500;
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--border-radius);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .badge i {
+        font-size: 0.875rem;
+    }
+
+    .badge.bg-primary {
+        background: var(--primary) !important;
+    }
+
+    .badge.bg-info {
+        background: var(--info) !important;
+    }
+
+    .badge.bg-warning {
+        background: var(--warning) !important;
+    }
+
+    .badge.bg-success {
+        background: var(--success) !important;
+    }
+
+    .badge.bg-secondary {
+        background: var(--secondary) !important;
+    }
+</style>

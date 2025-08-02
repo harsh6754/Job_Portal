@@ -1,0 +1,2343 @@
+@{
+    Layout = "~/Views/Shared/_RecruiterLayout.cshtml";
+}
+<style>
+  :root {
+    --primary-color: #0056b3;
+    --primary-light: #e6f0ff;
+    --secondary-color: #4a5568;
+    --light-bg: #f9fafb;
+    --border-color: #e2e8f0;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --text-light: #718096;
+    --danger: #e53e3e;
+    --success: #38a169;
+    --warning: #ed8936;
+  }
+
+  body {
+    background-color: #f5f7fa;
+    color: var(--text-primary);
+  }
+
+  /* Dashboard header with subtle gradient */
+  .dashboard-header {
+    background: linear-gradient(to right, #ffffff, #f5f9ff);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.75rem 0;
+    margin-bottom: 1rem;
+  }
+
+  /* Improved search container with subtle depth */
+  .search-container {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: var(--card-shadow);
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(0,0,0,0.03);
+  }
+
+  .search-input-group {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  /* Modern search input styling */
+  .search-input {
+    border: none;
+    box-shadow: none;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s;
+  }
+  
+  .search-input:focus {
+    box-shadow: none;
+  }
+
+  /* Visual filters with improved hover effects */
+  .search-filters {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+  }
+
+  .filter-chip {
+    background-color: var(--light-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 2rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    color: var(--secondary-color);
+  }
+
+  .filter-chip:hover {
+    background-color: #f0f6ff;
+    color: var(--primary-color);
+    border-color: #cce0ff;
+    transform: translateY(-1px);
+  }
+
+  .filter-chip.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 5px rgba(0, 86, 179, 0.3);
+  }
+
+  /* Modern grid layout for cards */
+  .candidate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* Enhanced card design with professional styling */
+  .candidate-card {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0,0,0,0.03);
+    position: relative;
+  }
+
+  .candidate-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--hover-shadow);
+  }
+
+  .card-image-container {
+    height: 160px;
+    overflow: hidden;
+    position: relative;
+    background-color: #f3f4f6;
+  }
+
+  .card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .candidate-card:hover .card-image {
+    transform: scale(1.08);
+  }
+
+  /* Badge for new profiles */
+  .card-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    z-index: 2;
+  }
+
+  .card-badge.new {
+    background: var(--success);
+  }
+
+  .card-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-title {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .card-meta {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  .card-meta .meta-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.4rem;
+  }
+
+  .card-meta .meta-item i {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+    opacity: 0.8;
+  }
+
+  .card-skills {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .skill-tag {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .candidate-card:hover .skill-tag {
+    background-color: rgba(0, 86, 179, 0.15);
+  }
+
+  .card-footer {
+    padding: 1rem 1.5rem;
+    background-color: var(--light-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .view-profile-btn {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+  }
+
+  .view-profile-btn:hover {
+    background-color: var(--primary-light);
+  }
+
+  .profile-match {
+    background: #f0fdf4;
+    color: #166534;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  /* Enhanced modal styling */
+  .profile-modal .modal-content {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .profile-modal .modal-header {
+    background: linear-gradient(135deg, var(--primary-color), #004494);
+    color: white;
+    border-bottom: none;
+    padding: 1.5rem;
+  }
+
+  .profile-modal .modal-body {
+    padding: 0;
+  }
+
+  .profile-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    background-color: #f8fafc;
+    padding: 0 1rem;
+  }
+
+  .profile-tab {
+    padding: 1.25rem 1.5rem;
+    cursor: pointer;
+    position: relative;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+  }
+
+  .profile-tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: transparent;
+    transition: all 0.2s;
+  }
+
+  .profile-tab:hover {
+    color: var(--primary-color);
+  }
+
+  .profile-tab.active {
+    color: var(--primary-color);
+    font-weight: 600;
+  }
+
+  .profile-tab.active::after {
+    background-color: var(--primary-color);
+  }
+
+  .tab-content {
+    padding: 2rem;
+  }
+
+  .tab-pane {
+    display: none;
+  }
+
+  .tab-pane.active {
+    display: block;
+  }
+
+  .profile-section {
+    margin-bottom: 2rem;
+  }
+
+  .profile-section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+  }
+
+  .profile-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background-color: var(--primary-color);
+  }
+
+  .resume-container {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .profile-sidebar {
+    background-color: var(--light-bg);
+    padding: 1.75rem;
+    border-radius: 0.5rem;
+  }
+
+  .profile-image {
+    width: 100%;
+    border-radius: 0.5rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.2rem;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    gap: 0.5rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  .action-btn.secondary {
+    background-color: white;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+  }
+
+  .action-btn.secondary:hover {
+    background-color: #f9fafb;
+    border-color: #cbd5e0;
+  }
+
+  /* Enhanced loading spinner */
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+  }
+
+  .loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 3px solid rgba(0, 0, 0, 0.05);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s linear infinite;
+  }
+
+  .loading-text {
+    margin-top: 1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  @@keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Status indicators */
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+  }
+
+  .status-active {
+    background-color: var(--success);
+    box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.2);
+  }
+
+  /* Responsive adjustments */
+  @@media (max-width: 992px) {
+    .candidate-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+  }
+  
+  @@media (max-width: 768px) {
+    .candidate-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .profile-tabs {
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 5px;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .profile-tab {
+      padding: 1rem;
+    }
+  }
+
+  /* Subtle animations */
+  @@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .candidate-card {
+    animation: fadeIn 0.4s ease forwards;
+  }
+  
+  .candidate-grid {
+    perspective: 1000px;
+  }
+
+/* Professional dashboard styling */
+.pro-dashboard {
+  --card-radius: 0.75rem;
+  --transition-speed: 0.25s;
+}
+
+/* Modern card design with better information layout */
+.candidate-list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.candidate-list-item {
+  background: white;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  transition: all var(--transition-speed);
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.05);
+  position: relative;
+  display: flex;
+}
+
+.candidate-list-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--hover-shadow);
+}
+
+.candidate-checkbox {
+  padding: 1.25rem 0.75rem;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--border-color);
+}
+
+.candidate-avatar {
+  width: 80px;
+  min-width: 80px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.candidate-avatar img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var (--light-bg);
+}
+
+.candidate-info {
+  flex-grow: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.candidate-main-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.candidate-name {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin: 0;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.candidate-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var (--text-secondary);
+}
+
+.meta-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.meta-icon {
+  color: var(--primary-color);
+  opacity: 0.75;
+}
+
+.candidate-skills {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.candidate-actions {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  border-left: 1px solid var(--border-color);
+  gap: 0.5rem;
+}
+
+.action-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-icon-btn:hover {
+  background: var(--light-bg);
+  color: var(--primary-color);
+}
+
+.action-icon-btn.primary {
+  color: white;
+  background: var(--primary-color);
+}
+
+.action-icon-btn.primary:hover {
+  background: #0047a1;
+  transform: scale(1.05);
+}
+
+/* View toggle buttons */
+.view-toggle-btn {
+  border: 1px solid var(--border-color);
+  background: white;
+  color: var(--text-secondary);
+  width: 40px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-toggle-btn:first-child {
+  border-radius: 0.375rem 0 0 0.375rem;
+}
+
+.view-toggle-btn:last-child {
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.view-toggle-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* Professional status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.new {
+  background-color: #e3f9ec;
+  color: #106d45;
+}
+
+.status-badge.active {
+  background-color: #e6f4ff;
+  color: #0056b3;
+}
+
+.status-badge.contacted {
+  background-color: #fff2e6;
+  color: #b54708;
+}
+
+/* Match score ring */
+.match-score {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.match-circle {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.match-circle svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.match-circle circle {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.match-bg {
+  stroke: #edf2f7;
+}
+
+.match-progress {
+  stroke: var(--success);
+  transition: stroke-dashoffset 0.5s;
+}
+
+.match-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--success);
+}
+
+/* Candidate selection toolbar */
+.selection-toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  z-index: 100;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.selection-toolbar.active {
+  transform: translateY(0);
+}
+
+.selected-count {
+  font-weight: 600;
+}
+
+/* Enhanced search tools */
+.search-tools {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.search-tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  background: white;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.search-tool-btn:hover {
+  background: var(--light-bg);
+  color: var(--primary-color);
+}
+
+.search-tool-btn.active {
+  background: var(--primary-light);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* No results with better styling */
+.no-results {
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  background: white;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+
+.no-results-icon {
+  font-size: 3rem;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+/* Talent pools section */
+.talent-pools {
+  margin-bottom: 2rem;
+}
+
+.talent-pool-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: white;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+}
+
+.talent-pool-item:hover {
+  background: var(--light-bg);
+  border-color: var(--primary-light);
+}
+
+.pool-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--primary-light);
+  color: var(--primary-color);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pool-details {
+  flex-grow: 1;
+}
+
+.pool-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.pool-count {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+@@media (max-width: 768px) {
+  .candidate-actions {
+    padding: 0.5rem;
+    flex-direction: column;
+  }
+  
+  .candidate-avatar {
+    padding: 0.75rem;
+  }
+  
+  .candidate-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+  
+  .candidate-list-item {
+    flex-wrap: wrap;
+  }
+  
+  .candidate-info {
+    width: calc(100% - 95px);
+  }
+  
+  .candidate-actions {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+    justify-content: center;
+  }
+}
+
+/* Whitelist icon styling */
+.whitelist-icon {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.whitelist-icon:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+.whitelist-icon .bi-bookmark {
+  color: var(--text-light);
+  transition: all 0.2s;
+}
+
+.whitelist-icon.active .bi-bookmark,
+.whitelist-icon.active .bi-bookmark-fill,
+.whitelist-icon:hover .bi-bookmark {
+  color: var(--primary-color);
+}
+
+.whitelist-icon.active {
+  background: var(--primary-light);
+}
+
+/* Badge for whitelist button */
+.whitelist-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--danger);
+  color: white;
+  font-size: 10px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Whitelist modal styling */
+.whitelist-modal .modal-content {
+  border-radius: 0.75rem;
+  border: none;
+  box-shadow: var(--card-shadow);
+}
+
+.whitelist-modal .modal-header {
+  background: linear-gradient(135deg, var(--primary-color), #004494);
+  color: white;
+  border-bottom: none;
+  padding: 1.25rem 1.5rem;
+}
+
+.whitelist-modal .empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.whitelist-modal .empty-icon {
+  font-size: 3rem;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+.whitelist-candidate {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.2s;
+}
+
+.whitelist-candidate:hover {
+  background-color: var(--light-bg);
+}
+
+.whitelist-candidate:last-child {
+  border-bottom: none;
+}
+
+.whitelist-candidate-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1rem;
+}
+
+.whitelist-candidate-info {
+  flex: 1;
+}
+
+.whitelist-candidate-name {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.whitelist-candidate-meta {
+  font-size: 0.85rem;
+  color: var (--text-secondary);
+}
+
+.whitelist-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+</style>
+
+<div class="dashboard-header">
+  <div class="container-fluid" style="max-width: 1400px; margin: 0 auto;">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="fs-3 fw-bold mb-2">Talent Pipeline</h2>
+        <p class="text-muted mb-0">Connect with qualified candidates for your open positions</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#savedSearchModal">
+          <i class="bi bi-star me-1"></i> Saved Searches
+        </button>
+        <button class="btn btn-primary">
+          <i class="bi bi-plus-lg me-1"></i> Add Candidates
+        </button>
+        <button class="btn btn-primary position-relative" id="viewWhitelistBtn">
+          <i class="bi bi-bookmark-heart-fill me-1"></i> Whitelist
+          <span class="whitelist-count" id="whitelistCount">0</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid py-4 pro-dashboard" style="max-width: 1400px; margin: 0 auto;">
+  <div class="row">
+    <!-- Left sidebar -->
+    <div class="col-lg-3 mb-4">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0 fw-bold">My Talent Pools</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="talent-pools">
+            <div class="talent-pool-item active">
+              <div class="pool-icon">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <div class="pool-details">
+                <h6 class="pool-name">All Candidates</h6>
+                <div class="pool-count"><span id="totalCandidates">0</span> candidates</div>
+              </div>
+              <i class="bi bi-chevron-right"></i>
+            </div>
+            <div class="talent-pool-item">
+              <div class="pool-icon">
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <div class="pool-details">
+                <h6 class="pool-name">Shortlisted</h6>
+                <div class="pool-count">14 candidates</div>
+              </div>
+              <i class="bi bi-chevron-right"></i>
+            </div>
+            <div class="talent-pool-item">
+              <div class="pool-icon">
+                <i class="bi bi-calendar-check"></i>
+              </div>
+              <div class="pool-details">
+                <h6 class="pool-name">Interview Scheduled</h6>
+                <div class="pool-count">8 candidates</div>
+              </div>
+              <i class="bi bi-chevron-right"></i>
+            </div>
+            <div class="talent-pool-item">
+              <div class="pool-icon">
+                <i class="bi bi-chat-dots"></i>
+              </div>
+              <div class="pool-details">
+                <h6 class="pool-name">Contacted</h6>
+                <div class="pool-count">23 candidates</div>
+              </div>
+              <i class="bi bi-chevron-right"></i>
+            </div>
+            <div class="p-3">
+              <button class="btn btn-sm btn-outline-primary w-100">
+                <i class="bi bi-plus"></i> Create New Pool
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0 fw-bold">Advanced Filters</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-medium">Experience Level</label>
+            <div class="mb-2">
+              <div class="form-check">
+                <input class="form-check-input filter-check" type="checkbox" id="exp-entry" data-filter="experience" data-value="entry">
+                <label class="form-check-label" for="exp-entry">Entry Level (0-2 years)</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input filter-check" type="checkbox" id="exp-mid" data-filter="experience" data-value="mid">
+                <label class="form-check-label" for="exp-mid">Mid Level (3-5 years)</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input filter-check" type="checkbox" id="exp-senior" data-filter="experience" data-value="senior">
+                <label class="form-check-label" for="exp-senior">Senior (6+ years)</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-medium">Education</label>
+            <div class="mb-2">
+              <div class="form-check">
+                <input class="form-check-input filter-check" type="checkbox" id="edu-bachelor" data-filter="education" data-value="bachelor">
+                <label class="form-check-label" for="edu-bachelor">Bachelor's Degree</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input filter-check" type="checkbox" id="edu-master" data-filter="education" data-value="master">
+                <label class="form-check-label" for="edu-master">Master's Degree</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input filter-check" type="checkbox" id="edu-phd" data-filter="education" data-value="phd">
+                <label class="form-check-label" for="edu-phd">PhD</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-medium">Availability</label>
+            <div class="mb-2">
+              <div class="form-check">
+                <input class="form-check-input filter-check" type="checkbox" id="avail-immediate" data-filter="availability" data-value="immediate">
+                <label class="form-check-label" for="avail-immediate">Immediate</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input filter-check" type="checkbox" id="avail-2weeks" data-filter="availability" data-value="2weeks">
+                <label class="form-check-label" for="avail-2weeks">2 weeks notice</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input filter-check" type="checkbox" id="avail-month" data-filter="availability" data-value="month">
+                <label class="form-check-label" for="avail-month">1+ month notice</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-medium">Location Preference</label>
+            <select class="form-select form-select-sm" id="location-filter">
+              <option value="">Any location</option>
+              <option>Remote only</option>
+              <option>Hybrid</option>
+              <option>On-site</option>
+            </select>
+          </div>
+          
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-sm btn-outline-secondary" id="clearFilters">
+              <i class="bi bi-x-lg me-1"></i> Clear All
+            </button>
+            <button class="btn btn-sm btn-primary" id="applyFilters">
+              <i class="bi bi-funnel me-1"></i> Apply Filters
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main content -->
+    <div class="col-lg-9">
+      <div class="search-container mb-4">
+        <div class="input-group search-input-group mb-3">
+          <span class="input-group-text bg-white border-0">
+            <i class="bi bi-search text-muted"></i>
+          </span>
+          <input type="text" id="searchInput" class="form-control search-input border-0" placeholder="Search by name, skills, role or location...">
+          <button class="btn btn-primary px-4" type="button" id="searchBtn">Search</button>
+        </div>
+        
+        <div class="d-flex justify-content-between flex-wrap">
+          <div class="search-filters mb-2">
+            <div class="filter-chip active" data-filter="all">All Candidates</div>
+            <div class="filter-chip" data-filter="new">New Profiles</div>
+            <div class="filter-chip" data-filter="tech">Technology</div>
+            <div class="filter-chip" data-filter="design">Design</div>
+            <div class="filter-chip" data-filter="management">Management</div>
+            <div class="filter-chip" data-filter="experienced">Senior (5+ yrs)</div>
+          </div>
+          
+          <div class="search-tools">
+            <button class="search-tool-btn" id="saveSearchBtn">
+              <i class="bi bi-bookmark"></i> Save Search
+            </button>
+            <div class="btn-group">
+              <button class="view-toggle-btn" id="listViewBtn">
+                <i class="bi bi-list"></i>
+              </button>
+              <button class="view-toggle-btn active" id="gridViewBtn">
+                <i class="bi bi-grid"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <p class="fw-medium mb-0"><span id="resultCount" class="fw-bold">0</span> candidates found</p>
+        </div>
+        <div>
+          <select class="form-select form-select-sm" id="sortDropdown">
+            <option value="relevance">Sort by: Relevance</option>
+            <option value="nameAsc">Sort by: Name (A-Z)</option>
+            <option value="nameDesc">Sort by: Name (Z-A)</option>
+            <option value="newest">Sort by: Newest Profiles</option>
+            <option value="matchScore">Sort by: Match Score</option>
+          </select>
+        </div>
+      </div>
+      
+      <div id="loadingIndicator" class="loading-container">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Finding the best candidates...</div>
+      </div>
+
+      <!-- Grid view (default) -->
+      <div id="candidateGrid" class="candidate-grid"></div>
+      
+      <!-- List view (alternative) -->
+      <div id="candidateList" class="candidate-list-view" style="display: none;"></div>
+      
+      <!-- Selection toolbar -->
+      <div class="selection-toolbar" id="selectionToolbar">
+        <div class="d-flex align-items-center gap-2">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="selectAllCandidates">
+            <label class="form-check-label" for="selectAllCandidates">Select all</label>
+          </div>
+          <div class="selected-count"><span id="selectedCount">0</span> candidates selected</div>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-envelope"></i> Email Selected
+          </button>
+          <button class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-list-stars"></i> Add to Pool
+          </button>
+          <button class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-calendar-plus"></i> Schedule Interviews
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" id="clearSelectionBtn">
+            <i class="bi bi-x"></i> Clear
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Enhanced Profile Modal -->
+<div class="modal fade profile-modal" id="profileModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Candidate Profile</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="profile-tabs">
+        <div class="profile-tab active" data-tab="overview">Overview</div>
+        <div class="profile-tab" data-tab="experience">Experience</div>
+        <div class="profile-tab" data-tab="education">Education</div>
+        <div class="profile-tab" data-tab="skills">Skills & Projects</div>
+        <div class="profile-tab" data-tab="resume">Resume</div>
+      </div>
+      <div class="modal-body">
+        <div id="profileContent">
+          <!-- Filled dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Saved Searches Modal -->
+<div class="modal fade" id="savedSearchModal" tabindex="-1" aria-labelledby="savedSearchModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="savedSearchModalLabel">Saved Searches</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="list-group">
+          <a href="#" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">Frontend Developers</h6>
+              <small>3 days ago</small>
+            </div>
+            <p class="mb-1 small text-muted">React, Angular, Vue, 3+ years experience</p>
+            <small class="text-primary">42 matching candidates</small>
+          </a>
+          <a href="#" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">Senior UX Designers</h6>
+              <small>1 week ago</small>
+            </div>
+            <p class="mb-1 small text-muted">Figma, UX Research, Prototyping, 5+ years</p>
+            <small class="text-primary">18 matching candidates</small>
+          </a>
+          <a href="#" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">Data Scientists</h6>
+              <small>2 weeks ago</small>
+            </div>
+            <p class="mb-1 small text-muted">Python, Machine Learning, SQL, Statistics</p>
+            <small class="text-primary">27 matching candidates</small>
+          </a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Whitelist Modal -->
+<div class="modal fade whitelist-modal" id="whitelistModal" tabindex="-1" aria-labelledby="whitelistModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="whitelistModalLabel">
+          <i class="bi bi-bookmark-heart-fill me-2"></i> Whitelisted Candidates
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="whitelistContainer">
+          <!-- Will be populated dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger" id="clearWhitelistBtn">Clear All</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"></script>
+
+<script>
+  let users = [];
+  let allSkills = [];
+  let currentFilter = 'all';
+  let currentSort = 'relevance';
+
+  $(document).ready(function () {
+    // Toggle filter chips
+    $('.filter-chip').on('click', function() {
+      $('.filter-chip').removeClass('active');
+      $(this).addClass('active');
+      currentFilter = $(this).data('filter');
+      filterAndRenderCandidates();
+    });
+    
+    // Sort dropdown
+    $('.sort-option').on('click', function(e) {
+      e.preventDefault();
+      currentSort = $(this).data('sort');
+      $('#currentSort').text($(this).text());
+      filterAndRenderCandidates();
+    });
+
+    // Tab switching in profile modal
+    $(document).on('click', '.profile-tab', function() {
+      const tabId = $(this).data('tab');
+      $('.profile-tab').removeClass('active');
+      $(this).addClass('active');
+      $('.tab-pane').removeClass('active');
+      $(`#${tabId}Tab`).addClass('active');
+    });
+    
+    // Search input with debounce
+    let searchTimeout;
+    $("#searchInput").on("input", function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        filterAndRenderCandidates();
+      }, 300);
+    });
+    
+    // Load data
+    loadCandidateData();
+  });
+  
+  function loadCandidateData() {
+    $('#loadingIndicator').show();
+    $('#candidateGrid').empty();
+    
+    $.getJSON("http://localhost:5086/api/AdminApi/get-user", function (data) {
+      users = data.filter(u => u.Role === "Candidate");
+      
+      // Get unique skills for all users
+      const skillPromises = users.map(user => 
+        $.getJSON(`http://localhost:5086/api/UserDetails/GetUserSkills?id=${user.c_userId}`)
+      );
+      
+      Promise.all(skillPromises).then(skillsData => {
+        // Attach skills to each user
+        users.forEach((user, index) => {
+          user.skills = skillsData[index] || [];
+          
+          // Simulate match percentage for demo purpose
+          user.matchPercentage = Math.floor(Math.random() * 30) + 70;
+          
+          // Simulate if user is new (for badge display)
+          user.isNew = user.c_userId > 100; // Just an example, replace with actual logic
+        });
+        
+        filterAndRenderCandidates();
+      });
+    }).fail(function() {
+      $('#loadingIndicator').hide();
+      $('#candidateGrid').html('<div class="alert alert-danger p-4 text-center"><i class="bi bi-exclamation-circle fs-3 d-block mb-3"></i>Failed to load candidate data. Please try again later.</div>');
+    });
+  }
+
+  function filterAndRenderCandidates() {
+    const query = $("#searchInput").val().toLowerCase();
+    
+    // Get advanced filter values
+    const experienceFilters = $('.filter-check[data-filter="experience"]:checked').map(function() {
+      return $(this).data('value');
+    }).get();
+    
+    const educationFilters = $('.filter-check[data-filter="education"]:checked').map(function() {
+      return $(this).data('value');
+    }).get();
+    
+    const availabilityFilters = $('.filter-check[data-filter="availability"]:checked').map(function() {
+      return $(this).data('value');
+    }).get();
+    
+    const locationFilter = $('#location-filter').val();
+    
+    let filtered = users.filter(user => {
+      // Search term filter
+      const matchesSearch = 
+        user.Name?.toLowerCase().includes(query) || 
+        user.c_fullName?.toLowerCase().includes(query) ||
+        (user.skills && user.skills.some(s => s.c_skill_name?.toLowerCase().includes(query)));
+
+      // Category filter
+      let matchesFilter = true;
+      if (currentFilter !== 'all') {
+        // Apply specific filters based on data
+        if (currentFilter === 'new') {
+          matchesFilter = user.isNew; 
+        } else if (currentFilter === 'experienced') {
+          // Example filter - if user has skills with experience
+          matchesFilter = user.skills && user.skills.length > 5;
+        } else if (['tech', 'design', 'management'].includes(currentFilter)) {
+          // Filter by skill category
+          matchesFilter = user.skills && user.skills.some(s => 
+            s.c_skill_name?.toLowerCase().includes(currentFilter));
+        } else if (currentFilter === 'remote') {
+          // Example for remote filter - replace with actual data
+          matchesFilter = Math.random() > 0.5; // Just for demo
+        }
+      }
+      
+      // Advanced filters
+      // Experience level filter
+      if (experienceFilters.length > 0) {
+        const userExperience = user.skills && user.skills.length > 5 ? 'senior' : 
+                            (user.skills && user.skills.length > 3 ? 'mid' : 'entry');
+        if (!experienceFilters.includes(userExperience)) {
+          return false;
+        }
+      }
+      
+      // Education filter - in a real app, you would check the actual education data
+      if (educationFilters.length > 0) {
+        // This is a placeholder logic - replace with actual data check
+        const hasMatchingEducation = educationFilters.some(edu => {
+          if (edu === 'bachelor') return true; // Just for demo
+          if (edu === 'master' && user.c_userId % 3 === 0) return true; // Just for demo
+          if (edu === 'phd' && user.c_userId % 7 === 0) return true; // Just for demo
+          return false;
+        });
+        
+        if (!hasMatchingEducation) {
+          return false;
+        }
+      }
+      
+      // Location filter
+      if (locationFilter) {
+        // This is a placeholder logic - replace with actual location data check
+        if (locationFilter === 'Remote only' && user.c_userId % 2 !== 0) {
+          return false;
+        }
+      }
+
+      return matchesSearch && matchesFilter;
+    });
+    
+    // Apply sorting
+    if (currentSort === 'nameAsc') {
+      filtered.sort((a, b) => (a.c_fullName || a.Name).localeCompare(b.c_fullName || b.Name));
+    } else if (currentSort === 'nameDesc') {
+      filtered.sort((a, b) => (b.c_fullName || b.Name).localeCompare(a.c_fullName || a.Name));
+    } else if (currentSort === 'newest') {
+      filtered.sort((a, b) => b.c_userId - a.c_userId);
+    } else if (currentSort === 'matchScore') {
+      filtered.sort((a, b) => b.matchPercentage - a.matchPercentage);
+    } else if (currentSort === 'relevance') {
+      // Sort by match percentage (highest first)
+      filtered.sort((a, b) => b.matchPercentage - a.matchPercentage);
+    }
+    
+    renderCandidateCards(filtered);
+  }
+
+  function renderCandidateCards(data) {
+    const container = $("#candidateGrid");
+    const listContainer = $("#candidateList");
+    $('#loadingIndicator').hide();
+    container.empty();
+    listContainer.empty();
+    
+    $('#resultCount').text(data.length);
+    $('#totalCandidates').text(data.length);
+
+    if (data.length === 0) {
+      const noResults = `
+        <div class="no-results">
+          <div class="no-results-icon">
+            <i class="bi bi-search"></i>
+          </div>
+          <h5>No candidates match your search criteria</h5>
+          <p class="text-muted">Try adjusting your filters or search terms</p>
+          <button class="btn btn-outline-primary mt-2" onclick="loadCandidateData()">
+            <i class="bi bi-arrow-clockwise me-2"></i>Reset All Filters
+          </button>
+        </div>
+      `;
+      container.html(noResults);
+      listContainer.html(noResults);
+      return;
+    }
+
+    // Render candidates in both grid and list view
+    data.forEach(function (user, index) {
+      // Add animation delay for staggered effect
+      const delay = index * 0.05;
+      
+      // Get up to 3 skills to show on card
+      const skillTags = user.skills?.slice(0, 3).map(s => 
+        `<span class="skill-tag">${s.c_skill_name}</span>`
+      ).join('') || '';
+      
+      // Calculate experience level for filtering
+      const experienceLevel = user.skills && user.skills.length > 5 ? 'senior' : 
+                              (user.skills && user.skills.length > 3 ? 'mid' : 'entry');
+      
+      // Define candidate status badges
+      const statusBadge = user.isNew ? 
+        `<span class="status-badge new">New</span>` : 
+        `<span class="status-badge active">Active</span>`;
+      
+      // Create match score circle
+      const matchScore = user.matchPercentage || Math.floor(Math.random() * 30) + 70;
+      const circumference = 2 * Math.PI * 15; // circle radius is 15
+      const offset = circumference - (matchScore / 100) * circumference;
+      const matchScoreElement = `
+        <div class="match-score" title="Match score: ${matchScore}%">
+          <div class="match-circle">
+            <svg viewBox="0 0 40 40">
+              <circle class="match-bg" cx="20" cy="20" r="15" />
+              <circle class="match-progress" cx="20" cy="20" r="15" 
+                      stroke-dasharray="${circumference}" 
+                      stroke-dashoffset="${offset}" />
+            </svg>
+            <div class="match-text">${matchScore}%</div>
+          </div>
+        </div>
+      `;
+      
+      // Grid view card
+      const card = `
+        <div class="candidate-card" data-user-id="${user.c_userId}" data-experience="${experienceLevel}" style="animation-delay: ${delay}s">
+          ${user.isNew ? '<span class="card-badge new">New</span>' : ''}
+          <div class="whitelist-icon ${isWhitelisted(user.c_userId) ? 'active' : ''}" onclick="toggleWhitelist(event, ${user.c_userId})">
+            <i class="bi ${isWhitelisted(user.c_userId) ? 'bi-check-circle-fill text-success' : 'bi-bookmark'}"></i>
+          </div>
+          <div class="card-image-container">
+            <img class="card-image" src="${user.c_profileImage || 'https://via.placeholder.com/300x200?text=Profile'}" alt="${user.c_fullName || user.Name}">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">
+              <span class="status-indicator status-active" title="Active"></span>
+              ${user.c_fullName || user.Name}
+            </h5>
+            <div class="card-meta">
+              <div class="meta-item">
+                <i class="bi bi-envelope"></i>
+                <span>${user.Email}</span>
+              </div>
+              ${user.c_phoneNumber ? 
+                `<div class="meta-item">
+                  <i class="bi bi-phone"></i>
+                  <span>${user.c_phoneNumber}</span>
+                </div>` : ''
+              }
+              <div class="meta-item">
+                <i class="bi bi-briefcase"></i>
+                <span>${user.c_position || 'Professional'}</span>
+              </div>
+            </div>
+            <div class="card-skills">
+              ${skillTags}
+              ${user.skills?.length > 3 ? `<span class="skill-tag">+${user.skills.length - 3} more</span>` : ''}
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="view-profile-btn" onclick="loadUserProfile(${user.c_userId})">
+              View Profile <i class="bi bi-arrow-right ms-1"></i>
+            </span>
+            <span class="profile-match">${matchScore}% Match</span>
+          </div>
+        </div>
+      `;
+      
+      // List view item
+      const listItem = `
+        <div class="candidate-list-item" data-user-id="${user.c_userId}" data-experience="${experienceLevel}" style="animation-delay: ${delay}s">
+          <div class="candidate-checkbox">
+            <div class="form-check">
+              <input class="form-check-input candidate-select" type="checkbox" value="${user.c_userId}" id="check-${user.c_userId}">
+            </div>
+          </div>
+          <div class="candidate-avatar">
+            <img src="${user.c_profileImage || 'https://via.placeholder.com/80x80?text=Profile'}" alt="${user.c_fullName || user.Name}">
+          </div>
+          <div class="candidate-info">
+            <div class="candidate-main-info">
+              <h5 class="candidate-name">
+                <span class="status-indicator status-active" title="Active"></span>
+                ${user.c_fullName || user.Name}
+              </h5>
+              ${statusBadge}
+              ${matchScoreElement}
+            </div>
+            <div class="candidate-meta">
+              <div class="meta-group">
+                <i class="bi bi-briefcase meta-icon"></i>
+                <span>${user.c_position || 'Professional'}</span>
+              </div>
+              <div class="meta-group">
+                <i class="bi bi-envelope meta-icon"></i>
+                <span>${user.Email}</span>
+              </div>
+              ${user.c_phoneNumber ? `
+              <div class="meta-group">
+                <i class="bi bi-phone meta-icon"></i>
+                <span>${user.c_phoneNumber}</span>
+              </div>` : ''}
+            </div>
+            <div class="candidate-skills">
+              ${skillTags}
+              ${user.skills?.length > 3 ? `<span class="skill-tag">+${user.skills.length - 3} more</span>` : ''}
+            </div>
+          </div>
+          <div class="candidate-actions">
+            <button class="action-icon-btn ${isWhitelisted(user.c_userId) ? 'text-success' : ''}" 
+  title="${isWhitelisted(user.c_userId) ? 'Already in whitelist' : 'Add to whitelist'}" 
+  onclick="saveCandidate(${user.c_userId})">
+  <i class="bi ${isWhitelisted(user.c_userId) ? 'bi-check-circle-fill' : 'bi-bookmark'}"></i>
+</button>
+            <button class="action-icon-btn" title="Send message" onclick="contactCandidate(${user.c_userId})">
+              <i class="bi bi-chat-dots"></i>
+            </button>
+            <button class="action-icon-btn primary" title="View profile" onclick="loadUserProfile(${user.c_userId})">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      
+      container.append(card);
+      listContainer.append(listItem);
+    });
+  }
+
+  function loadUserProfile(userId) {
+    const user = users.find(u => u.c_userId === userId);
+    if (!user) return;
+
+    const baseUrl = "http://localhost:5086/api/UserDetails";
+    
+    $('#profileContent').html(`
+      <div class="loading-container py-5">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading profile data...</div>
+      </div>
+    `);
+    
+    new bootstrap.Modal(document.getElementById("profileModal")).show();
+
+    Promise.all([
+      $.getJSON(`${baseUrl}/GetEducation/${userId}`),
+      $.getJSON(`${baseUrl}/GetWorkExperience/${userId}`),
+      $.getJSON(`${baseUrl}/GetUserSkills?id=${userId}`),
+      $.getJSON(`${baseUrl}/GetUserResume?id=${userId}`),
+      $.getJSON(`${baseUrl}/GetUserCertificate?id=${userId}`),
+      $.getJSON(`${baseUrl}/GetUserProject?id=${userId}`)
+    ]).then(([education, experience, skills, resume, certificates, projects]) => {
+      const resumePath = resume?.data?.c_ResumeFilePath;
+      
+      const profileHtml = `
+        <div class="tab-content">
+          <div id="overviewTab" class="tab-pane active">
+            <div class="row">
+              <div class="col-md-4 profile-sidebar">
+                <img class="profile-image" src="${user.c_profileImage || 'https://via.placeholder.com/300x300?text=Profile'}" alt="${user.c_fullName}">
+                <h4 class="fw-bold mb-1">${user.c_fullName}</h4>
+                <p class="text-primary mb-3">${user.c_position || 'Professional'}</p>
+                
+                <div class="mb-4">
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-envelope-fill me-3 text-primary"></i>
+                    <div>${user.Email}</div>
+                  </div>
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-phone-fill me-3 text-primary"></i>
+                    <div>${user.c_phoneNumber || 'Not provided'}</div>
+                  </div>
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-geo-alt-fill me-3 text-primary"></i>
+                    <div>${user.c_location || 'Location not specified'}</div>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-gender-ambiguous me-3 text-primary"></i>
+                    <div>${user.c_gender || 'Not specified'}</div>
+                  </div>
+                </div>
+                
+                <div class="card mb-4 border-0 shadow-sm">
+                  <div class="card-body">
+                    <h6 class="fw-bold mb-3">Match Analysis</h6>
+                    <div class="d-flex align-items-center mb-2">
+                      <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: ${user.matchPercentage}%"></div>
+                      </div>
+                      <span class="fw-bold">${user.matchPercentage}%</span>
+                    </div>
+                    <div class="small text-muted">Based on skills, experience and requirements</div>
+                  </div>
+                </div>
+                
+                <div class="d-flex flex-wrap mb-3">
+                  <button class="action-btn">
+                    <i class="bi bi-chat-dots"></i> Contact
+                  </button>
+                  <button class="action-btn secondary">
+                    <i class="bi bi-bookmark"></i> Save
+                  </button>
+                  <button class="action-btn secondary">
+                    <i class="bi bi-calendar-plus"></i> Schedule
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-8">
+                <div class="profile-section">
+                  <h5 class="profile-section-title">About</h5>
+                  <p>${user.c_about || 'No bio provided.'}</p>
+                </div>
+                
+                <div class="profile-section">
+                  <h5 class="profile-section-title">Skills</h5>
+                  <div class="d-flex flex-wrap gap-2">
+                    ${skills.map(s => `<span class="badge bg-light text-dark border">${s.c_skill_name}</span>`).join("") || "No skills listed."}
+                  </div>
+                </div>
+                
+                <div class="profile-section">
+                  <h5 class="profile-section-title">Experience Highlights</h5>
+                  ${experience.length > 0 ? experience.slice(0, 2).map(w => `
+                    <div class="mb-3">
+                      <div class="d-flex justify-content-between">
+                        <strong>${w.c_JobTitle}</strong>
+                        <span class="badge ${w.c_CurrentlyWorking ? 'bg-success' : 'bg-secondary'}">${w.c_CurrentlyWorking ? "Current" : "Past"}</span>
+                      </div>
+                      <div>${w.c_CompanyName}</div>
+                      <p class="text-muted small mb-0">${w.c_JobDesc}</p>
+                    </div>
+                  `).join("") : "<p>No experience data available.</p>"}
+                  ${experience.length > 2 ? '<p class="small text-primary">View more in Experience tab</p>' : ''}
+                </div>
+                
+                <div class="profile-section">
+                  <h5 class="profile-section-title">Education Highlights</h5>
+                  ${education.length > 0 ? education.slice(0, 1).map(e => `
+                    <div>
+                      <div class="fw-bold">${e.c_HighestQualification} (${e.c_YearOfPassing})</div>
+                      <div>${e.c_Degree} in ${e.c_Specialization}</div>
+                      <div class="text-muted">${e.c_UniversityName}</div>
+                    </div>
+                  `).join("") : "<p>No education data available.</p>"}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div id="experienceTab" class="tab-pane">
+            <div class="p-4">
+              <h5 class="profile-section-title">Work Experience</h5>
+              ${experience.length > 0 ? experience.map(w => `
+                <div class="card mb-3 shadow-sm border-0">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                      <h5 class="card-title mb-1">${w.c_JobTitle}</h5>
+                      <span class="badge ${w.c_CurrentlyWorking ? 'bg-success' : 'bg-secondary'}">${w.c_CurrentlyWorking ? "Current" : "Past"}</span>
+                    </div>
+                    <h6 class="card-subtitle mb-2 text-primary">${w.c_CompanyName}</h6>
+                    <p class="card-text">${w.c_JobDesc}</p>
+                  </div>
+                </div>
+              `).join("") : "<p>No experience data available.</p>"}
+              
+              <h5 class="profile-section-title mt-4">Projects</h5>
+              ${projects.length > 0 ? projects.map(p => `
+                <div class="card mb-3 shadow-sm border-0">
+                  <div class="card-body">
+                    <h5 class="card-title mb-1">${p.c_Project_Title}</h5>
+                    <p class="card-text">${p.c_Project_Description}</p>
+                    <div class="d-flex flex-wrap gap-1 mb-2">
+                      ${p.c_TechnologiesUsed.split(',').map(tech => 
+                        `<span class="badge bg-light text-dark border">${tech.trim()}</span>`
+                      ).join('')}
+                    </div>
+                    ${p.c_ProjectLink ? `<a href="${p.c_ProjectLink}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-link-45deg"></i> View Project</a>` : ""}
+                  </div>
+                </div>
+              `).join("") : "<p>No projects data available.</p>"}
+            </div>
+          </div>
+          
+          <div id="educationTab" class="tab-pane">
+            <div class="p-4">
+              <h5 class="profile-section-title">Education</h5>
+              ${education.length > 0 ? education.map(e => `
+                <div class="card mb-3 shadow-sm border-0">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <h5 class="card-title mb-1">${e.c_HighestQualification}</h5>
+                      <span class="badge bg-light text-dark">${e.c_YearOfPassing}</span>
+                    </div>
+                    <h6 class="card-subtitle mb-2 text-primary">${e.c_Degree} in ${e.c_Specialization}</h6>
+                    <p class="card-text text-muted">${e.c_UniversityName}</p>
+                  </div>
+                </div>
+              `).join("") : "<p>No education data available.</p>"}
+              
+              <h5 class="profile-section-title mt-4">Certifications</h5>
+              ${certificates.length > 0 ? certificates.map(c => `
+                <div class="card mb-3 shadow-sm border-0">
+                  <div class="card-body">
+                    <h5 class="card-title">${c.c_certificate || "Certificate"}</h5>
+                    <p class="card-text">
+                      <a href="/user_certificates/${c.c_CertificateFilePath}" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-file-earmark-pdf"></i> View Certificate
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              `).join("") : "<p>No certifications available.</p>"}
+            </div>
+          </div>
+          
+          <div id="skillsTab" class="tab-pane">
+            <div class="p-4">
+              <h5 class="profile-section-title">Technical Skills</h5>
+              <div class="card mb-4 shadow-sm border-0">
+                <div class="card-body">
+                  <div class="d-flex flex-wrap gap-2">
+                    ${skills.map(s => `
+                      <div class="badge bg-light text-dark border p-2 mb-2" style="font-size: 0.9rem">
+                        ${s.c_skill_name}
+                      </div>
+                    `).join("") || "No skills listed."}
+                  </div>
+                </div>
+              </div>
+              
+              <h5 class="profile-section-title">Projects</h5>
+              ${projects.length > 0 ? projects.map(p => `
+                <div class="card mb-3 shadow-sm border-0">
+                  <div class="card-body">
+                    <h5 class="card-title">${p.c_Project_Title}</h5>
+                    <p class="card-text">${p.c_Project_Description}</p>
+                    <h6 class="mb-2">Technologies Used:</h6>
+                    <div class="d-flex flex-wrap gap-1 mb-3">
+                      ${p.c_TechnologiesUsed.split(',').map(tech => 
+                        `<span class="badge bg-light text-dark border">${tech.trim()}</span>`).join('')}
+                    </div>
+                    ${p.c_ProjectLink ? `
+                      <a href="${p.c_ProjectLink}" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-link-45deg"></i> View Project
+                      </a>` : ""
+                    }
+                  </div>
+                </div>
+              `).join("") : "<p>No projects available.</p>"}
+            </div>
+          </div>
+          
+          <div id="resumeTab" class="tab-pane">
+            <div class="p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="profile-section-title mb-0">Resume</h5>
+                ${resumePath ? `
+                  <a href="/user_resume/${resumePath}" target="_blank" class="btn btn-primary btn-sm">
+                    <i class="bi bi-download"></i> Download Resume
+                  </a>` : ''
+                }
+              </div>
+              
+              <div class="resume-container">
+                ${resumePath ? 
+                  `<iframe src="/user_resume/${resumePath}" width="100%" height="600px"></iframe>` : 
+                  `<div class="p-5 text-center">
+                    <i class="bi bi-file-earmark-x" style="font-size: 3rem; color: var(--secondary-color);"></i>
+                    <p class="mt-3">No resume uploaded.</p>
+                  </div>`
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      $("#profileContent").html(profileHtml);
+    }).catch(error => {
+      $("#profileContent").html(`
+        <div class="alert alert-danger m-4">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          Failed to load profile data. Please try again later.
+        </div>
+      `);
+      console.error("Error loading profile:", error);
+    });
+  }
+
+  // Toggle between grid and list view
+  $(document).ready(function() {
+    // Existing code...
+    
+    // View toggle handlers
+    $('#gridViewBtn').click(function() {
+      $(this).addClass('active');
+      $('#listViewBtn').removeClass('active');
+      $('#candidateGrid').show();
+      $('#candidateList').hide();
+    });
+    
+    $('#listViewBtn').click(function() {
+      $(this).addClass('active');
+      $('#gridViewBtn').removeClass('active');
+      $('#candidateGrid').hide();
+      $('#candidateList').show();
+    });
+    
+    // Selection toolbar handlers
+    $(document).on('change', '.candidate-select', function() {
+      updateSelectionToolbar();
+    });
+    
+    $('#selectAllCandidates').change(function() {
+      $('.candidate-select').prop('checked', $(this).is(':checked'));
+      updateSelectionToolbar();
+    });
+    
+    $('#clearSelectionBtn').click(function() {
+      $('.candidate-select').prop('checked', false);
+      $('#selectAllCandidates').prop('checked', false);
+      updateSelectionToolbar();
+    });
+    
+    // Advanced filter handlers
+    $('#applyFilters').click(function() {
+      filterAndRenderCandidates();
+    });
+    
+    $('#clearFilters').click(function() {
+      $('.filter-check').prop('checked', false);
+      $('#location-filter').val('');
+      filterAndRenderCandidates();
+    });
+    
+    // Sort dropdown handler
+    $('#sortDropdown').change(function() {
+      currentSort = $(this).val();
+      filterAndRenderCandidates();
+    });
+    
+    // Save search button
+    $('#saveSearchBtn').click(function() {
+      const searchQuery = $('#searchInput').val();
+      const savedFilters = {
+        query: searchQuery,
+        filter: currentFilter,
+        sort: currentSort
+      };
+      
+      // In a real app, you would save this to the database
+      alert(`Search "${searchQuery || 'All candidates'}" saved successfully!`);
+      
+      // For a fully implemented feature, you would show a modal to name the search
+    });
+  });
+
+  // Update selection toolbar visibility
+  function updateSelectionToolbar() {
+    const selectedCount = $('.candidate-select:checked').length;
+    $('#selectedCount').text(selectedCount);
+    
+    if (selectedCount > 0) {
+      $('#selectionToolbar').addClass('active');
+    } else {
+      $('#selectionToolbar').removeClass('active');
+    }
+  }
+
+  // Placeholder function for saving candidate
+  function saveCandidate(userId) {
+    toggleWhitelist(event, userId);
+  }
+
+  // Placeholder function for contacting candidate
+  function contactCandidate(userId) {
+    // In a real app, you would implement this functionality
+    alert(`Opening message composer for candidate ${userId}`);
+  }
+
+  // Enhanced filtering function
+  function filterAndRenderCandidates() {
+    const query = $("#searchInput").val().toLowerCase();
+    
+    // Get advanced filter values
+    const experienceFilters = $('.filter-check[data-filter="experience"]:checked').map(function() {
+      return $(this).data('value');
+    }).get();
+    
+    const educationFilters = $('.filter-check[data-filter="education"]:checked').map(function() {
+      return $(this).data('value');
+    }).get();
+    
+    const availabilityFilters = $('.filter-check[data-filter="availability"]:checked').map(function() {
+      return $(this).data('value');
+    }).get();
+    
+    const locationFilter = $('#location-filter').val();
+    
+    let filtered = users.filter(user => {
+      // Basic search term filter (same as before)
+      const matchesSearch = 
+        user.Name?.toLowerCase().includes(query) || 
+        user.c_fullName?.toLowerCase().includes(query) ||
+        (user.skills && user.skills.some(s => s.c_skill_name?.toLowerCase().includes(query)));
+
+      // Category filter (same as before)
+      let matchesFilter = true;
+      if (currentFilter !== 'all') {
+        // Apply specific filters based on data
+        if (currentFilter === 'new') {
+          matchesFilter = user.isNew; 
+        } else if (currentFilter === 'experienced') {
+          // Example filter - if user has skills with experience
+          matchesFilter = user.skills && user.skills.length > 5;
+        } else if (['tech', 'design', 'management'].includes(currentFilter)) {
+          // Filter by skill category
+          matchesFilter = user.skills && user.skills.some(s => 
+            s.c_skill_name?.toLowerCase().includes(currentFilter));
+        } else if (currentFilter === 'remote') {
+          // Example for remote filter - replace with actual data
+          matchesFilter = Math.random() > 0.5; // Just for demo
+        }
+      }
+      
+      // Advanced filters
+      // Experience level filter
+      if (experienceFilters.length > 0) {
+        const userExperience = user.skills && user.skills.length > 5 ? 'senior' : 
+                            (user.skills && user.skills.length > 3 ? 'mid' : 'entry');
+        if (!experienceFilters.includes(userExperience)) {
+          return false;
+        }
+      }
+      
+      // Education filter - in a real app, you would check the actual education data
+      if (educationFilters.length > 0) {
+        // This is a placeholder logic - replace with actual data check
+        const hasMatchingEducation = educationFilters.some(edu => {
+          if (edu === 'bachelor') return true; // Just for demo
+          if (edu === 'master' && user.c_userId % 3 === 0) return true; // Just for demo
+          if (edu === 'phd' && user.c_userId % 7 === 0) return true; // Just for demo
+          return false;
+        });
+        
+        if (!hasMatchingEducation) {
+          return false;
+        }
+      }
+      
+      // Location filter
+      if (locationFilter) {
+        // This is a placeholder logic - replace with actual location data check
+        if (locationFilter === 'Remote only' && user.c_userId % 2 !== 0) {
+          return false;
+        }
+      }
+
+      return matchesSearch && matchesFilter;
+    });
+    
+    // Apply sorting
+    if (currentSort === 'nameAsc') {
+      filtered.sort((a, b) => (a.c_fullName || a.Name).localeCompare(b.c_fullName || b.Name));
+    } else if (currentSort === 'nameDesc') {
+      filtered.sort((a, b) => (b.c_fullName || b.Name).localeCompare(a.c_fullName || a.Name));
+    } else if (currentSort === 'newest') {
+      filtered.sort((a, b) => b.c_userId - a.c_userId);
+    } else if (currentSort === 'matchScore') {
+      filtered.sort((a, b) => b.matchPercentage - a.matchPercentage);
+    } else if (currentSort === 'relevance') {
+      // Sort by match percentage (highest first)
+      filtered.sort((a, b) => b.matchPercentage - a.matchPercentage);
+    }
+    
+    renderCandidateCards(filtered);
+  }
+
+// Whitelist functionality
+let whitelist = [];
+
+// Initialize whitelist from localStorage
+$(document).ready(function() {
+  // Add to existing document.ready function
+  loadWhitelist();
+  
+  // Add whitelist button click handler
+  $('#viewWhitelistBtn').click(function() {
+    showWhitelistModal();
+  });
+  
+  // Add clear whitelist button click handler
+  $('#clearWhitelistBtn').click(function() {
+    clearWhitelist();
+  });
+});
+
+// Check if a user is whitelisted
+function isWhitelisted(userId) {
+  return whitelist.includes(userId);
+}
+
+// Toggle a user in the whitelist
+function toggleWhitelist(event, userId) {
+  event.stopPropagation(); // Prevent the card/row click event
+  
+  const index = whitelist.indexOf(userId);
+  if (index === -1) {
+    // Add to whitelist
+    whitelist.push(userId);
+    
+    // Show success notification
+    const user = users.find(u => u.c_userId === userId);
+    const userName = user ? (user.c_fullName || user.Name) : 'Candidate';
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Added to Whitelist',
+      text: `${userName} has been added to your whitelist`,
+      timer: 1500,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false
+    });
+  } else {
+    // User is already in whitelist - show a notification
+    const user = users.find(u => u.c_userId === userId);
+    const userName = user ? (user.c_fullName || user.Name) : 'Candidate';
+    
+    Swal.fire({
+      icon: 'info',
+      title: 'Already in Whitelist',
+      text: `${userName} is already in your whitelist`,
+      timer: 1500,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false
+    });
+    // We don't remove them as was happening before
+  }
+  
+  // Save to localStorage
+  saveWhitelist();
+  
+  // Update UI
+  updateWhitelistCount();
+  
+  // Re-render cards to update whitelist icons
+  filterAndRenderCandidates();
+}
+
+// Save whitelist to localStorage
+function saveWhitelist() {
+  localStorage.setItem('candidateWhitelist', JSON.stringify(whitelist));
+}
+
+// Load whitelist from localStorage
+function loadWhitelist() {
+  const saved = localStorage.getItem('candidateWhitelist');
+  if (saved) {
+    whitelist = JSON.parse(saved);
+  }
+  updateWhitelistCount();
+}
+
+// Update whitelist count badge
+function updateWhitelistCount() {
+  const count = whitelist.length;
+  $('#whitelistCount').text(count);
+  if (count > 0) {
+    $('#whitelistCount').show();
+  } else {
+    $('#whitelistCount').hide();
+  }
+}
+
+// Show whitelist modal
+function showWhitelistModal() {
+  const $container = $('#whitelistContainer');
+  $container.empty();
+  
+  if (whitelist.length === 0) {
+    // Show empty state
+    $container.html(`
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="bi bi-bookmark"></i>
+        </div>
+        <h5>Your whitelist is empty</h5>
+        <p class="text-muted">Save candidates to your whitelist for quick access.</p>
+      </div>
+    `);
+  } else {
+    // Get whitelisted candidates
+    const whitelistedUsers = users.filter(user => whitelist.includes(user.c_userId));
+    
+    // Show candidates
+    whitelistedUsers.forEach(user => {
+      const userHtml = `
+        <div class="whitelist-candidate" data-user-id="${user.c_userId}">
+          <img src="${user.c_profileImage || 'https://via.placeholder.com/50x50?text=Profile'}" class="whitelist-candidate-img" alt="${user.c_fullName || user.Name}">
+          <div class="whitelist-candidate-info">
+            <div class="whitelist-candidate-name">${user.c_fullName || user.Name}</div>
+            <div class="whitelist-candidate-meta">
+              ${user.c_position || 'Professional'} · ${user.Email}
+            </div>
+          </div>
+          <div class="whitelist-actions">
+            <button class="btn btn-sm btn-outline-primary" onclick="loadUserProfile(${user.c_userId})">
+              <i class="bi bi-eye"></i> View
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="removeFromWhitelist(${user.c_userId})">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      $container.append(userHtml);
+    });
+  }
+  
+  // Show modal
+  new bootstrap.Modal(document.getElementById('whitelistModal')).show();
+}
+
+// Remove a user from whitelist (used in the modal)
+function removeFromWhitelist(userId) {
+  const index = whitelist.indexOf(userId);
+  if (index !== -1) {
+    whitelist.splice(index, 1);
+    saveWhitelist();
+    updateWhitelistCount();
+    
+    // Update the whitelist modal
+    $(`#whitelistContainer .whitelist-candidate[data-user-id="${userId}"]`).fadeOut(300, function() {
+      $(this).remove();
+      
+      // Show empty state if no candidates left
+      if (whitelist.length === 0) {
+        showWhitelistModal();
+      }
+    });
+    
+    // Re-render candidate cards
+    filterAndRenderCandidates();
+  }
+}
+
+// Clear the entire whitelist
+function clearWhitelist() {
+  if (whitelist.length === 0) return;
+  
+  Swal.fire({
+    title: 'Clear Whitelist?',
+    text: 'Are you sure you want to remove all candidates from your whitelist?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6B7280',
+    confirmButtonText: 'Yes, clear it'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      whitelist = [];
+      saveWhitelist();
+      updateWhitelistCount();
+      showWhitelistModal();
+      filterAndRenderCandidates();
+      
+      Swal.fire({
+        title: 'Whitelist Cleared',
+        text: 'All candidates have been removed from your whitelist.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
+  });
+}
+
+// Update the saveCandidate function to use our whitelist functionality
+function saveCandidate(userId) {
+  toggleWhitelist(event, userId);
+}
+</script>

@@ -1,0 +1,18 @@
+@media (max-width: 600px) {
+    .email-body {
+        padding: 20px 15px;
+    }
+
+    .email-body h2 {
+        font-size: 22px;
+    }
+
+    .email-body p {
+        font-size: 15px;
+    }
+
+    .email-body a.button {
+        font-size: 14px;
+        padding: 12px 20px;
+    }
+}

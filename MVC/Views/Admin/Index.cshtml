@@ -1,0 +1,710 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .k-pager-numbers .k-link.k-state-selected {
+        color: white;
+        background-color: #3f51b5;
+    }
+
+    .k-pager-numbers .k-link {
+        color: #3f51b5;
+    }
+
+    .k-pager-numbers .k-link:hover {
+        color: white;
+        background-color: #3f51b575;
+    }
+
+</style>
+
+
+
+<!-- System Metrics -->
+<div class="row g-4 mb-2">
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-muted">Total Users</h6>
+                        <h2 class="card-title mb-0" id="totalUsers">0</h2>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 p-3 rounded">
+                        <i class="fas fa-users text-primary fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-muted">Active Recruiters</h6>
+                        <h2 class="card-title mb-0" id="totalRecruiters">0</h2>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded">
+                        <i class="fas fa-building text-success fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-muted">Job Postings</h6>
+                        <h2 class="card-title mb-0" id="totalJobs">0</h2>
+                    </div>
+                    <div class="bg-info bg-opacity-10 p-3 rounded">
+                        <i class="fas fa-briefcase text-info fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-muted">Applications</h6>
+                        <h2 class="card-title mb-0" id="totalApplications">0</h2>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 p-3 rounded">
+                        <i class="fas fa-file-alt text-warning fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Date Range Controls -->
+<div class="row mb-2">
+    <div class="col-md-12 py-0">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <label class="me-2">Date Range:</label>
+                    <input type="date" id="startDate" class="form-control me-2" style="width: auto;">
+                    <input type="date" id="endDate" class="form-control me-2" style="width: auto;">
+                    <button class="btn btn-primary" onclick="updateCharts()">Update Charts</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Charts Row -->
+<div class="row mb-0">
+    <!-- User Registration Chart -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">User Registration Trends</h5>
+            </div>
+            <div class="card-body">
+                <div id="userRegistrationChart" style="height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Registration Chart -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Company Registration Trends</h5>
+            </div>
+            <div class="card-body">
+                <div id="companyRegistrationChart" style="height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Distribution and Job Applications Charts -->
+<div class="row mt-2 mb-3">
+    <!-- User Distribution Pie Chart -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">User Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div id="userDistributionChart" style="height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Applications Chart -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Job Applications Trend</h5>
+            </div>
+            <div class="card-body">
+                <div id="jobApplicationsChart" style="height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Application Status Chart -->
+<div class="row mt-2 mb-3">
+    <div class="col-md-12">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">Application Status Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div id="applicationStatusChart" style="height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Data Grids -->
+<div class="row mb-0">
+    <div class="col-md-6 py-0">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Users</h5>
+                    <a href="/Admin/UserManagement" class="btn btn-link">View All</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="recentUsersGrid"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 py-0">
+        <div class="card h-100">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Jobs</h5>
+                    <a href="/AdminDashboard/JobManagement" class="btn btn-link">View All</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="recentJobsGrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        let userRegistrationChart;
+        let companyRegistrationChart;
+        let userDistributionChart;
+        let jobApplicationsChart;
+        let applicationStatusChart;
+
+        $(document).ready(function () {
+            // Set default date range to last 30 days
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+            
+            document.getElementById('startDate').valueAsDate = startDate;
+            document.getElementById('endDate').valueAsDate = endDate;
+
+            loadDashboardData();
+            initializeCharts();
+            loadApplicationStats();
+
+            // Load Recent Users
+            $("#Pendingapproval").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "http://localhost:5086/api/AdminApi/pendingapproval",
+                            dataType: "json"
+                        }
+                    }
+                },
+                columns: [
+                    { field: "c_company_name", title: "Name" }
+                ],
+                sortable: true,
+                pageable: { pageSize: 5 },
+                height: 300
+            });
+
+            // Load Recent Users
+            $("#recentUsersGrid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "http://localhost:5086/api/AdminApi/get-user",
+                            dataType: "json"
+                        }
+                    }
+                },
+                columns: [
+                    { field: "c_fullName", title: "Name" },
+                    { field: "Email", title: "Email" },
+                    { field: "Role", title: "Role" }
+                ],
+                sortable: true,
+                pageable: {
+                    pageSize: 5,
+                    buttonCount: 3,
+                    refresh: true
+                },
+                height: 300
+            });
+
+            // Load Recent Jobs
+            $("#recentJobsGrid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "http://localhost:5086/api/AdminApi/getjob",
+                            dataType: "json"
+                        }
+                    }
+                },
+                columns: [
+                    { field: "c_job_title", title: "Job Title" },
+                    { field: "c_job_location", title: "Location" }
+                ],
+                sortable: true,
+                height: 300,
+                pageable: {
+                    pageSize: 5,
+                    buttonCount: 3,
+                    refresh: true
+                }
+            });
+
+            // Initialize Application Status Chart
+            applicationStatusChart = $("#applicationStatusChart").kendoChart({
+                legend: { position: "bottom" },
+                seriesDefaults: {
+                    type: "column",
+                    style: "smooth"
+                },
+                series: [{
+                    name: "Applications",
+                    field: "count",
+                    categoryField: "status",
+                    color: function(point) {
+                        // Custom colors for different statuses
+                        const statusColors = {
+                            "Applied": "#4361ee",
+                            "Shortlisted": "#f1a206",
+                            "Rejected": "#e63946",
+                            "Hired": "#2a9d8f"
+                        };
+                        return statusColors[point.category] || "#607d8b";
+                    }
+                }],
+                categoryAxis: {
+                    labels: {
+                        rotation: -45
+                    },
+                    @* title: {
+                        text: "Application Status"
+                    } *@
+                },
+                valueAxis: {
+                    labels: { format: "N0" },
+                    title: {
+                        text: "Number of Applications"
+                    }
+                },
+                tooltip: {
+                    visible: true,
+                    format: "N0",
+                    template: "#= category #: #= value # "
+                },
+                chartArea: {
+                    background: "none"
+                },
+                plotArea: {
+                    background: "none"
+                }
+            }).data("kendoChart");
+
+            // Load initial data
+            loadApplicationStatusStats();
+        });
+
+        function initializeCharts() {
+            // Initialize User Registration Chart
+            userRegistrationChart = $("#userRegistrationChart").kendoChart({
+                legend: { position: "bottom" },
+                seriesDefaults: {
+                    type: "line",
+                    style: "smooth",
+                    markers: {
+                        visible: true,
+                        size: 6
+                    }
+                },
+                series: [
+                    {
+                        field: "newUsers",
+                        name: "New Users",
+                        color: "#1a237e",
+                        tooltip: {
+                            visible: true,
+                            format: "N0",
+                            template: "#= category #<br/>New Users: #= value #"
+                        }
+                    }
+                ],
+                categoryAxis: {
+                    field: "date",
+                    labels: {
+                        rotation: -45,
+                        format: "MM/dd/yyyy"
+                    },
+                    title: {
+                        text: "Registration Date"
+                    }
+                },
+                valueAxis: {
+                    labels: { format: "N0" },
+                    title: {
+                        text: "Number of Users"
+                    }
+                },
+                tooltip: {
+                    visible: true,
+                    format: "N0",
+                    template: "#= category #<br/>New Users: #= value #"
+                },
+                chartArea: {
+                    background: "none"
+                },
+                plotArea: {
+                    background: "none"
+                }
+            }).data("kendoChart");
+
+            // Initialize Company Registration Chart
+            companyRegistrationChart = $("#companyRegistrationChart").kendoChart({
+                legend: { position: "bottom" },
+                seriesDefaults: {
+                    type: "line",
+                    style: "smooth",
+                    markers: {
+                        visible: true,
+                        size: 6
+                    }
+                },
+                series: [
+                    {
+                        field: "newCompanies",
+                        name: "New Companies",
+                        color: "#2e7d32",
+                        tooltip: {
+                            visible: true,
+                            format: "N0",
+                            template: "#= category #<br/>New Companies: #= value #"
+                        }
+                    }
+                ],
+                categoryAxis: {
+                    field: "date",
+                    labels: {
+                        rotation: -45,
+                        format: "MM/dd/yyyy"
+                    },
+                    title: {
+                        text: "Registration Date"
+                    }
+                },
+                valueAxis: {
+                    labels: { format: "N0" },
+                    title: {
+                        text: "Number of Companies"
+                    }
+                },
+                tooltip: {
+                    visible: true,
+                    format: "N0",
+                    template: "#= category #<br/>New Companies: #= value #"
+                },
+                chartArea: {
+                    background: "none"
+                },
+                plotArea: {
+                    background: "none"
+                }
+            }).data("kendoChart");
+
+            // Initialize User Distribution Chart
+            $.ajax({
+                url: "http://localhost:5086/api/AdminApi/get-user-distribution",
+                type: "GET",
+                success: function (data) {
+                    data.forEach(item => {
+                        if (item.category === "Job Seekers") {
+                            item.color = "#004D99";
+                        } else if (item.category === "Recruiters") {
+                            item.color = "#92C5F9";
+                        }
+                    });
+                    $("#userDistributionChart").kendoChart({
+                        legend: { position: "bottom" },
+                        seriesDefaults: {
+                            type: "pie",
+                            labels: {
+                                visible: true,
+                                background: "none",
+                                position: "outside",
+                                template: "#= category #: #= value# (#= kendo.format('{0:P}', percentage) #)"
+                            }
+                        },
+                        series: [{
+                            data: data
+                        }],
+                        tooltip: {
+                            visible: true,
+                            template: "#= category #: #= value# (#= kendo.format('{0:P}', percentage) #)"
+                        },
+                        chartArea: { background: "none" },
+                        plotArea: { background: "none" }
+                    });
+                },
+                error: function (xhr) {
+                    console.error("Chart data load failed", xhr.responseText);
+                }
+            });
+
+            // Initialize Job Applications Chart
+            jobApplicationsChart = $("#jobApplicationsChart").kendoChart({
+                legend: { position: "bottom" },
+                seriesDefaults: {
+                    type: "column",
+                    style: "smooth",
+                    markers: {
+                        visible: true,
+                        size: 6
+                    }
+                },
+                series: [
+                    {
+                        field: "applications",
+                        name: "Applications",
+                        color: "#4361ee",
+                        tooltip: {
+                            visible: true,
+                            format: "N0",
+                            template: "#= category #<br/>Applications: #= value #"
+                        }
+                    }
+                ],
+                categoryAxis: {
+                    field: "date",
+                    labels: {
+                        rotation: -45,
+                        format: "MM/dd/yyyy"
+                    },
+                    title: {
+                        text: "Date"
+                    }
+                },
+                valueAxis: {
+                    labels: { format: "N0" },
+                    title: {
+                        text: "Number of Applications"
+                    }
+                },
+                tooltip: {
+                    visible: true,
+                    format: "N0",
+                    template: "#= category #<br/>Applications: #= value #"
+                },
+                chartArea: {
+                    background: "none"
+                },
+                plotArea: {
+                    background: "none"
+                }
+            }).data("kendoChart");
+
+            // Set default date range (last 7 days)
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 7);
+
+            $("#startDate").val(startDate.toISOString().split('T')[0]);
+            $("#endDate").val(endDate.toISOString().split('T')[0]);
+
+            updateCharts();
+        }
+
+        function updateCharts() {
+            const startDate = $("#startDate").val();
+            const endDate = $("#endDate").val();
+
+            // Update registration charts
+            $.getJSON(`http://localhost:5086/api/AdminApi/get-registration-stats?startDate=${startDate}&endDate=${endDate}`, function (data) {
+                console.log("Registration Stats Data:", data);
+
+                // Update user registration chart
+                userRegistrationChart.setDataSource(new kendo.data.DataSource({
+                    data: data.map(item => ({
+                        date: new Date(item.date),
+                        newUsers: item.newUsers
+                    }))
+                }));
+
+                // Update company registration chart
+                companyRegistrationChart.setDataSource(new kendo.data.DataSource({
+                    data: data.map(item => ({
+                        date: new Date(item.date),
+                        newCompanies: item.newCompanies
+                    }))
+                }));
+
+                // Force charts to refresh
+                userRegistrationChart.refresh();
+                companyRegistrationChart.refresh();
+            });
+
+            // Update job applications chart
+            $.getJSON(`http://localhost:5086/api/AdminApi/application-stats?startDate=${startDate}&endDate=${endDate}`, function (data) {
+                console.log("Application Stats Data:", data);
+                
+                jobApplicationsChart.setDataSource(new kendo.data.DataSource({
+                    data: data.map(item => ({
+                        date: new Date(item.applyDate),
+                        applications: item.applicationCount
+                    }))
+                }));
+                
+                jobApplicationsChart.refresh();
+            });
+
+            loadApplicationStatusStats();
+        }
+
+        function loadDashboardData() {
+            $.getJSON("http://localhost:5086/api/AdminApi/get-user-count", function (data) {
+                $("#totalUsers").text(data.totalUsers);
+            });
+
+            $.getJSON("http://localhost:5086/api/AdminApi/get-recruiter-count", function (data) {
+                $("#totalRecruiters").text(data.totalUsers);
+            });
+
+            $.getJSON("http://localhost:5086/api/AdminApi/get-jobpost-count", function (data) {
+                $("#totalJobs").text(data.totalJobs);
+            });
+
+            $.getJSON("http://localhost:5086/api/AdminApi/get-application-count", function (data) {
+                $("#totalApplications").text(data.totalJobs);
+            });
+        }
+
+        function loadApplicationStats() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            $.ajax({
+                url: `http://localhost:5086/api/AdminApi/application-stats?startDate=${startDate}&endDate=${endDate}`,
+                type: 'GET',
+                success: function (data) {
+                    updateApplicationChart(data);
+                },
+                error: function (error) {
+                    console.error('Error loading application stats:', error);
+                }
+            });
+        }
+
+        function updateApplicationChart(data) {
+            const ctx = document.getElementById('jobApplicationsChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (jobApplicationsChart) {
+                jobApplicationsChart.destroy();
+            }
+
+            const dates = data.map(item => new Date(item.applyDate).toLocaleDateString());
+            const counts = data.map(item => item.applicationCount);
+
+            jobApplicationsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Job Applications',
+                        data: counts,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1,
+                        fill: true,
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Job Applications Over Time'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Applications'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadApplicationStatusStats() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            // Fetch data for each status
+            const statuses = ["Applied", "Shortlisted", "Rejected", "Hired"];
+            const promises = statuses.map(status => 
+                $.getJSON(`http://localhost:5086/api/AdminApi/application-stats-status?startDate=${startDate}&endDate=${endDate}&status=${status}`)
+            );
+
+            Promise.all(promises)
+                .then(results => {
+                    const data = statuses.map((status, index) => ({
+                        status: status,
+                        count: results[index].length
+                    }));
+
+                    applicationStatusChart.setDataSource(new kendo.data.DataSource({
+                        data: data
+                    }));
+                    applicationStatusChart.refresh();
+                })
+                .catch(error => {
+                    console.error('Error loading application status stats:', error);
+                });
+        }
+    </script>
+}

@@ -1,0 +1,3646 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerLink - Find Your Dream Job</title>
+    <!-- Font and icon imports -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="~/css/Default/landingPage.css">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+
+    <!-- Chatbot Styles -->
+    <style>
+        /* Chatbot Styles */
+        #bot-greeting {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .chat-bubble {
+            background-color: #fff;
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            max-width: 240px;
+        }
+
+        #bot-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: url('/img/Robot.gif') no-repeat center center / cover;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            animation: bounce 2s infinite;
+        }
+
+        #bot-icon:hover {
+            transform: scale(1.1);
+            background-color: rgb(
+                calc(255 * var(--random-r, 1)),
+                calc(255 * var(--random-g, 1)),
+                calc(255 * var(--random-b, 1))
+            );
+        }
+
+        #bot-icon:hover::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.2);
+            mix-blend-mode: overlay;
+        }
+
+        @@keyframes randomColor {
+            0% {
+                --random-r: 1;
+                --random-g: 0;
+                --random-b: 0;
+            }
+            33% {
+                --random-r: 0;
+                --random-g: 1;
+                --random-b: 0;
+            }
+            66% {
+                --random-r: 0;
+                --random-g: 0;
+                --random-b: 1;
+            }
+            100% {
+                --random-r: 1;
+                --random-g: 0;
+                --random-b: 0;
+            }
+        }
+
+        #bot-icon:hover {
+            transform: scale(1.1);
+        }
+
+        @@keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        
+
+        /* Chatbox Styles */
+        #chat-popup {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 370px;
+            height: 480px;
+            display: none;
+            flex-direction: column;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            z-index: 1001;
+            transform: scale(0.6);
+            opacity: 0;
+            transition: all 0.35s ease;
+        }
+
+        #chat-box {
+            flex: 1;
+            padding: 14px;
+            overflow-y: auto;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 16px;
+            animation: fadeIn 0.4s ease-in-out;
+            display: inline-block;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .user {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            text-align: right;
+            margin-left: auto;
+            border-bottom-right-radius: 0;
+        }
+
+        .bot {
+            background-color: #e9ecef;
+            color: black;
+            align-self: flex-start;
+            margin-right: auto;
+            border-bottom-left-radius: 0;
+        }
+
+        .typing {
+            font-style: italic;
+            color: #6c757d;
+            padding: 6px 10px;
+            animation: blink 1s infinite;
+        }
+
+        @@keyframes blink {
+            0%, 100% {
+                opacity: 0.2;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-bubble.selected {
+            border: 2px solid red;
+        }
+
+        .chat-bubble.listening {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        .chat-bubble.listening .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #007bff;
+            border-radius: 50%;
+            animation: wave 1.5s infinite;
+        }
+        
+        .chat-bubble.listening .dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .chat-bubble.listening .dot:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        
+        .chat-bubble.listening .dot:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        
+        @@keyframes wave {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+        }
+    </style>
+    <style>
+    /* Feedback Icon Styles */
+    #feedback-icon {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        z-index: 1000;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #ff9800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, background-color 0.3s ease;
+        animation: pulse 2s infinite;
+    }
+
+    #feedback-icon i {
+        color: white;
+        font-size: 20px;
+    }
+
+    #feedback-icon:hover {
+        transform: scale(1.1);
+        background-color: #f57c00;
+    }
+
+    @@keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+        }
+    }
+
+    /* Feedback Popup Overlay */
+    #feedback-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    #feedback-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Feedback Popup */
+    #feedback-popup {
+        width: 90%;
+        max-width: 500px;
+        background-color: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+        transform: scale(0.8);
+        opacity: 0;
+        transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    #feedback-overlay.active #feedback-popup {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    /* Feedback Header */
+    .feedback-header {
+        padding: 16px 20px;
+        background: linear-gradient(to right, #007bff, #00bfff);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .feedback-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    #close-feedback {
+        font-size: 24px;
+        cursor: pointer;
+        line-height: 1;
+        transition: transform 0.2s ease;
+    }
+
+    #close-feedback:hover {
+        transform: scale(1.2);
+    }
+
+    /* Feedback Form */
+    .feedback-body {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    /* Rating Stars */
+    .rating-container {
+        display: flex;
+        align-items: center;
+        margin-top: 5px;
+    }
+
+    .stars {
+        display: flex;
+        gap: 8px;
+        
+    }
+
+    .stars i {
+        color: #ffb400;
+        cursor: pointer;
+        font-size: 24px;
+        transition: color 0.2s ease;
+    }
+
+    .stars i:hover,
+    .stars i.active {
+        color: #ffb400;
+    }
+
+    .rating-text {
+        margin-left: 15px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    /* Form Buttons */
+    .form-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .form-buttons button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    /* Success/Error Messages */
+    .feedback-message {
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        display: none;
+    }
+
+    .feedback-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+
+    .feedback-error {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    /* Animation for Success Message */
+    @@keyframes fadeInOut {
+        0% { opacity: 0; transform: translateY(-20px); }
+        10% { opacity: 1; transform: translateY(0); }
+        90% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-20px); }
+    }
+
+    .animate-feedback {
+        animation: fadeInOut 3s ease forwards;
+    }
+
+    /* Add these styles to your existing CSS */
+    .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 4px;
+        min-height: 16px;
+        transition: all 0.3s;
+    }
+
+    .form-group input.invalid,
+    .form-group select.invalid,
+    .form-group textarea.invalid {
+        border-color: #dc3545;
+        background-color: #fff8f8;
+    }
+
+    .required {
+        color: #dc3545;
+    }
+
+    /* Emoji Rating Styles - Replace Star Rating Styles */
+    .emoji-rating {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .rating-emoji {
+        font-size: 28px;
+        cursor: pointer;
+        transition: transform 0.2s ease, filter 0.2s ease;
+        user-select: none;
+        opacity: 0.5;
+        filter: grayscale(100%);
+    }
+
+    .rating-emoji:hover {
+        transform: scale(1.2);
+        opacity: 1;
+        filter: grayscale(0%);
+    }
+
+    .rating-emoji.active {
+        transform: scale(1.2);
+        opacity: 1;
+        filter: grayscale(0%);
+        animation: bounce 0.4s;
+    }
+
+    @@keyframes bounce {
+        0%, 100% {
+            transform: scale(1.2);
+        }
+        50% {
+            transform: scale(1.5);
+        }
+    }
+
+    .validated-shake {
+        animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @@keyframes shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        10%, 30%, 50%, 70%, 90% {
+            transform: translateX(-5px);
+        }
+        20%, 40%, 60%, 80% {
+            transform: translateX(5px);
+        }
+    }
+</style>
+</head>
+
+<body>
+    <!-- Animated Background Section -->
+    <div class="animated-bg"></div>
+
+    <!-- Floating Particles Container -->
+    <div id="particles-js"></div>
+
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="logo">
+            <img src="~/css/Default/images/CL.png" alt="CareerLink" class="logo-img" style="transform: scale(2.2);">
+        </div>
+        <div class="auth-buttons">
+            <a class="btn-white lo" asp-action="Login" asp-controller="Auth"><button class="btn-primary login">Log
+                    in</button></a>
+            <a class="text-white si" asp-action="Register" asp-controller="Auth"><button class="btn-primary signup">Sign
+                    up</button></a>
+        </div>
+    </nav>
+
+    
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="text-gradient">Land</span> Your
+                <span class="typing-animation"></span> Job
+            </h1>
+            <p class="hero-subtitle">AI-powered resume ATS tracking</p>
+
+            <div class="search-container">
+                <div class="search-bar">
+                    <input type="text" placeholder="Job title, keywords, company or location">
+                    <button class="btn-primary find-jobs" onclick="window.location.href='@Url.Action("Login", "Auth")'">Find Jobs</button>
+                </div>
+                <div class="popular-searches">
+                    <span>Popular: </span>
+                    <a href="#">Developer</a>
+                    <a href="#">Designer</a>
+                    <a href="#">Marketing</a>
+                    <a href="#">Remote</a>
+                </div>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number job-posted-count" data-count="25000">0</div>
+                    <div class="stat-label">Jobs Posted</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number hired-candidate-count" data-count="9800">0</div>
+                    <div class="stat-label">Hired Candidates</div>
+                </div>
+                <div class="stat-item ">
+                    <div class="stat-number company-count" data-count="1200">0</div>
+                    <div class="stat-label">Companies</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-image">
+            <img src="~/css/Default/images/jobboard.png" alt="Career Success" class="floating-animation">
+        </div>
+    </section>
+
+    <!-- Trusted By Section -->
+    <section class="trusted-by">
+        <p>Trusted by innovative companies worldwide</p>
+        <div class="company-logos">
+            <img src="~/css/Default/images/google.png" alt="Google">
+            <img src="~/css/Default/images/microsoft.webp" alt="Microsoft">
+            <img src="~/css/Default/images/apple.webp" alt="Apple">
+            <img src="~/css/Default/images/amazon.jpg" alt="Amazon">
+            <img src="~/css/Default/images/spotify.png" alt="Spotify">
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="section-header">
+            <h2>Why Choose CareerLink</h2>
+            <p>Our platform is designed to give you the competitive edge in today's job market</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Salary Insights</h3>
+                <p>See how your salary compares and negotiate with confidence using real-time market data.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3>Direct Messaging</h3>
+                <p>Connect directly with recruiters and hiring managers without middlemen.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3>Skill Development</h3>
+                <p>Access free courses to upgrade your skills and become more competitive.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Mobile Friendly</h3>
+                <p>Full functionality on any device, so you can job hunt on the go.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="section-header">
+            <h2>How It Works</h2>
+            <p>Get started in just a few simple steps</p>
+        </div>
+
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Create Your Profile</h3>
+                    <p>Build your professional profile in minutes with our easy-to-use tools.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Boost Your Chances with AI</h3>
+                    <p>Our AI analyzes your resume and calculates your ATS score.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Apply With One Click</h3>
+                    <p>Submit applications quickly with your pre-filled CareerLink profile.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Track & Manage</h3>
+                    <p>Monitor all your applications in one place and get real-time updates.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-container">
+            <a asp-action="Register" asp-controller="Auth"><button class="btn-primary btn-large">Get Started
+                    Now</button></a>
+        </div>
+    </section>
+
+    <!-- Job Listings Section -->
+<section class="job-listings">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Discover Your Next Opportunity</h2>
+            <p class="section-subtitle">Browse thousands of jobs from top companies worldwide</p>
+            
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="job-type-filter">Job Type:</label>
+                    <select id="job-type-filter" class="filter-select">
+                        <option value="all">All Types</option>
+                        <option value="full-time">Full-time</option>
+                        <option value="part-time">Part-time</option>
+                        <option value="contract">Contract</option>
+                        <option value="remote">Remote</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="experience-filter">Experience:</label>
+                    <select id="experience-filter" class="filter-select">
+                        <option value="all">All Levels</option>
+                        <option value="entry">Entry Level</option>
+                        <option value="mid">Mid Level</option>
+                        <option value="senior">Senior</option>
+                    </select>
+                </div>
+                
+                <button class="btn-filter-reset">Reset Filters</button>
+            </div>
+        </div>
+
+        <div class="job-listings-container" id="job-cards-container">
+            <!-- Jobs will be loaded here -->
+            <div class="job-listings-loader">
+                <div class="loader-spinner"></div>
+                <p>Loading job opportunities...</p>
+            </div>
+        </div>
+
+        <div class="job-listings-footer">
+            <button class="btn-load-more" id="show-more-jobs">
+                Load More Jobs
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <p class="job-listings-count">Showing <span id="visible-jobs-count">0</span> of <span id="total-jobs-count">0</span> jobs</p>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Job Listings Section Styles */
+    .job-listings {
+        padding: 5rem 0;
+        background-color: #f8fafc;
+    }
+    
+    .container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1.125rem;
+        color: #64748b;
+        margin-bottom: 2rem;
+    }
+    
+    .filter-controls {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .filter-group label {
+        font-weight: 500;
+        color: #475569;
+    }
+    
+    .filter-select {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+        background-color: white;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .filter-select:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .btn-filter-reset {
+        background: none;
+        border: none;
+        color: #2563eb;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: color 0.2s ease;
+    }
+    
+    .btn-filter-reset:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+    }
+    
+    .job-listings-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .job-card {
+        background-color: white;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+        display: none;
+    }
+    
+    .job-card.active {
+        display: block;
+    }
+    
+    .job-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border-color: #2563eb;
+    }
+    
+    .job-card.featured {
+        border-left: 4px solid #2563eb;
+    }
+    
+    .job-card-header {
+        padding: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .job-card-logo {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 0.5rem;
+        object-fit: contain;
+        border: 1px solid #e2e8f0;
+        background-color: white;
+        padding: 0.25rem;
+    }
+    
+    .job-card-title {
+        flex: 1;
+    }
+    
+    .job-card-title h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+    
+    .job-card-title p {
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+    
+    .job-card-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background-color: #2563eb;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+    }
+    
+    .job-card-body {
+        padding: 1.5rem;
+    }
+    
+    .job-card-details {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .job-card-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .job-type {
+        background-color: rgba(37, 99, 235, 0.1);
+        color: #2563eb;
+    }
+    
+    .job-salary {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+    
+    .job-location {
+        background-color: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+    }
+    
+    .job-card-description {
+        color: #475569;
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .job-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #f1f5f9;
+    }
+    
+    .job-posted {
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+    
+    .btn-apply {
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-apply:hover {
+        background-color: #1d4ed8;
+    }
+    
+    .job-listings-loader {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem 0;
+    }
+    
+    .loader-spinner {
+        width: 3rem;
+        height: 3rem;
+        border: 4px solid #e2e8f0;
+        border-top: 4px solid #2563eb;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+    
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .job-listings-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .btn-load-more {
+        background-color: white;
+        color: #2563eb;
+        border: 1px solid #2563eb;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-load-more:hover {
+        background-color: rgba(37, 99, 235, 0.05);
+    }
+    
+    .job-listings-count {
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+    
+    /* Empty State */
+    .job-listings-empty {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem 0;
+    }
+    
+    .job-listings-empty i {
+        font-size: 3rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+    
+    .job-listings-empty p {
+        color: #64748b;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .job-listings-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .filter-controls {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .filter-group {
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const jobCardsContainer = document.getElementById('job-cards-container');
+    const loadMoreButton = document.getElementById('show-more-jobs');
+    const visibleJobsCount = document.getElementById('visible-jobs-count');
+    const totalJobsCount = document.getElementById('total-jobs-count');
+    const jobTypeFilter = document.getElementById('job-type-filter');
+    const experienceFilter = document.getElementById('experience-filter');
+    const resetFiltersButton = document.querySelector('.btn-filter-reset');
+    
+    let allJobs = [];
+    let visibleJobs = 6;
+    const jobsPerLoad = 6;
+    
+    // Fetch jobs from API
+    function fetchJobs() {
+        showLoadingState();
+        
+        $.ajax({
+            url: 'http://localhost:5086/api/jobposts/getjobsuser',
+            type: 'GET',
+            success: function(data) {
+                allJobs = data || [];
+                renderJobListings();
+                updateJobCounts();
+            },
+            error: function() {
+                showErrorState();
+            }
+        });
+    }
+    
+    // Show loading state
+    function showLoadingState() {
+        jobCardsContainer.innerHTML = `
+            <div class="job-listings-loader">
+                <div class="loader-spinner"></div>
+                <p>Loading job opportunities...</p>
+            </div>
+        `;
+    }
+    
+    // Show error state
+    function showErrorState() {
+        jobCardsContainer.innerHTML = `
+            <div class="job-listings-empty">
+                <i class="fas fa-exclamation-circle"></i>
+                <h3>Unable to load jobs</h3>
+                <p>We're having trouble loading job listings. Please try again later.</p>
+                <button class="btn-retry" onclick="fetchJobs()">Retry</button>
+            </div>
+        `;
+    }
+    
+    // Show empty state
+    function showEmptyState() {
+        jobCardsContainer.innerHTML = `
+            <div class="job-listings-empty">
+                <i class="fas fa-briefcase"></i>
+                <h3>No jobs found</h3>
+                <p>There are currently no job listings matching your criteria.</p>
+            </div>
+        `;
+    }
+    
+    // Render job listings based on filters
+    function renderJobListings() {
+        const jobType = jobTypeFilter.value;
+        const experience = experienceFilter.value;
+        
+        // Filter jobs
+        let filteredJobs = allJobs.filter(job => {
+            const matchesJobType = jobType === 'all' || 
+                (job.c_job_type && job.c_job_type.toLowerCase().includes(jobType));
+            
+            // This is a simplified example - you would need to adjust based on your data structure
+            const matchesExperience = experience === 'all' || 
+                (job.c_experience_level && job.c_experience_level.toLowerCase() === experience);
+            
+            return matchesJobType && matchesExperience;
+        });
+        
+        // Update total jobs count
+        totalJobsCount.textContent = filteredJobs.length;
+        
+        if (filteredJobs.length === 0) {
+            showEmptyState();
+            loadMoreButton.style.display = 'none';
+            return;
+        }
+        
+        // Clear container
+        jobCardsContainer.innerHTML = '';
+        
+        // Show only visible jobs
+        const jobsToShow = filteredJobs.slice(0, visibleJobs);
+        
+        jobsToShow.forEach((job, index) => {
+            const jobCard = createJobCard(job, index);
+            jobCardsContainer.appendChild(jobCard);
+        });
+        
+        // Show/hide load more button
+        if (filteredJobs.length > visibleJobs) {
+            loadMoreButton.style.display = 'flex';
+        } else {
+            loadMoreButton.style.display = 'none';
+        }
+        
+        updateJobCounts();
+    }
+    
+    // Create job card HTML
+    function createJobCard(job, index) {
+        const jobCard = document.createElement('div');
+        jobCard.className = `job-card ${index < 3 ? 'active' : ''}`;
+        if (job.c_is_featured) {
+            jobCard.classList.add('featured');
+        }
+        
+        // Format salary if available
+        let salaryDisplay = 'Not specified';
+        if (job.c_salary_min && job.c_salary_max) {
+            salaryDisplay = `$${job.c_salary_min} - $${job.c_salary_max}`;
+        } else if (job.c_salary_min) {
+            salaryDisplay = `From $${job.c_salary_min}`;
+        } else if (job.c_salary_max) {
+            salaryDisplay = `Up to $${job.c_salary_max}`;
+        }
+        
+        // Format posted date
+        const postedDate = job.c_posted_date ? new Date(job.c_posted_date) : new Date();
+        const daysAgo = Math.floor((new Date() - postedDate) / (1000 * 60 * 60 * 24));
+        const postedText = daysAgo === 0 ? 'Today' : `${daysAgo} day${daysAgo === 1 ? '' : 's'} ago`;
+        
+        jobCard.innerHTML = `
+            <div class="job-card-header">
+                <img src="${job.company?.c_company_logo || 'https://via.placeholder.com/80?text=Company'}" 
+                     alt="${job.company?.c_company_name || 'Company'} Logo" 
+                     class="job-card-logo">
+                <div class="job-card-title">
+                    <h3>${job.c_job_title || 'Job Title'}</h3>
+                    <p>${job.company?.c_company_name || 'Company'} • ${job.c_job_location || 'Location'}</p>
+                </div>
+                ${job.c_is_featured ? '<span class="job-card-badge">Featured</span>' : ''}
+            </div>
+            <div class="job-card-body">
+                <div class="job-card-details">
+                    <span class="job-card-tag job-type">
+                        <i class="fas fa-clock"></i>
+                        ${job.c_job_type || 'Full-time'}
+                    </span>
+                    <span class="job-card-tag job-salary">
+                        <i class="fas fa-dollar-sign"></i>
+                        ${salaryDisplay}
+                    </span>
+                    <span class="job-card-tag job-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        ${job.c_job_location || 'Location'}
+                    </span>
+                </div>
+                <p class="job-card-description">
+                    ${job.c_job_description || 'No description available'}
+                </p>
+            </div>
+            <div class="job-card-footer">
+                <span class="job-posted">Posted ${postedText}</span>
+                <button class="btn-apply" onclick="window.location.href='http://localhost:5000/Auth/Login'">
+                    Quick Apply
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        `;
+        
+        return jobCard;
+    }
+    
+    // Update visible/total job counts
+    function updateJobCounts() {
+        const visibleCards = document.querySelectorAll('.job-card.active').length;
+        visibleJobsCount.textContent = visibleCards;
+    }
+    
+    // Load more jobs
+    function loadMoreJobs() {
+        visibleJobs += jobsPerLoad;
+        renderJobListings();
+    }
+    
+    // Event listeners
+    loadMoreButton.addEventListener('click', loadMoreJobs);
+    jobTypeFilter.addEventListener('change', renderJobListings);
+    experienceFilter.addEventListener('change', renderJobListings);
+    resetFiltersButton.addEventListener('click', function() {
+        jobTypeFilter.value = 'all';
+        experienceFilter.value = 'all';
+        visibleJobs = jobsPerLoad;
+        renderJobListings();
+    });
+    
+    // Initialize
+    fetchJobs();
+});
+
+// Make fetchJobs available globally for retry button
+function fetchJobs() {
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+}
+</script>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials">
+        <div class="section-header">
+            <h2>Success Stories</h2>
+            <p>Hear from people who found their dream jobs through CareerLink</p>
+        </div>
+
+        <div class="testimonial-slider">
+            <!-- Testimonial 1 -->
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <p>CareerLink's smart matching connected me with a startup that perfectly aligned with my skills and
+                        values. I doubled my salary and finally feel excited about my work!</p>
+                </div>
+                <div class="testimonial-author">
+                    @* will be changed in sprint 2 *@
+                    <img src="https://media.licdn.com/dms/image/v2/D5603AQHrDKS1mzQJbQ/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1714736542444?e=1749686400&v=beta&t=F5mIxzSVDamUwczKOpbnwL9DdcXaz32Z8Njm9C-qqDY"
+                        alt="Sarah J.">
+                    <div class="author-info">
+                        <h4>Shweta Patel</h4>
+                        <p>Senior Product Designer at Figma</p>
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 2 -->
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    @* <div class="quote-icon">
+                        <i class="fas fa-quote-left"></i>
+                    </div> *@
+                    <p>After months of unsuccessful applications, CareerLink helped me land interviews with 5 top tech
+                        companies within 2 weeks. I accepted an offer with a 40% salary increase!</p>
+                </div>
+                <div class="testimonial-author">
+                    @* will be changed in sprint 2 *@
+                    <img src="https://media.licdn.com/dms/image/v2/C4D03AQETBcFG0uN-ag/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1654755535957?e=1749686400&v=beta&t=D7nGYbiaBHZKxHgsGYS2Jc-yzA7wi51_7sgXIBChszU"
+                        alt="Michael T.">
+                    <div class="author-info">
+                        <h4>Kailas Patil</h4>
+                        <p>Software Engineer at Google</p>
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-number register-candidate-count" data-count="92">0</div>
+                <div class="stat-label">Registered Candidates</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number interviews-held" data-count="10000">0</div>
+                <div class="stat-label">Interviews Held So Far</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number active-job-count" data-count="78">0</div>
+                <div class="stat-label active-job">Active Job Posts</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Employer CTA Section -->
+    <section class="employer-cta">
+        <div class="cta-content">
+            <h2>Are You Hiring?</h2>
+            <p>Join thousands of companies finding top talent through CareerLink</p>
+            <ul class="benefits-list">
+                <li><i class="fas fa-check"></i> Access to premium talent pool</li>
+                <li><i class="fas fa-check"></i> Calculate ATS score of your resume</li>
+                <li><i class="fas fa-check"></i> Reduced time-to-hire by 60%</li>
+                <li><i class="fas fa-check"></i> Employer branding tools</li>
+            </ul>
+            <button class="btn-primary btn-large" onclick="window.location.href='@Url.Action("Login", "Auth")'">Post a Job</button>
+            <button class="btn-secondary btn-large" onclick="window.location.href='@Url.Action("Login", "Auth")'">Learn More</button>
+        </div>
+        <div class="cta-image">
+            <img src="~/css/Default/images/hiringimg.jpg" alt="Hiring Solutions">
+        </div>
+    </section>
+
+    <!-- Mobile App Section -->
+    <section class="mobile-app">
+        <div class="app-image">
+            <img src="~/css/Default/images/jobsearch.jpg" alt="img">
+        </div>
+        <div class="app-content">
+            <h2>Job Search On The Go</h2>
+            <p>Stay updated with the latest opportunities and manage your job search anytime, anywhere.</p>
+            <div class="app-features">
+                <div class="app-feature">
+                    <i class="fas fa-bell"></i>
+                    <span>Instant job alerts</span>
+                </div>
+                <div class="app-feature">
+                    <i class="fas fa-comment-alt"></i>
+                    <span>In-app messaging</span>
+                </div>
+                <div class="app-feature">
+                    <i class="fas fa-video"></i>
+                    <span>Video interviews</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WOW Factor FAQ Section -->
+<section class="wow-faq">
+    <div class="wow-faq-header">
+        <h2 data-text="Got Questions?">Got Questions?</h2>
+        <div class="wow-subtitle">
+            <p>We've got <span class="highlight">answers</span> that will <span class="highlight">surprise</span> you</p>
+            <div class="sparkle"></div>
+        </div>
+        <div class="wow-search">
+            <input type="text" placeholder="Ask me anything about CareerLink..." id="wow-search">
+            <button class="search-btn">
+                <i class="fas fa-search"></i>
+            </button>
+            <div class="search-ripple"></div>
+        </div>
+    </div>
+
+    <div class="wow-faq-container">
+        <div class="wow-faq-visual">
+            <div class="visual-container">
+                <div class="orb" id="orb-1"></div>
+                <div class="orb" id="orb-2"></div>
+                <div class="orb" id="orb-3"></div>
+                <div class="main-visual">
+                    <div class="pulsing-circle"></div>
+                    <div class="floating-card" id="card-1">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="floating-card" id="card-2">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="floating-card" id="card-3">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wow-faq-accordion">
+            <div class="wow-faq-item" data-category="general" data-orb="1">
+                <div class="wow-faq-question">
+                    <div class="question-main">
+                        <div class="question-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3>How does CareerLink differ from other job sites?</h3>
+                    </div>
+                    <div class="question-meta">
+                        <span class="question-category">General</span>
+                        <div class="question-arrow">
+                            <div class="arrow-line"></div>
+                            <div class="arrow-line"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wow-faq-answer">
+                    <div class="answer-content">
+                        <p>CareerLink uses advanced AI to match you with jobs that truly fit your skills and career goals, not just keyword matches. Our platform also provides salary insights, skill assessments, and direct communication with employers.</p>
+                        <div class="answer-actions">
+                            <button class="action-btn thumbs-up">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>Helpful</span>
+                                <span class="count">24</span>
+                            </button>
+                            <button class="action-btn share">
+                                <i class="fas fa-share-alt"></i>
+                                <span>Share</span>
+                            </button>
+                            <button class="action-btn save">
+                                <i class="fas fa-bookmark"></i>
+                                <span>Save</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wow-faq-item" data-category="general" data-orb="1">
+                <div class="wow-faq-question">
+                    <div class="question-main">
+                        <div class="question-icon">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <h3>Is CareerLink free for job seekers?</h3>
+                    </div>
+                    <div class="question-meta">
+                        <span class="question-category">General</span>
+                        <div class="question-arrow">
+                            <div class="arrow-line"></div>
+                            <div class="arrow-line"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wow-faq-answer">
+                    <div class="answer-content">
+                        <p>Yes! All job search features are completely free for candidates. We offer premium subscriptions with additional features like enhanced visibility to recruiters and advanced analytics, but you can find and apply to jobs without paying anything.</p>
+                        <div class="answer-actions">
+                            <button class="action-btn thumbs-up">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>Helpful</span>
+                                <span class="count">18</span>
+                            </button>
+                            <button class="action-btn share">
+                                <i class="fas fa-share-alt"></i>
+                                <span>Share</span>
+                            </button>
+                            <button class="action-btn save">
+                                <i class="fas fa-bookmark"></i>
+                                <span>Save</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wow-faq-item" data-category="profile" data-orb="2">
+                <div class="wow-faq-question">
+                    <div class="question-main">
+                        <div class="question-icon">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                        <h3>How do I make my profile stand out?</h3>
+                    </div>
+                    <div class="question-meta">
+                        <span class="question-category">Profile</span>
+                        <div class="question-arrow">
+                            <div class="arrow-line"></div>
+                            <div class="arrow-line"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wow-faq-answer">
+                    <div class="answer-content">
+                        <p>Complete all profile sections, especially skills and work experience. Use specific achievements with metrics when possible (e.g., "Increased conversion by 30%"). Adding a professional photo and taking our skill assessments can also boost your profile visibility.</p>
+                        <div class="answer-actions">
+                            <button class="action-btn thumbs-up">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>Helpful</span>
+                                <span class="count">32</span>
+                            </button>
+                            <button class="action-btn share">
+                                <i class="fas fa-share-alt"></i>
+                                <span>Share</span>
+                            </button>
+                            <button class="action-btn save">
+                                <i class="fas fa-bookmark"></i>
+                                <span>Save</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wow-faq-item" data-category="application" data-orb="3">
+                <div class="wow-faq-question">
+                    <div class="question-main">
+                        <div class="question-icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <h3>Can I apply to jobs directly through CareerLink?</h3>
+                    </div>
+                    <div class="question-meta">
+                        <span class="question-category">Application</span>
+                        <div class="question-arrow">
+                            <div class="arrow-line"></div>
+                            <div class="arrow-line"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wow-faq-answer">
+                    <div class="answer-content">
+                        <p>Absolutely! Many jobs on our platform support one-click applications using your CareerLink profile. For others, we'll redirect you to the company's application page with your information pre-filled where possible.</p>
+                        <div class="answer-actions">
+                            <button class="action-btn thumbs-up">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>Helpful</span>
+                                <span class="count">15</span>
+                            </button>
+                            <button class="action-btn share">
+                                <i class="fas fa-share-alt"></i>
+                                <span>Share</span>
+                            </button>
+                            <button class="action-btn save">
+                                <i class="fas fa-bookmark"></i>
+                                <span>Save</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animated Orbs
+        const orbs = document.querySelectorAll('.orb');
+        orbs.forEach(orb => {
+            animateOrb(orb);
+        });
+
+        function animateOrb(orb) {
+            const duration = Math.random() * 10 + 10;
+            const delay = Math.random() * 5;
+            const size = Math.random() * 20 + 10;
+            
+            orb.style.width = `${size}px`;
+            orb.style.height = `${size}px`;
+            orb.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+            
+            // Random starting position
+            const startX = Math.random() * 80 + 10;
+            const startY = Math.random() * 80 + 10;
+            orb.style.left = `${startX}%`;
+            orb.style.top = `${startY}%`;
+        }
+
+        // Floating Cards Animation
+        const cards = document.querySelectorAll('.floating-card');
+        cards.forEach((card, index) => {
+            const duration = 15 + (index * 3);
+            const delay = index * 2;
+            card.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+        });
+
+        // Pulsing Circle
+        const pulsingCircle = document.querySelector('.pulsing-circle');
+        setInterval(() => {
+            pulsingCircle.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                pulsingCircle.style.transform = 'scale(1)';
+            }, 1000);
+        }, 2000);
+
+        // FAQ Accordion
+        const faqItems = document.querySelectorAll('.wow-faq-item');
+        
+        faqItems.forEach(item => {
+            const question = item.querySelector('.wow-faq-question');
+            const answer = item.querySelector('.wow-faq-answer');
+            const arrowLines = item.querySelectorAll('.arrow-line');
+            const orbId = item.dataset.orb;
+            const correspondingOrb = document.getElementById(`orb-${orbId}`);
+            
+            question.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+                
+                // Close all items
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.classList.remove('active');
+                        otherItem.querySelector('.wow-faq-answer').style.maxHeight = null;
+                        const otherArrowLines = otherItem.querySelectorAll('.arrow-line');
+                        otherArrowLines[0].style.transform = 'rotate(0deg)';
+                        otherArrowLines[1].style.transform = 'rotate(0deg)';
+                    }
+                });
+                
+                // Toggle current item
+                if (!isActive) {
+                    item.classList.add('active');
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                    arrowLines[0].style.transform = 'rotate(45deg)';
+                    arrowLines[1].style.transform = 'rotate(-45deg)';
+                    
+                    // Pulse the corresponding orb
+                    if (correspondingOrb) {
+                        correspondingOrb.style.transform = 'scale(1.5)';
+                        setTimeout(() => {
+                            correspondingOrb.style.transform = 'scale(1)';
+                        }, 300);
+                    }
+                } else {
+                    item.classList.remove('active');
+                    answer.style.maxHeight = null;
+                    arrowLines[0].style.transform = 'rotate(0deg)';
+                    arrowLines[1].style.transform = 'rotate(0deg)';
+                }
+            });
+        });
+
+        // Interactive Search
+        const searchInput = document.getElementById('wow-search');
+        const searchRipple = document.querySelector('.search-ripple');
+        
+        searchInput.addEventListener('focus', () => {
+            searchRipple.style.opacity = '1';
+            searchRipple.style.transform = 'scale(1)';
+        });
+        
+        searchInput.addEventListener('blur', () => {
+            searchRipple.style.opacity = '0';
+            searchRipple.style.transform = 'scale(0.5)';
+        });
+
+        // Interactive Text
+        const interactiveTexts = document.querySelectorAll('.interactive-text');
+        interactiveTexts.forEach(text => {
+            text.addEventListener('mouseover', () => {
+                text.style.backgroundPosition = '100% 50%';
+            });
+            
+            text.addEventListener('mouseout', () => {
+                text.style.backgroundPosition = '0% 50%';
+            });
+        });
+
+        // Action Buttons
+        const actionButtons = document.querySelectorAll('.action-btn');
+        actionButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.add('clicked');
+                setTimeout(() => {
+                    this.classList.remove('clicked');
+                }, 300);
+                
+                if (this.classList.contains('thumbs-up')) {
+                    const count = this.querySelector('.count');
+                    count.textContent = parseInt(count.textContent) + 1;
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    /* Base Styles */
+    @@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+        --primary: #4361ee;
+        --primary-light: #4895ef;
+        --secondary: #3f37c9;
+        --accent: #f72585;
+        --dark: #212529;
+        --light: #f8f9fa;
+        --gray: #6c757d;
+        --success: #4cc9f0;
+    }
+    
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #fafafa;
+    }
+    
+    .wow-faq {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .wow-faq::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at center, rgba(67, 97, 238, 0.05) 0%, transparent 70%);
+        z-index: -1;
+    }
+    
+    /* Header Styles */
+    .wow-faq-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+    
+    .wow-faq-header h2 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .wow-faq-header h2::after {
+        content: attr(data-text);
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: transparent;
+        -webkit-text-stroke: 1px var(--primary);
+        z-index: -1;
+        opacity: 0.5;
+    }
+    
+    .wow-subtitle {
+        font-size: 1.25rem;
+        color: var(--gray);
+        margin-bottom: 2rem;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .highlight {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .highlight::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 40%;
+        background-color: rgba(67, 97, 238, 0.2);
+        z-index: -1;
+        transform: scaleX(0.9);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+    
+    .highlight:hover::after {
+        transform: scaleX(1);
+    }
+    
+    .sparkle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: var(--accent);
+        border-radius: 50%;
+        opacity: 0;
+    }
+    
+    .wow-subtitle .sparkle {
+        top: -10px;
+        right: -15px;
+        animation: sparkle 2s infinite 1s;
+    }
+    
+    /* Search Styles */
+    .wow-search {
+        max-width: 600px;
+        margin: 0 auto;
+        position: relative;
+    }
+    
+    .wow-search input {
+        width: 100%;
+        padding: 1.2rem 2rem;
+        padding-right: 4rem;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        background-color: white;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .wow-search input:focus {
+        outline: none;
+        box-shadow: 0 5px 25px rgba(67, 97, 238, 0.2);
+    }
+    
+    .wow-search input::placeholder {
+        color: #adb5bd;
+    }
+    
+    .search-btn {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .search-btn:hover {
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    .search-ripple {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50px;
+        background: radial-gradient(circle at center, rgba(67, 97, 238, 0.1) 0%, transparent 70%);
+        opacity: 0;
+        transform: scale(0.5);
+        transition: all 0.6s ease;
+        z-index: -1;
+    }
+    
+    /* FAQ Container */
+    .wow-faq-container {
+        display: flex;
+        gap: 3rem;
+        align-items: flex-start;
+    }
+    
+    .wow-faq-visual {
+        flex: 1;
+        position: relative;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .visual-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(5px);
+        z-index: -1;
+    }
+    
+    #orb-1 {
+        background: radial-gradient(circle at center, var(--primary-light) 0%, transparent 70%);
+    }
+    
+    #orb-2 {
+        background: radial-gradient(circle at center, var(--accent) 0%, transparent 70%);
+    }
+    
+    #orb-3 {
+        background: radial-gradient(circle at center, var(--success) 0%, transparent 70%);
+    }
+    
+    .main-visual {
+        width: 300px;
+        height: 300px;
+        background-color: white;
+        border-radius: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .pulsing-circle {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(67, 97, 238, 0.3) 100%);
+        transition: all 1s ease;
+    }
+    
+    .floating-card {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        background-color: white;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 1.5rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    #card-1 {
+        top: -30px;
+        left: -30px;
+        background: linear-gradient(135deg, #f72585, #b5179e);
+        color: white;
+    }
+    
+    #card-2 {
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #4361ee, #3f37c9);
+        color: white;
+    }
+    
+    #card-3 {
+        top: 50%;
+        right: -30px;
+        transform: translateY(-50%);
+        background: linear-gradient(135deg, #4cc9f0, #4895ef);
+        color: white;
+    }
+    
+    /* FAQ Accordion */
+    .wow-faq-accordion {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .wow-faq-item {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .wow-faq-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .wow-faq-question {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .wow-faq-item.active .wow-faq-question {
+        background-color: rgba(67, 97, 238, 0.03);
+    }
+    
+    .question-main {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .question-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background-color: rgba(67, 97, 238, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+    }
+    
+    .wow-faq-question h3 {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--dark);
+    }
+    
+    .question-meta {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    
+    .question-category {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        background-color: var(--light);
+        color: var(--gray);
+    }
+    
+    .question-arrow {
+        width: 20px;
+        height: 20px;
+        position: relative;
+    }
+    
+    .arrow-line {
+        position: absolute;
+        width: 12px;
+        height: 2px;
+        background-color: var(--gray);
+        top: 50%;
+        left: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .arrow-line:first-child {
+        transform: rotate(0deg);
+        transform-origin: left center;
+    }
+    
+    .arrow-line:last-child {
+        transform: rotate(0deg);
+        transform-origin: left center;
+    }
+    
+    .wow-faq-item.active .arrow-line:first-child {
+        transform: rotate(45deg);
+    }
+    
+    .wow-faq-item.active .arrow-line:last-child {
+        transform: rotate(-45deg);
+    }
+    
+    .wow-faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease;
+    }
+    
+    .answer-content {
+        padding: 0 1.5rem 1.5rem;
+        padding-left: 5rem;
+    }
+    
+    .wow-faq-answer p {
+        color: var(--gray);
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+    
+    .answer-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        background-color: var(--light);
+        border: none;
+        color: var(--gray);
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .action-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .action-btn.clicked::after {
+        transform: translateY(0);
+    }
+    
+    .action-btn.thumbs-up:hover {
+        background-color: rgba(76, 201, 240, 0.1);
+        color: var(--success);
+    }
+    
+    .action-btn.share:hover {
+        background-color: rgba(67, 97, 238, 0.1);
+        color: var(--primary);
+    }
+    
+    .action-btn.save:hover {
+        background-color: rgba(247, 37, 133, 0.1);
+        color: var(--accent);
+    }
+    
+    .count {
+        font-weight: 600;
+    }
+    
+    /* Footer Styles */
+    .wow-faq-footer {
+        text-align: center;
+        margin-top: 3rem;
+        color: var(--gray);
+        position: relative;
+    }
+    
+    .interactive-text {
+        position: relative;
+        cursor: pointer;
+        background: linear-gradient(90deg, var(--primary), var(--primary) 50%, transparent 50%, transparent);
+        background-size: 200% 100%;
+        background-position: 0% 50%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        transition: all 0.3s ease;
+    }
+    
+    .footer-sparkles {
+        position: absolute;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        bottom: -1.5rem;
+    }
+    
+    .footer-sparkles .sparkle {
+        width: 6px;
+        height: 6px;
+        background-color: var(--accent);
+        animation: sparkle 2s infinite;
+    }
+    
+    .footer-sparkles .sparkle:nth-child(2) {
+        animation-delay: 0.5s;
+    }
+    
+    .footer-sparkles .sparkle:nth-child(3) {
+        animation-delay: 1s;
+    }
+    
+    /* Animations */
+    @@keyframes float {
+        0%, 100% {
+            transform: translateY(0) translateX(0);
+        }
+        25% {
+            transform: translateY(-10px) translateX(5px);
+        }
+        50% {
+            transform: translateY(5px) translateX(-5px);
+        }
+        75% {
+            transform: translateY(-5px) translateX(10px);
+        }
+    }
+    
+    @@keyframes sparkle {
+        0%, 100% {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+    }
+    
+    /* Responsive Styles */
+    @@media (max-width: 992px) {
+        .wow-faq-container {
+            flex-direction: column;
+        }
+        
+        .wow-faq-visual {
+            min-height: 300px;
+            margin-bottom: 2rem;
+        }
+        
+        .main-visual {
+            width: 250px;
+            height: 250px;
+        }
+    }
+    
+    @@media (max-width: 768px) {
+        .wow-faq-header h2 {
+            font-size: 2.5rem;
+        }
+        
+        .wow-subtitle {
+            font-size: 1.1rem;
+        }
+        
+        .answer-content {
+            padding-left: 1.5rem;
+        }
+        
+        .question-main {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .question-icon {
+            display: none;
+        }
+    }
+    
+    @@media (max-width: 576px) {
+        .wow-faq {
+            padding: 3rem 1rem;
+        }
+        
+        .answer-actions {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter" style="background-color: transparent;">
+        <div class="newsletter-container">
+            <div class="newsletter-content">
+                <h2 style="color: black;">Get Job Alerts Straight to Your Inbox</h2>
+                <p style="color: black;">Sign up for our newsletter and receive curated job listings based on your
+                    preferences.</p>
+                <div class="newsletter-form">
+                    <button class="btn-primary subscribe"><a style="text-decoration: none;color: white;"
+                            asp-action="Register" asp-controller="Auth">Subscribe</a></button>
+                </div>
+                @* sprint2 work...*@
+                <small style="color: black;">We respect your privacy. Unsubscribe at any time.</small>
+            </div>
+            <div class="newsletter-image">
+                <img src="~/css/Default/images/subscribeimg.jpg" alt="Stay Updated">
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-main">
+            <div class="footer-about">
+                <div class="footer-logo">
+                    <img src="~/css/Default/images/CL2.png" alt="CareerLink" class="logo-img">
+                </div>
+                <p>Connecting talent with opportunity through intelligent matching technology.</p>
+                <div class="social-links">
+                    <a href="https://www.facebook.com" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.twitter.com" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.linkedin.com" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://www.instagram.com" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.youtube.com" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-links">
+                <div class="link-column">
+                    <h4>About Us</h4>
+                    <ul>
+                        <li><a href="#">Our Mission</a></li>
+                        <li><a href="#">Team</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press</a></li>
+                    </ul>
+                </div>
+
+                <div class="link-column">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="mailto:info@careerlink.com">Email Us</a></li>
+                        <li><a href="tel:+1234567890">Call Us</a></li>
+                        <li><a href="#">Support Center</a></li>
+                        <li><a href="#">Visit Us</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom ">
+            <p class="copyright">&copy; 2025 CareerLink. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" title="Go to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Chatbot Elements -->
+    <!-- Floating Bot Icon -->
+   <!-- Existing chatbot elements -->
+<!-- Floating Bot Icon -->
+<div id="bot-icon"></div>
+    
+<!-- Bot Greeting -->
+<div id="bot-greeting" style="display: none;">
+    
+</div>
+
+<!-- Add Feedback Icon -->
+<div id="feedback-icon" title="Share your feedback">
+    <i class="fas fa-comment-alt"></i>
+</div>
+
+<!-- Feedback Form Popup -->
+<div id="feedback-overlay">
+    <div id="feedback-popup">
+        <div class="feedback-header">
+            <h3>Share Your Feedback</h3>
+            <span id="close-feedback">&times;</span>
+        </div>
+        
+        <div class="feedback-body">
+    <form id="feedback-form" novalidate>
+        <div class="form-group">
+            <label for="feedback-type">I am a: <span class="required">*</span></label>
+            <select id="feedback-type" required>
+                <option value="" disabled selected>Please select</option>
+                <option value="candidate">Job Seeker</option>
+                <option value="recruiter">Recruiter</option>
+            </select>
+            <div class="error-message" id="type-error"></div>
+        </div>
+        
+        <div class="form-group">
+            <label for="feedback-email">Email: <span class="required">*</span></label>
+            <input type="email" id="feedback-email" placeholder="your.email@example.com" required>
+            <div class="error-message" id="email-error"></div>
+        </div>
+        
+        <div class="form-group">
+            <label for="feedback-rating">Rate your experience: <span class="required">*</span></label>
+            <div class="rating-container">
+                <div class="emoji-rating">
+                    <span class="rating-emoji" data-value="1">😡</span>
+                    <span class="rating-emoji" data-value="2">😕</span>
+                    <span class="rating-emoji" data-value="3">😐</span>
+                    <span class="rating-emoji" data-value="4">🙂</span>
+                    <span class="rating-emoji" data-value="5">😄</span>
+                </div>
+                <span class="rating-text">Select rating</span>
+            </div>
+            <input type="hidden" id="feedback-rating" required>
+            <div class="error-message" id="rating-error"></div>
+        </div>
+        
+        <div class="form-group">
+            <label for="feedback-message">Your feedback: <span class="required">*</span></label>
+            <textarea id="feedback-message" rows="4" placeholder="Please share your thoughts or suggestions..." required></textarea>
+            <div class="error-message" id="message-error"></div>
+        </div>
+        
+        <div class="form-buttons">
+            <button type="button" id="cancel-feedback" class="btn-secondary">Cancel</button>
+            <button type="submit" class="btn-primary">Submit Feedback</button>
+        </div>
+    </form>
+</div>
+    </div>
+</div>
+    
+    <!-- Chatbot Box -->
+    <div id="chat-popup">
+        <!-- Header -->
+        <div style="background: linear-gradient(to right, #007bff, #00bfff); color: white; padding: 14px 16px; font-weight: bold; font-size: 16px;">
+            Careerlink Assistant
+            <span style="float: right; cursor: pointer;" id="close-chat">&times;</span>
+        </div>
+
+        <!-- Messages -->
+        <div id="chat-box"></div>
+
+        <!-- Input -->
+        <div style="padding: 10px; border-top: 1px solid #ddd; background: #f8f9fa;">
+            <div style="display: flex; gap: 6px;">
+                <input type="color" id="color-picker" title="Pick a color"
+                    style="width: 40px; height: 40px; border: none; cursor: pointer; border-radius: 100%;" />
+                <input type="text" id="user-input" class="form-control" placeholder="Type a message..." style="flex: 1;" />
+                <button id="send-btn" class="btn btn-primary">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio for idle -->
+    <audio id="idle-audio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    @* <script src="app.js"></script> *@
+    <script>
+        // Main app.js file
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize all functionality
+            initParticles();
+            initMobileMenu();
+            initTypingAnimation();
+            initCounters();
+            initFAQAccordion();
+            initBackToTop();
+            initSmoothScrolling();
+            initTestimonialSlider();
+            initDynamicLandingData()
+        });
+
+        function initDynamicLandingData() {
+            $.ajax({
+                url: `http://localhost:5086/api/LandingApi/getLandingDetails`,
+                type: 'GET',
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    $('.job-posted-count').attr('data-count', data[0]);
+                    $('.active-job-count').attr('data-count', data[1]);
+                    $('.company-count').attr('data-count', data[2]);
+                    $('.register-candidate-count').attr('data-count', data[3]);
+                    $('.interviews-held').attr('data-count', data[4]);
+                    $('.hired-candidate-count').attr('data-count', data[5]);
+                    console.log(data);
+                    console.log("job-count" + data[0]); // Log the response data for debugging
+                    console.log("company-count" + data[1]); // Log the response data for debugging
+                    console.log("RegisterCandidateCount" + data[2]); // Log the response data for debugging
+                    console.log("active-job-count" + data[2]); // Log the response data for debugging
+                },
+                error: function () {
+                    console.error('Failed to fetch profile data.');
+                }
+            });
+
+        }
+
+        // Particles.js Background
+        function initParticles() {
+            if (typeof particlesJS !== 'undefined') {
+                particlesJS('particles-js', {
+                    particles: {
+                        number: { value: 80, density: { enable: true, value_area: 800 } },
+                        color: { value: "#4361ee" },
+                        shape: { type: "circle" },
+                        opacity: { value: 0.5, random: true },
+                        size: { value: 3, random: true },
+                        line_linked: { enable: true, distance: 150, color: "#4361ee", opacity: 0.4, width: 1 },
+                        move: { enable: true, speed: 2, direction: "none", random: true, straight: false, out_mode: "out" }
+                    },
+                    interactivity: {
+                        detect_on: "canvas",
+                        events: {
+                            onhover: { enable: true, mode: "repulse" },
+                            onclick: { enable: true, mode: "push" }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Mobile Menu Toggle
+        function initMobileMenu() {
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+            const authButtons = document.querySelector('.auth-buttons');
+
+            if (menuBtn) {
+                menuBtn.addEventListener('click', function () {
+                    navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+                    authButtons.style.display = authButtons.style.display === 'flex' ? 'none' : 'flex';
+                });
+            }
+
+            // Close mobile menu when clicking on a link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function () {
+                    if (window.innerWidth <= 768) {
+                        navLinks.style.display = 'none';
+                        authButtons.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Typing Animation in Hero Section
+        // Typing Animation in Hero Section
+function initTypingAnimation() {
+    const typingElement = document.querySelector('.typing-animation');
+    if (!typingElement) return;
+
+    const words = ["Dream", "Perfect", "Ideal", "Next", "Fulfilling", "Remote", "Flexible", "High-Paying", "Leadership", "Tech", "Creative"];
+    let wordIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let isWaiting = false;
+    
+    // Animation timing (in milliseconds)
+    const typingSpeed = 100;     // Time between typing each character
+    const deletingSpeed = 50;    // Time between deleting each character
+    const wordDelay = 1000;      // How long to pause after typing a complete word
+    const startDelay = 500;      // Initial delay before starting to type
+
+    function typeNextChar() {
+        const currentWord = words[wordIndex];
+        const currentChar = currentWord.substring(0, charIndex);
+        
+        typingElement.textContent = currentChar;
+        typingElement.classList.add('active');
+
+        // Add blinking cursor effect
+        if (!isDeleting) {
+            typingElement.classList.add('typing');
+        } else {
+            typingElement.classList.remove('typing');
+        }
+
+        // Handle typing or deleting characters
+        if (!isDeleting && charIndex < currentWord.length) {
+            // Typing
+            charIndex++;
+            setTimeout(typeNextChar, typingSpeed);
+        } else if (isDeleting && charIndex > 0) {
+            // Deleting
+            charIndex--;
+            setTimeout(typeNextChar, deletingSpeed);
+        } else {
+            // Change word
+            isDeleting = !isDeleting;
+            typingElement.classList.remove('typing');
+            
+            if (!isDeleting) {
+                wordIndex = (wordIndex + 1) % words.length;
+                setTimeout(typeNextChar, startDelay);
+            } else {
+                // Pause before deleting
+                setTimeout(typeNextChar, wordDelay);
+            }
+        }
+    }
+
+    // Start the typing animation
+    setTimeout(typeNextChar, startDelay);
+}
+
+        // Animated Counter for Stats
+        function initCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            const speed = 200;
+
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-count');
+                const count = +counter.innerText;
+                const increment = target / speed;
+
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(initCounters, 1);
+                } else {
+                    counter.innerText = target.toLocaleString();
+                }
+            });
+        }
+
+        // FAQ Accordion
+        function initFAQAccordion() {
+            const faqItems = document.querySelectorAll('.faq-item');
+
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+
+                question.addEventListener('click', () => {
+                    const isActive = item.classList.contains('active');
+
+                    // Close all other items
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('active');
+                            otherItem.querySelector('.faq-answer').style.maxHeight = null;
+                        }
+                    });
+
+                    // Toggle current item
+                    if (!isActive) {
+                        item.classList.add('active');
+                        const answer = item.querySelector('.faq-answer');
+                        answer.style.maxHeight = answer.scrollHeight + 'px';
+                    } else {
+                        item.classList.remove('active');
+                        item.querySelector('.faq-answer').style.maxHeight = null;
+                    }
+                });
+            });
+        }
+
+        // Back to Top Button
+        function initBackToTop() {
+            const backToTopBtn = document.getElementById('back-to-top');
+
+            if (backToTopBtn) {
+                window.addEventListener('scroll', function () {
+                    if (window.pageYOffset > 300) {
+                        backToTopBtn.classList.add('visible');
+                    } else {
+                        backToTopBtn.classList.remove('visible');
+                    }
+                });
+
+                backToTopBtn.addEventListener('click', function () {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+        }
+
+        // Smooth Scrolling for Anchor Links
+        // Update your existing initSmoothScrolling function to this:
+        function initSmoothScrolling() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        // Calculate the position to scroll to, accounting for the fixed header
+                        const headerHeight = document.querySelector('.glass-nav').offsetHeight;
+                        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+
+                        // Update URL without jumping
+                        if (history.pushState) {
+                            history.pushState(null, null, targetId);
+                        } else {
+                            location.hash = targetId;
+                        }
+                    }
+                });
+            });
+        }
+
+        // Testimonial Slider
+        function initTestimonialSlider() {
+            const slider = document.querySelector('.testimonial-slider');
+            if (!slider) return;
+
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+
+            slider.addEventListener('mouseleave', () => {
+                isDown = false;
+            });
+
+            slider.addEventListener('mouseup', () => {
+                isDown = false;
+            });
+
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 2;
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        }
+
+        // AJAX Job Search Functionality
+        function initJobSearch() {
+            const searchForm = document.querySelector('.search-bar');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    const jobTitle = this.querySelector('input[type="text"]').value;
+                    const location = this.querySelector('input[placeholder="Location"]').value;
+
+                    // Show loading state
+                    const searchBtn = this.querySelector('button');
+                    const originalText = searchBtn.textContent;
+                    searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+
+                    // Simulate AJAX call (replace with actual API call)
+                    setTimeout(() => {
+                        // This would be replaced with actual fetch/AJAX call
+                        // fetchJobs(jobTitle, location);
+
+                        // For demo purposes, just show a message
+                        searchBtn.textContent = originalText;
+                        alert(`Searching for "${jobTitle}" jobs in ${location || 'any location'}`);
+                    }, 1500);
+                });
+            }
+        }
+
+        // Example of fetching jobs from an API
+        async function fetchJobs(keyword = '', location = '') {
+            try {
+                // This would be your actual API endpoint
+                const response = await fetch(`/api/jobs?keyword=${encodeURIComponent(keyword)}&location=${encodeURIComponent(location)}`);
+                const data = await response.json();
+
+                // Process and display the jobs
+                displayJobs(data.jobs);
+            } catch (error) {
+                console.error('Error fetching jobs:', error);
+                // Show error to user
+            }
+        }
+
+        function displayJobs(jobs) {
+            const jobsContainer = document.querySelector('.job-cards');
+            if (!jobsContainer) return;
+
+            // Clear existing jobs
+            jobsContainer.innerHTML = '';
+
+            // Add new jobs
+            jobs.forEach(job => {
+                const jobCard = document.createElement('div');
+                jobCard.className = 'job-card';
+                jobCard.innerHTML = `
+            @* ${job.featured ? '<div class="job-badge">Featured</div>' : ''} *@
+            <div class="job-header">
+                <img src="${job.companyLogo}" alt="${job.companyName}">
+                <div class="job-title">
+                    <h3>${job.title}</h3>
+                    <p>${job.companyName} • ${job.location}</p>
+                </div>
+            </div>
+            <div class="job-details">
+                <span class="job-salary">${job.salary}</span>
+                <span class="job-type">${job.type}</span>
+                ${job.remote ? '<span class="job-remote">Remote Possible</span>' : ''}
+            </div>
+            <div class="job-skills">
+                ${job.skills.map(skill => `<span>${skill}</span>`).join('')}
+            </div>
+            <div class="job-footer">
+                <span class="job-posted">Posted ${job.postedDate}</span>
+                <button class="btn-apply" data-job-id="${job.id}">Quick Apply</button>
+            </div>
+        `;
+
+                jobsContainer.appendChild(jobCard);
+            });
+
+            // Add event listeners to new apply buttons
+            document.querySelectorAll('.btn-apply').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const jobId = this.getAttribute('data-job-id');
+                    applyForJob(jobId);
+                });
+            });
+        }
+
+        async function applyForJob(jobId) {
+            try {
+                // Check if user is logged in
+                const isLoggedIn = checkAuthStatus(); // You'd implement this
+
+                if (!isLoggedIn) {
+                    // Show login modal or redirect
+                    showLoginModal();
+                    return;
+                }
+
+                // Show loading state
+                const applyBtn = document.querySelector(`.btn-apply[data-job-id="${jobId}"]`);
+                const originalText = applyBtn.textContent;
+                applyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Applying...';
+
+                // Simulate API call
+                setTimeout(() => {
+                    // In a real app, you'd make an actual API call here
+                    // const response = await fetch(`/api/jobs/${jobId}/apply`, { method: 'POST' });
+
+                    // For demo purposes
+                    applyBtn.textContent = 'Applied!';
+                    applyBtn.style.backgroundColor = '#4CAF50';
+                    applyBtn.disabled = true;
+
+                    // Show success message
+                    showToast('Application submitted successfully!');
+                }, 1500);
+            } catch (error) {
+                console.error('Error applying for job:', error);
+                showToast('Failed to apply. Please try again.', 'error');
+            }
+        }
+
+        // Utility Functions
+        function checkAuthStatus() {
+            // In a real app, check if user has a valid auth token
+            return false; // Change this based on actual auth status
+        }
+
+        function showLoginModal() {
+            // Implement a modal to prompt login/signup
+            alert('Please login or create an account to apply for jobs.');
+        }
+
+        function showToast(message, type = 'success') {
+            // Implement a toast notification system
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+        // Add this function to your existing JavaScript
+        function initScrollAnimations() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: "0px 0px -50px 0px"
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+
+                        // For elements that should animate only once
+                        if (entry.target.dataset.animateOnce === 'true') {
+                            observer.unobserve(entry.target);
+                        }
+                    } else if (!entry.target.dataset.animateOnce) {
+                        // For elements that should animate every time they come into view
+                        entry.target.classList.remove('visible');
+                    }
+                });
+            }, observerOptions);
+
+            // Add animation classes to your sections and elements
+            document.querySelectorAll('.feature-card').forEach((card, index) => {
+                card.classList.add(index % 2 === 0 ? 'slide-in-left' : 'slide-in-right');
+                observer.observe(card);
+            });
+
+            document.querySelectorAll('.step').forEach((step, index) => {
+                step.classList.add('fade-in');
+                step.style.transitionDelay = `${index * 0.1}s`;
+                observer.observe(step);
+            });
+
+            document.querySelectorAll('.job-card').forEach((card, index) => {
+                card.classList.add('scale-in');
+                card.style.transitionDelay = `${index * 0.1}s`;
+                observer.observe(card);
+            });
+
+            document.querySelectorAll('.testimonial-card').forEach(card => {
+                card.classList.add('fade-in');
+                observer.observe(card);
+            });
+
+            // Add animations to section headers
+            document.querySelectorAll('.section-header').forEach(header => {
+                header.classList.add('fade-in');
+                observer.observe(header);
+            });
+
+            // Add animations to other elements as needed
+            document.querySelectorAll('.stat-item').forEach(item => {
+                item.classList.add('fade-in');
+                observer.observe(item);
+            });
+
+            document.querySelectorAll('.app-feature').forEach((feature, index) => {
+                feature.classList.add('fade-in');
+                feature.style.transitionDelay = `${index * 0.1}s`;
+                observer.observe(feature);
+            });
+
+            document.querySelectorAll('.faq-item').forEach((item, index) => {
+                item.classList.add('fade-in');
+                item.style.transitionDelay = `${index * 0.05}s`;
+                observer.observe(item);
+            });
+        }
+
+        // Add this to your DOMContentLoaded event listener
+        document.addEventListener('DOMContentLoaded', function () {
+            // ... your existing initialization calls
+            initScrollAnimations();
+        });
+        // Initialize all functionality when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            initParticles();
+            initMobileMenu();
+            initTypingAnimation();
+            initCounters();
+            initFAQAccordion();
+            initBackToTop();
+            initSmoothScrolling();
+            initTestimonialSlider();
+            initJobSearch();
+        });
+
+        // Chatbot Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Existing initialization code
+            // ...
+
+            // Chatbot initialization
+            initializeChatbot();
+        });
+
+        function initializeChatbot() {
+            const botIcon = document.getElementById("bot-icon");
+            const chatPopup = document.getElementById("chat-popup");
+            const closeBtn = document.getElementById("close-chat");
+            const userInput = document.getElementById("user-input");
+            const sendBtn = document.getElementById("send-btn");
+            const chatBox = document.getElementById("chat-box");
+            const idleAudio = document.getElementById("idle-audio");
+            const greeting = document.getElementById("bot-greeting");
+
+            let isOpen = false;
+            let idleTimer;
+
+            // Speech Recognition Setup
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+            if (recognition) {
+                recognition.lang = 'en-US';
+                recognition.interimResults = false;
+
+                recognition.addEventListener("result", (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    userInput.value = transcript;
+
+                    // Automatically send the message after voice input
+                    sendBtn.click();
+                });
+
+                recognition.addEventListener("end", () => {
+                    console.log("Speech recognition ended.");
+                });
+            } else {
+                console.warn("Speech Recognition API is not supported in this browser.");
+            }
+
+            function resetIdleTimer() {
+                clearTimeout(idleTimer);
+                idleAudio.pause();
+                idleAudio.currentTime = 0;
+
+                idleTimer = setTimeout(() => {
+                    idleAudio.play();
+                }, 20000);
+            }
+            
+            // Show greeting after a delay
+            setTimeout(() => {
+                greeting.style.display = 'flex';
+            }, 1000);
+
+            botIcon.addEventListener("click", () => {
+                if (!isOpen) {
+                    greeting.style.display = 'none';
+                    chatPopup.style.display = "flex";
+                    setTimeout(() => {
+                        chatPopup.style.transform = "scale(1)";
+                        chatPopup.style.opacity = "1";
+                        resetIdleTimer();
+                    }, 10);
+                } else {
+                    chatPopup.style.transform = "scale(0.6)";
+                    chatPopup.style.opacity = "0";
+                    setTimeout(() => {
+                        chatPopup.style.display = "none";
+                        clearTimeout(idleTimer);
+                        idleAudio.pause();
+                        idleAudio.currentTime = 0;
+                    }, 300);
+                }
+                isOpen = !isOpen;
+            });
+
+            closeBtn.addEventListener("click", () => {
+                chatPopup.style.transform = "scale(0.6)";
+                chatPopup.style.opacity = "0";
+                setTimeout(() => {
+                    chatPopup.style.display = "none";
+                    clearTimeout(idleTimer);
+                    idleAudio.pause();
+                    idleAudio.currentTime = 0;
+                }, 300);
+                isOpen = false;
+            });
+
+            function speakText(text) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'hi-IN'; // Set language to Hindi
+                speechSynthesis.speak(utterance);
+            }
+
+            function addTypingIndicator(side = "bot") {
+                const bubble = document.createElement("div");
+                bubble.className = "chat-bubble typing " + (side === "user" ? "user" : "bot");
+                bubble.textContent = side === "user" ? "Typing..." : "Bot is typing...";
+                bubble.id = `${side}-typing`;
+                chatBox.appendChild(bubble);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            function removeTypingIndicator(side = "bot") {
+                const typing = document.getElementById(`${side}-typing`);
+                if (typing) typing.remove();
+            }
+
+            const colorPicker = document.getElementById("color-picker");
+            
+            // Ensure new messages use the selected color
+            function appendMessage(text, side = "bot") {
+                const msgContainer = document.createElement("div");
+                msgContainer.style.display = "flex";
+                msgContainer.style.alignItems = "center";
+                msgContainer.style.gap = "10px";
+                msgContainer.style.marginBottom = "10px";
+
+                const avatar = document.createElement("img");
+                avatar.style.width = "30px";
+                avatar.style.height = "30px";
+                avatar.style.borderRadius = "100%";
+
+                if (side === "user") {
+                    avatar.src = "https://cdn-icons-png.flaticon.com/512/2922/2922510.png"; // User avatar
+                    msgContainer.style.flexDirection = "row-reverse";
+                } else {
+                    avatar.src = "https://cdn-icons-png.flaticon.com/512/4712/4712027.png"; // Bot avatar
+                }
+
+                const msg = document.createElement("div");
+                msg.className = `chat-bubble ${side}`;
+                msg.textContent = text;
+                
+                if (colorPicker.value && colorPicker.value !== "#000000") {
+                    msg.style.color = colorPicker.value; // Apply the selected color
+                }
+
+                // Add timestamp
+                const timestamp = document.createElement("span");
+                timestamp.style.display = "block";
+                timestamp.style.fontSize = "10px";
+                timestamp.style.color = "#6c757d";
+                timestamp.textContent = new Date().toLocaleTimeString();
+                msg.appendChild(timestamp);
+
+                // Add click-to-select functionality
+                msg.addEventListener("click", () => {
+                    if (msg.classList.contains("selected")) {
+                        msg.classList.remove("selected");
+                    } else {
+                        msg.classList.add("selected");
+                    }
+                });
+
+                // Allow editing for user messages only
+                if (side === "user") {
+                    msg.addEventListener("dblclick", () => {
+                        const newText = prompt("Edit your message:", text);
+                        if (newText !== null && newText.trim() !== "") {
+                            msg.firstChild.textContent = newText; // Update the message text
+                        }
+                    });
+                }
+
+                // Add swipe-to-delete functionality
+                let startX;
+                msg.addEventListener("touchstart", (e) => {
+                    startX = e.touches[0].clientX;
+                });
+
+                msg.addEventListener("touchend", (e) => {
+                    const endX = e.changedTouches[0].clientX;
+                    if (startX - endX > 50) { // Swipe left threshold
+                        msgContainer.remove();
+                    }
+                });
+
+                msg.addEventListener("mousedown", (e) => {
+                    startX = e.clientX;
+                });
+
+                msg.addEventListener("mouseup", (e) => {
+                    const endX = e.clientX;
+                    if (startX - endX > 50) { // Swipe left threshold for desktop
+                        msgContainer.remove();
+                    }
+                });
+
+                msgContainer.appendChild(avatar);
+                msgContainer.appendChild(msg);
+                chatBox.appendChild(msgContainer);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+            
+            // Change text color dynamically
+            colorPicker.addEventListener("input", (event) => {
+                const selectedColor = event.target.value;
+                document.querySelectorAll(".chat-bubble").forEach(bubble => {
+                    bubble.style.color = selectedColor;
+                });
+            });
+
+            // Add a delete button for messages
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "Delete Selected";
+            deleteBtn.className = "btn btn-danger";
+            deleteBtn.style.marginTop = "10px";
+            deleteBtn.style.display = "none"; // Initially hidden
+            deleteBtn.addEventListener("click", () => {
+                document.querySelectorAll(".chat-bubble.selected").forEach(selectedMsg => {
+                    selectedMsg.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+                    selectedMsg.style.opacity = "0";
+                    selectedMsg.style.transform = "translateX(100%) scale(0.5)"; // Telegram-like animation
+                    setTimeout(() => {
+                        selectedMsg.parentNode.remove();
+                    }, 500); // Wait for the animation to complete
+                });
+                
+                // Hide delete button if no messages are selected
+                setTimeout(() => {
+                    const selectedMessages = document.querySelectorAll(".chat-bubble.selected");
+                    if (selectedMessages.length === 0) {
+                        deleteBtn.style.display = "none";
+                    }
+                }, 500);
+            });
+
+            // Show delete button when a message is selected
+            chatBox.addEventListener("click", () => {
+                const selectedMessages = document.querySelectorAll(".chat-bubble.selected");
+                deleteBtn.style.display = selectedMessages.length > 0 ? "block" : "none";
+            });
+
+            // Append the delete button below the chat input
+            const chatInput = document.querySelector('#user-input').parentNode.parentNode;
+            chatInput.appendChild(deleteBtn);
+            
+            // Add a voice input button
+            const voiceInputBtn = document.createElement("button");
+            voiceInputBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            voiceInputBtn.className = "btn btn-secondary";
+            voiceInputBtn.style.marginLeft = "6px";
+            voiceInputBtn.addEventListener("click", () => {
+                if (recognition) {
+                    // Add a "listening" animation to the chatbox
+                    const listeningIndicator = document.createElement("div");
+                    listeningIndicator.className = "chat-bubble bot listening";
+                    listeningIndicator.innerHTML = `
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    `;
+                    chatBox.appendChild(listeningIndicator);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+
+                    recognition.start();
+
+                    // Remove the "listening" indicator when recognition ends
+                    recognition.addEventListener("end", () => {
+                        listeningIndicator.remove();
+                    });
+                } else {
+                    alert("Speech Recognition is not supported in this browser.");
+                }
+            });
+
+            // Append the voice input button next to the send button
+            sendBtn.parentNode.appendChild(voiceInputBtn);
+            
+            sendBtn.addEventListener("click", function () {
+                const message = userInput.value.trim();
+                if (!message) return;
+
+                addTypingIndicator("user");
+
+                setTimeout(() => {
+                    removeTypingIndicator("user");
+                    appendMessage(message, "user");
+                }, 300);
+
+                userInput.value = "";
+                resetIdleTimer();
+
+                addTypingIndicator("bot");
+
+                fetch("/Chat/GetResponse", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `message=${encodeURIComponent(message)}`
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        setTimeout(() => {
+                            removeTypingIndicator("bot");
+                            const botReply = data.botResponse;
+                            appendMessage(botReply, "bot");
+                            speakText(botReply);
+                            resetIdleTimer();
+                        }, 1500); // 1.5 seconds typing simulation
+                    })
+                    .catch(error => {
+                        setTimeout(() => {
+                            removeTypingIndicator("bot");
+                            appendMessage("Sorry, I couldn't process your request. Please try again later.", "bot");
+                        }, 1000);
+                        console.error("Error:", error);
+                    });
+            });
+
+            userInput.addEventListener("keypress", function (e) {
+                if (e.key === "Enter") {
+                    sendBtn.click();
+                }
+            });
+
+            // Initial welcome message
+            setTimeout(() => {
+                appendMessage("Hello! I'm the CareerLink assistant. How can I help you with your job search?", "bot");
+            }, 500);
+        }
+    </script>
+    <script>
+// Add this to your existing JavaScript section or create a new one
+document.addEventListener('DOMContentLoaded', function() {
+    // Existing code...
+
+    // Initialize feedback functionality
+    initializeFeedback();
+});
+
+function initializeFeedback() {
+    const feedbackIcon = document.getElementById('feedback-icon');
+    const feedbackOverlay = document.getElementById('feedback-overlay');
+    const feedbackPopup = document.getElementById('feedback-popup');
+    const closeFeedback = document.getElementById('close-feedback');
+    const cancelFeedback = document.getElementById('cancel-feedback');
+    const feedbackForm = document.getElementById('feedback-form');
+    
+    // Form elements
+    const typeSelect = document.getElementById('feedback-type');
+    const emailInput = document.getElementById('feedback-email');
+    const ratingInput = document.getElementById('feedback-rating');
+    const messageTextarea = document.getElementById('feedback-message');
+    
+    // Error elements
+    const typeError = document.getElementById('type-error');
+    const emailError = document.getElementById('email-error');
+    const ratingError = document.getElementById('rating-error');
+    const messageError = document.getElementById('message-error');
+
+    // Open feedback form
+    feedbackIcon.addEventListener('click', function() {
+        feedbackOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling while popup is open
+    });
+
+    // Close feedback form
+    function closeFeedbackForm() {
+        feedbackOverlay.classList.remove('active');
+        setTimeout(() => {
+            resetForm();
+            document.body.style.overflow = '';
+        }, 300);
+    }
+
+    closeFeedback.addEventListener('click', closeFeedbackForm);
+    cancelFeedback.addEventListener('click', closeFeedbackForm);
+    
+    // Close when clicking outside the popup
+    feedbackOverlay.addEventListener('click', function(e) {
+        if (e.target === feedbackOverlay) {
+            closeFeedbackForm();
+        }
+    });
+
+    // Emoji rating functionality
+    const emojis = document.querySelectorAll('.rating-emoji');
+    const ratingText = document.querySelector('.rating-text');
+
+    emojis.forEach(emoji => {
+        emoji.addEventListener('click', function() {
+            const value = this.getAttribute('data-value');
+            ratingInput.value = value;
+            
+            // Update emojis display
+            emojis.forEach(e => {
+                const emojiValue = e.getAttribute('data-value');
+                if (emojiValue <= value) {
+                    e.classList.add('active');
+                } else {
+                    e.classList.remove('active');
+                }
+            });
+            
+            // Update rating text
+            const ratingTexts = [
+                'Select rating',
+                'Poor',
+                'Fair',
+                'Good',
+                'Very Good',
+                'Excellent'
+            ];
+            ratingText.textContent = ratingTexts[value];
+            
+            // Clear rating error when user selects a rating
+            ratingError.textContent = '';
+            ratingInput.classList.remove('invalid');
+        });
+    });
+
+    // Real-time validation
+    typeSelect.addEventListener('change', () => {
+        validateField(typeSelect, typeError, 'Please select your role');
+    });
+
+    emailInput.addEventListener('blur', () => {
+        validateEmail(emailInput, emailError);
+    });
+
+    messageTextarea.addEventListener('blur', () => {
+        validateField(messageTextarea, messageError, 'Please share your feedback');
+    });
+
+    // Validate individual field
+    function validateField(field, errorElement, errorMessage) {
+        if (!field.value.trim()) {
+            errorElement.textContent = errorMessage;
+            field.classList.add('invalid');
+            return false;
+        } else {
+            errorElement.textContent = '';
+            field.classList.remove('invalid');
+            return true;
+        }
+    }
+
+    // Validate email format
+    function validateEmail(field, errorElement) {
+        const emailPattern = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+        if (!field.value.trim()) {
+            errorElement.textContent = 'Email is required';
+            field.classList.add('invalid');
+            return false;
+        } else if (!emailPattern.test(field.value)) {
+            errorElement.textContent = 'Please enter a valid email address';
+            field.classList.add('invalid');
+            return false;
+        } else {
+            errorElement.textContent = '';
+            field.classList.remove('invalid');
+            return true;
+        }
+    }
+
+    // Validate the entire form
+    function validateForm() {
+        let isValid = true;
+
+        // Validate type
+        if (!validateField(typeSelect, typeError, 'Please select your role')) {
+            typeSelect.classList.add('validated-shake');
+            setTimeout(() => typeSelect.classList.remove('validated-shake'), 500);
+            isValid = false;
+        }
+
+        // Validate email
+        if (!validateEmail(emailInput, emailError)) {
+            emailInput.classList.add('validated-shake');
+            setTimeout(() => emailInput.classList.remove('validated-shake'), 500);
+            isValid = false;
+        }
+
+        // Validate rating
+        if (!ratingInput.value) {
+            ratingError.textContent = 'Please select a rating';
+            const ratingContainer = document.querySelector('.rating-container');
+            ratingContainer.classList.add('validated-shake');
+            setTimeout(() => ratingContainer.classList.remove('validated-shake'), 500);
+            isValid = false;
+        } else {
+            ratingError.textContent = '';
+        }
+
+        // Validate message
+        const forbiddenWords = ['sex', 'xxx', 'porn', 'nude', 'fuck', 'shit', 'bitch', 'asshole', 'dick', 'pussy', 'rape', 'slut', 'whore'];
+        const messageValue = messageTextarea.value.trim().toLowerCase();
+        if (!validateField(messageTextarea, messageError, 'Please share your feedback')) {
+            messageTextarea.classList.add('validated-shake');
+            setTimeout(() => messageTextarea.classList.remove('validated-shake'), 500);
+            isValid = false;
+        } else if (forbiddenWords.some(word => messageValue.includes(word))) {
+            messageError.textContent = 'Inappropriate language is not allowed. Please provide respectful feedback.';
+            messageTextarea.classList.add('invalid');
+            messageTextarea.classList.add('validated-shake');
+            setTimeout(() => messageTextarea.classList.remove('validated-shake'), 500);
+            isValid = false;
+        } else {
+            messageError.textContent = '';
+            messageTextarea.classList.remove('invalid');
+        }
+
+        return isValid;
+    }
+
+    // Form submission
+    feedbackForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Run validation
+        if (!validateForm()) {
+            return;
+        }
+        
+        // Show loading state
+        const submitButton = feedbackForm.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+        
+        // Get form data with the field names expected by the API
+        const formData = {
+            c_role: typeSelect.value,
+            c_user_email: emailInput.value,
+            c_rating: ratingInput.value,
+            c_feedback_msg: messageTextarea.value
+        };
+        
+        console.log('Submitting feedback:', formData);
+        
+        // AJAX call to submit feedback
+        fetch('http://localhost:5086/api/Feedback/SubmitFeedback', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    console.error('API Error:', err);
+                    throw new Error('Validation failed: ' + JSON.stringify(err.errors || {}));
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Show success message
+            showFormMessage('Thank you! Your feedback has been submitted successfully.', 'success');
+            
+            // Close after delay
+            setTimeout(() => {
+                closeFeedbackForm();
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showFormMessage('Failed to submit feedback. Please check all required fields.', 'error');
+        })
+        .finally(() => {
+            // Reset button state
+            submitButton.disabled = false;
+            submitButton.textContent = originalText;
+        });
+    });
+
+    // Show success/error message
+    function showFormMessage(message, type) {
+        const existingMessage = feedbackForm.querySelector('.feedback-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        const messageElement = document.createElement('div');
+        messageElement.className = `feedback-message feedback-${type} animate-feedback`;
+        messageElement.textContent = message;
+        
+        feedbackForm.insertBefore(messageElement, feedbackForm.firstChild);
+        messageElement.style.display = 'block';
+        
+        setTimeout(() => {
+            messageElement.remove();
+        }, 3000);
+    }
+
+    // Reset form to initial state
+    function resetForm() {
+        feedbackForm.reset();
+        emojis.forEach(e => e.classList.remove('active'));
+        ratingText.textContent = 'Select rating';
+        ratingInput.value = '';
+        
+        // Remove validation styling
+        typeSelect.classList.remove('invalid');
+        emailInput.classList.remove('invalid');
+        messageTextarea.classList.remove('invalid');
+        
+        // Clear error messages
+        typeError.textContent = '';
+        emailError.textContent = '';
+        ratingError.textContent = '';
+        messageError.textContent = '';
+        
+        // Remove any messages
+        const existingMessage = feedbackForm.querySelector('.feedback-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+    }
+}
+
+</script>
+</body>
+</html>

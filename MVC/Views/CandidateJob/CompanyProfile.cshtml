@@ -1,0 +1,1463 @@
+@{
+    ViewData["Title"] = "Company Profile";
+    Layout = "~/Views/Shared/_HomeLayout.cshtml";
+    var companyId = ViewBag.CompanyId;
+}
+
+<!-- Add Font Awesome CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- Add Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- Add Leaflet Routing Machine CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --primary-dark: #3a4db5;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --info-color: #17a2b8;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --light-color: #f8f9fa;
+        --dark-color: #343a40;
+        --transition-speed: 0.3s;
+    }
+
+    /* Hero Section */
+    .company-hero {
+        position: relative;
+        height: 260px;
+        border-radius: 1.25rem;
+        overflow: visible;
+        margin-bottom: 6rem;
+        box-shadow: 0 10px 30px rgba(67, 97, 238, 0.15);
+    }
+    
+    .company-banner {
+        height: 100%;
+        background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0.1;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .company-logo-container {
+        position: absolute;
+        bottom: -40px;
+        left: 40px;
+        @* z-index: 1; *@
+    }
+    
+    .company-logo-wrapper {
+        width: 140px;
+        height: 140px;
+        border-radius: 1rem;
+        background-color: #fff;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform var(--transition-speed);
+        overflow: visible;
+    }
+    
+    .company-logo-wrapper:hover {
+        transform: translateY(-5px);
+    }
+
+    .company-logo {
+        width: 100%;
+        height: 100%;
+        border-radius: 0.75rem;
+        object-fit: cover;
+        background-color: white;
+    }
+
+    .company-quick-info {
+        position: absolute;
+        bottom: 20px;
+        right: 40px;
+        display: flex;
+        gap: 15px;
+    }
+    
+    .quick-info-item {
+        background-color: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        padding: 8px 16px;
+        border-radius: 1.5rem;
+        color: white;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .quick-info-item i {
+        color: white;
+    }
+
+    /* Main Content */
+    .company-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+    
+    .company-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    /* Company Info Card */
+    .company-info-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition: all var(--transition-speed);
+        border: none;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .company-info-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .company-name {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.25rem;
+    }
+    
+    .company-tagline {
+        font-size: 1.125rem;
+        color: #6b7280;
+        margin-bottom: 2rem;
+        font-style: italic;
+        line-height: 1.5;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-bottom: 0.75rem;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        width: 60px;
+        background: var(--primary-color);
+        border-radius: 3px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(67, 97, 238, 0.1);
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .info-icon i {
+        color: var(--primary-color);
+        font-size: 1.25rem;
+    }
+    
+    .info-content {
+        flex: 1;
+    }
+
+    .info-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        color: #1f2937;
+        font-weight: 500;
+    }
+    
+    .company-about {
+        margin-top: 2rem;
+    }
+    
+    .company-about h4 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #1f2937;
+    }
+    
+    .company-about p {
+        color: #4b5563;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+    
+    .social-links {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+    
+    .social-link {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: #f3f4f6;
+        color: var(--primary-color);
+        transition: all var(--transition-speed);
+        text-decoration: none;
+    }
+    
+    .social-link:hover {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    /* Map Container */
+    .map-container {
+        height: 34%;
+        min-height: 400px;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        position: relative;
+        background-color: #f9fafb;
+    }
+
+    #companyMap {
+        width: 100%;
+        height: 100%;
+        min-height: 400px;
+    }
+    
+    .map-controls {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 500;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .map-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background-color: white;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #6b7280;
+    }
+    
+    .map-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .map-btn.active {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .directions-panel {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 15px;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+        z-index: 500;
+        box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+    }
+    
+    .directions-panel.active {
+        transform: translateY(0);
+    }
+    
+    .directions-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .directions-header h5 {
+        margin: 0;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .directions-header h5 i {
+        color: var(--primary-color);
+    }
+    
+    .directions-info {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 15px;
+    }
+    
+    .direction-metric {
+        text-align: center;
+    }
+    
+    .metric-value {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+    }
+    
+    .metric-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .route-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .route-action-btn {
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border: none;
+    }
+    
+    .start-route-btn {
+        background-color: var(--success-color);
+        color: white;
+    }
+    
+    .start-route-btn:hover {
+        background-color: #218838;
+    }
+    
+    .close-route-btn {
+        background-color: #f1f5f9;
+        color: #64748b;
+    }
+    
+    .close-route-btn:hover {
+        background-color: #e2e8f0;
+    }
+    
+    .tracking-indicator {
+        display: none;
+        align-items: center;
+        gap: 0.75rem;
+        background-color: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        margin-top: 0.75rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+    
+    .tracking-indicator.active {
+        display: flex;
+    }
+    
+    .pulse {
+        width: 10px;
+        height: 10px;
+        background-color: var(--success-color);
+        border-radius: 50%;
+        position: relative;
+    }
+    
+    .pulse::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: var(--success-color);
+        border-radius: 50%;
+        z-index: -1;
+        animation: pulse 1.5s infinite;
+    }
+    
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(3);
+            opacity: 0;
+        }
+    }
+
+    .map-error {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #dc3545;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .loading-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        display: none;
+    }
+
+    /* Job Cards */
+    .job-cards-section {
+        margin-top: 3rem;
+    }
+    
+    .job-cards-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .job-card {
+        border: none;
+        border-radius: 1rem;
+        transition: all var(--transition-speed);
+        background: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .job-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .job-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background-color: var(--primary-color);
+        border-radius: 4px 0 0 4px;
+    }
+
+    .job-title {
+        color: #1f2937;
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .job-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .job-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b7280;
+        font-size: 0.875rem;
+        background-color: #f3f4f6;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+    }
+
+    .job-meta-item i {
+        color: var(--primary-color);
+    }
+
+    .job-description {
+        color: #4b5563;
+        font-size: 0.9375rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .view-job-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        background-color: transparent;
+        color: var(--primary-color);
+        border: 1.5px solid var(--primary-color);
+        text-decoration: none;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all var(--transition-speed);
+    }
+
+    .view-job-btn:hover {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+    }
+    
+    .job-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background-color: rgba(67, 97, 238, 0.1);
+        color: var(--primary-color);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+    }
+
+    /* Custom Map Styles */
+    .custom-map-marker {
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.2));
+    }
+    
+    .leaflet-popup-content-wrapper {
+        border-radius: 0.75rem;
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    .leaflet-popup-content {
+        margin: 0;
+        width: 250px !important;
+    }
+    
+    .leaflet-popup-tip {
+        background: white;
+    }
+    
+    .map-popup-content {
+        padding: 15px;
+    }
+    
+    .map-popup-header {
+        margin-bottom: 10px;
+    }
+    
+    .map-popup-logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        object-fit: contain;
+        float: left;
+        margin-right: 10px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .map-popup-company {
+        font-weight: 600;
+        color: var(--primary-color);
+        display: block;
+        margin-bottom: 2px;
+    }
+    
+    .map-popup-address {
+        font-size: 0.8125rem;
+        color: #6b7280;
+        margin-bottom: 10px;
+        display: block;
+    }
+    
+    .map-popup-btn {
+        display: block;
+        width: 100%;
+        padding: 8px;
+        border-radius: 6px;
+        border: none;
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 500;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+    
+    .map-popup-btn:hover {
+        background-color: var(--primary-dark);
+    }
+    
+    /* Responsive Styles */
+    @@media (max-width: 992px) {
+        .company-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .company-logo-container {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .company-quick-info {
+            position: static;
+            margin-top: 90px;
+            justify-content: center;
+        }
+        
+        .quick-info-item {
+            color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        .quick-info-item i {
+            color: var(--primary-color);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .company-hero {
+            margin-bottom: 8rem;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .job-cards-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="company-container">
+    <!-- Company Hero Section -->
+    <div class="company-hero">
+        <div class="company-banner">
+            <div class="hero-pattern"></div>
+        </div>
+        
+        <div class="company-logo-container">
+            <div class="company-logo-wrapper">
+                <img id="companyLogo" src="https://via.placeholder.com/140" alt="Company Logo" class="company-logo" />
+            </div>
+        </div>
+        
+        <div class="company-quick-info">
+            <div class="quick-info-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span id="quickLocation">Bengaluru, India</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="company-content">
+        <!-- Left Column - Company Info -->
+        <div>
+            <div class="company-info-card">
+                <h1 id="companyName" class="company-name">Loading company information...</h1>
+                <p id="companyTagline" class="company-tagline">Building innovative solutions for tomorrow's challenges</p>
+                
+                <div class="company-about">
+                    <h4>About Company</h4>
+                    <p id="companyAbout">
+                        This company is a leader in its field, committed to innovation and excellence. They have established a reputation for delivering high-quality products and services that meet the needs of their customers. With a team of talented professionals, they continue to push the boundaries of what's possible in their industry.
+                    </p>
+                </div>
+                
+                <h4 class="section-title">Company Information</h4>
+                
+                <div class="info-grid">
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="info-content">
+                            <span class="info-label">Email</span>
+                            <a id="companyEmail" href="#" class="info-value">Loading...</a>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="info-content">
+                            <span class="info-label">Phone</span>
+                            <span id="companyPhone" class="info-value">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="info-content">
+                            <span class="info-label">Website</span>
+                            <a id="companyWebsite" href="#" target="_blank" class="info-value">Loading...</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-item mt-4">
+                    <div class="info-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-label">Address</span>
+                        <p id="companyAddress" class="info-value mt-2">Loading address information...</p>
+                    </div>
+                </div>
+                
+                <div class="social-links">
+                    <a href="#" class="social-link" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Jobs Section -->
+            <div class="job-cards-section">
+                <h2 class="section-title">Current Openings</h2>
+                <div id="jobContainer" class="job-cards-container">
+                    <!-- Jobs will be loaded here -->
+                    <div class="text-center w-100 py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column - Map -->
+        <div>
+            <div class="map-container">
+                <div id="companyMap"></div>
+                <div id="mapError" class="map-error" style="display: none;">
+                    <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
+                    <p>Unable to load map. Please check your internet connection.</p>
+                </div>
+                <div id="loadingSpinner" class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p class="mt-2">Loading location...</p>
+                </div>
+                
+                <!-- Map Controls -->
+                <div class="map-controls">
+                    <button id="getDirectionsBtn" class="map-btn" title="Get directions">
+                        <i class="fas fa-directions"></i>
+                    </button>
+                    <button id="centerMapBtn" class="map-btn" title="Center map">
+                        <i class="fas fa-location-arrow"></i>
+                    </button>
+                </div>
+                
+                <!-- Directions Panel -->
+                <div id="directionsPanel" class="directions-panel">
+                    <div class="directions-header">
+                        <h5><i class="fas fa-route"></i> Directions</h5>
+                        <button type="button" class="btn-close" id="closeDirectionsBtn" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="directions-info">
+                        <div class="direction-metric">
+                            <div id="distanceValue" class="metric-value">0 km</div>
+                            <div class="metric-label">Distance</div>
+                        </div>
+                        <div class="direction-metric">
+                            <div id="durationValue" class="metric-value">0 min</div>
+                            <div class="metric-label">Duration</div>
+                        </div>
+                        <div class="direction-metric">
+                            <div id="arrivalValue" class="metric-value">--:--</div>
+                            <div class="metric-label">Arrival</div>
+                        </div>
+                    </div>
+                    
+                    <div class="route-actions">
+                        <button id="startRouteBtn" class="route-action-btn start-route-btn">
+                            <i class="fas fa-play"></i> Start Navigation
+                        </button>
+                        <button id="closeRouteBtn" class="route-action-btn close-route-btn">
+                            <i class="fas fa-times"></i> Close
+                        </button>
+                    </div>
+                    
+                    <div id="trackingIndicator" class="tracking-indicator">
+                        <div class="pulse"></div>
+                        <span>Live tracking active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Add Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Add Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <script>
+        $(document).ready(function () {
+            let map;
+            let marker;
+            let mapError = false;
+            let companyLatLng = null;
+            let userLocationMarker = null;
+            let routingControl = null;
+            let trackingInterval = null;
+            let isTracking = false;
+
+            // Create custom icon for company location
+            const companyIcon = L.icon({
+                iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0zM192 272c44.183 0 80-35.817 80-80s-35.817-80-80-80-80 35.817-80 80 35.817 80 80 80z" fill="%234361ee"/></svg>',
+                iconSize: [32, 42],
+                iconAnchor: [16, 42],
+                popupAnchor: [0, -42]
+            });
+
+            // Create custom icon for user location
+            const userIcon = L.icon({
+                iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><circle cx="256" cy="256" r="248" fill="%232ecc71" stroke="%23ffffff" stroke-width="8"/><circle cx="256" cy="256" r="100" fill="%23ffffff"/></svg>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
+                className: 'pulsing-icon'
+            });
+
+            // Initialize map
+            function initMap() {
+                try {
+                    // Initialize the map with a view of India
+                    map = L.map('companyMap', {
+                        center: [20.5937, 78.9629], // Centered on India
+                        zoom: 5,
+                        zoomControl: true
+                    });
+
+                    // Add OpenStreetMap tiles
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                        maxZoom: 19
+                    }).addTo(map);
+
+                    // Show "No location found" message by default
+                    showNoLocationMessage();
+                    
+                    // Add event listeners for controls
+                    $('#getDirectionsBtn').click(getDirections);
+                    $('#centerMapBtn').click(centerMap);
+                    $('#closeDirectionsBtn, #closeRouteBtn').click(closeDirections);
+                    $('#startRouteBtn').click(toggleLiveTracking);
+                    
+                } catch (error) {
+                    console.error('Error initializing map:', error);
+                    showMapError();
+                }
+            }
+            
+            function centerMap() {
+                if (companyLatLng) {
+                    map.setView(companyLatLng, 15, { animation: true });
+                }
+            }
+            
+            function getDirections() {
+                if (!companyLatLng) {
+                    showError("Company location not found. Please try again later.");
+                    return;
+                }
+                
+                showLoading();
+                
+                // Get current location
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const userLat = position.coords.latitude;
+                            const userLng = position.coords.longitude;
+                            const userLocation = L.latLng(userLat, userLng);
+                            
+                            calculateRoute(userLocation, companyLatLng);
+                            hideLoading();
+                        },
+                        function(error) {
+                            hideLoading();
+                            console.error("Error getting user location:", error);
+                            showError("Unable to access your location. Please check your browser permissions and try again.");
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0
+                        }
+                    );
+                } else {
+                    hideLoading();
+                    showError("Your browser does not support geolocation services.");
+                }
+            }
+            
+            function calculateRoute(from, to) {
+                // If there's an existing route, remove it
+                if (routingControl) {
+                    map.removeControl(routingControl);
+                }
+                
+                // Add user location marker
+                if (userLocationMarker) {
+                    map.removeLayer(userLocationMarker);
+                }
+                
+                userLocationMarker = L.marker(from, {
+                    icon: userIcon,
+                    title: 'Your Location'
+                }).addTo(map);
+                
+                // Create routing control
+                routingControl = L.Routing.control({
+                    waypoints: [
+                        from,
+                        to
+                    ],
+                    routeWhileDragging: false,
+                    showAlternatives: true,
+                    altLineOptions: {
+                        styles: [
+                            {color: '#4361ee', opacity: 0.6, weight: 4},
+                            {color: '#3a4db5', opacity: 0.5, weight: 5}
+                        ]
+                    },
+                    lineOptions: {
+                        styles: [
+                            {color: '#4361ee', opacity: 0.8, weight: 6},
+                            {color: '#ffffff', opacity: 0.3, weight: 10}
+                        ]
+                    },
+                    createMarker: function(i, waypoint) {
+                        if (i === 0) {
+                            // This marker is created by us separately
+                            return null;
+                        } else {
+                            return L.marker(waypoint.latLng, {
+                                icon: companyIcon,
+                                title: $('#companyName').text()
+                            });
+                        }
+                    },
+                    show: false,
+                    addWaypoints: false,
+                    routeWhenDragged: false,
+                    fitSelectedRoutes: true,
+                    showAlternatives: true
+                }).addTo(map);
+                
+                // Handle route found event
+                routingControl.on('routesfound', function(e) {
+                    const routes = e.routes;
+                    const summary = routes[0].summary;
+                    
+                    // Update the directions panel
+                    $('#distanceValue').text((summary.totalDistance / 1000).toFixed(1) + ' km');
+                    
+                    // Calculate duration in hours and minutes
+                    const totalMinutes = Math.round(summary.totalTime / 60);
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    let durationText = '';
+                    
+                    if (hours > 0) {
+                        durationText += hours + ' h ';
+                    }
+                    durationText += minutes + ' min';
+                    
+                    $('#durationValue').text(durationText);
+                    
+                    // Calculate ETA
+                    const now = new Date();
+                    now.setMinutes(now.getMinutes() + totalMinutes);
+                    const formattedTime = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+                    $('#arrivalValue').text(formattedTime);
+                    
+                    // Show the directions panel
+                    $('#directionsPanel').addClass('active');
+                    
+                    // Fit the map to show the entire route
+                    map.fitBounds(L.latLngBounds([from, to]), {
+                        padding: [50, 50]
+                    });
+                });
+            }
+            
+            function toggleLiveTracking() {
+                const $btn = $('#startRouteBtn');
+                const $indicator = $('#trackingIndicator');
+                
+                if (isTracking) {
+                    // Stop tracking
+                    stopTracking();
+                    isTracking = false;
+                    $btn.html('<i class="fas fa-play"></i> Start Navigation');
+                    $indicator.removeClass('active');
+                } else {
+                    // Start tracking
+                    startTracking();
+                    isTracking = true;
+                    $btn.html('<i class="fas fa-stop"></i> Stop Navigation');
+                    $indicator.addClass('active');
+                }
+            }
+            
+            function startTracking() {
+                if (trackingInterval) {
+                    clearInterval(trackingInterval);
+                }
+                
+                trackingInterval = setInterval(function() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            function(position) {
+                                const userLat = position.coords.latitude;
+                                const userLng = position.coords.longitude;
+                                const userLocation = L.latLng(userLat, userLng);
+                                
+                                // Update user marker position
+                                if (userLocationMarker) {
+                                    userLocationMarker.setLatLng(userLocation);
+                                }
+                                
+                                // Update the route
+                                if (routingControl && companyLatLng) {
+                                    routingControl.setWaypoints([userLocation, companyLatLng]);
+                                }
+                                
+                                // Center map on user location
+                                map.setView(userLocation, map.getZoom());
+                            },
+                            function(error) {
+                                console.error("Error updating location:", error);
+                                showError("Unable to update your location. Tracking has been stopped.");
+                                stopTracking();
+                            }
+                        );
+                    }
+                }, 5000); // Update every 5 seconds
+            }
+            
+            function stopTracking() {
+                if (trackingInterval) {
+                    clearInterval(trackingInterval);
+                    trackingInterval = null;
+                }
+            }
+            
+            function closeDirections() {
+                $('#directionsPanel').removeClass('active');
+                stopTracking();
+                isTracking = false;
+                $('#startRouteBtn').html('<i class="fas fa-play"></i> Start Navigation');
+                $('#trackingIndicator').removeClass('active');
+                
+                if (routingControl) {
+                    map.removeControl(routingControl);
+                    routingControl = null;
+                }
+                
+                if (userLocationMarker) {
+                    map.removeLayer(userLocationMarker);
+                    userLocationMarker = null;
+                }
+                
+                // Return to company view
+                if (companyLatLng) {
+                    map.setView(companyLatLng, 15);
+                }
+            }
+
+            function showLoading() {
+                $('#loadingSpinner').show();
+            }
+
+            function hideLoading() {
+                $('#loadingSpinner').hide();
+            }
+            
+            function showError(message) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: message
+                });
+            }
+
+            function showNoLocationMessage() {
+                const message = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fas fa-map-marker-alt" style="font-size: 24px; color: #666; margin-bottom: 10px;"></i>
+                        <p style="color: #666; margin: 0;">No location found for this company</p>
+                    </div>
+                `;
+                $('#mapError').html(message).show();
+            }
+
+            function showMapError() {
+                const message = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 24px; color: #dc3545; margin-bottom: 10px;"></i>
+                        <p style="color: #dc3545; margin: 0;">Unable to load map. Please check your internet connection.</p>
+                    </div>
+                `;
+                $('#mapError').html(message).show();
+                mapError = true;
+            }
+
+            function handleLocationFound(result, originalAddress) {
+                hideLoading();
+                
+                const lat = parseFloat(result.lat);
+                const lon = parseFloat(result.lon);
+                
+                if (isNaN(lat) || isNaN(lon)) {
+                    showNoLocationMessage();
+                    return;
+                }
+                
+                // Store company location for directions
+                companyLatLng = L.latLng(lat, lon);
+                
+                // Hide the error message
+                $('#mapError').hide();
+                
+                // Update map view
+                map.setView([lat, lon], 15, {
+                    animate: true,
+                    duration: 1.5
+                });
+                
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+                
+                const companyName = $("#companyName").text() || 'Company Location';
+                const companyLogo = $("#companyLogo").attr('src');
+                
+                // Create company marker
+                marker = L.marker([lat, lon], {
+                    icon: companyIcon,
+                    title: companyName
+                }).addTo(map);
+                
+                // Create a custom popup with company info
+                const popupContent = `
+                    <div class="map-popup-content">
+                        <div class="map-popup-header">
+                            <img src="${companyLogo}" class="map-popup-logo">
+                            <span class="map-popup-company">${companyName}</span>
+                            <span class="map-popup-address">${originalAddress}</span>
+                        </div>
+                        <button id="popupDirectionsBtn" class="map-popup-btn">
+                            <i class="fas fa-directions"></i> Get Directions
+                        </button>
+                    </div>
+                `;
+                
+                marker.bindPopup(popupContent);
+                
+                marker.on('popupopen', function() {
+                    $('#popupDirectionsBtn').on('click', getDirections);
+                });
+                
+                // Show the popup initially
+                marker.openPopup();
+            }
+
+            function updateMap(address) {
+                if (!address || mapError) {
+                    showNoLocationMessage();
+                    return;
+                }
+
+                showLoading();
+                
+                try {
+                    // Format the address for better geocoding
+                    const formattedAddress = address
+                        .replace(/\s*,\s*/g, ', ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                    
+                    // Extract pincode and city
+                    const pinCodeMatch = formattedAddress.match(/\b\d{6}\b/);
+                    const pinCode = pinCodeMatch ? pinCodeMatch[0] : null;
+                    
+                    const addressParts = formattedAddress.split(',').map(part => part.trim());
+                    const city = addressParts[addressParts.length - 2] || '';
+                    const state = addressParts[addressParts.length - 1].replace(/\d+/g, '').trim();
+                    
+                    // Update quick info in the hero section
+                    $('#quickLocation').text(city + ', India');
+                    
+                    // Try different query combinations
+                    const queries = [
+                        formattedAddress + ', India',
+                        city + ', ' + state + ', India',
+                        city + ', India'
+                    ].filter(Boolean);
+                    
+                    let currentQueryIndex = 0;
+                    
+                    const tryNextQuery = () => {
+                        if (currentQueryIndex >= queries.length) {
+                            hideLoading();
+                            showNoLocationMessage();
+                            return;
+                        }
+                        
+                        const query = queries[currentQueryIndex];
+                        
+                        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&limit=1&addressdetails=1`;
+                        
+                        fetch(url, {
+                            headers: {
+                                'Accept-Language': 'en-US,en;q=0.9',
+                                'User-Agent': 'CareerLink Job Portal'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data && data.length > 0) {
+                                const result = data[0];
+                                
+                                // Accept the result if it's in India
+                                if (result.address && result.address.country_code === 'in') {
+                                    handleLocationFound({
+                                        lat: parseFloat(result.lat),
+                                        lon: parseFloat(result.lon)
+                                    }, address);
+                                } else {
+                                    currentQueryIndex++;
+                                    setTimeout(tryNextQuery, 1000);
+                                }
+                            } else {
+                                currentQueryIndex++;
+                                setTimeout(tryNextQuery, 1000);
+                            }
+                        })
+                        .catch(error => {
+                            currentQueryIndex++;
+                            setTimeout(tryNextQuery, 1000);
+                        });
+                    };
+                    
+                    tryNextQuery();
+                    
+                } catch (error) {
+                    hideLoading();
+                    showNoLocationMessage();
+                }
+            }
+
+            // Initialize when document is ready
+            const companyId = parseInt("@companyId");
+            
+            if (isNaN(companyId) || companyId <= 0) {
+                $("#companyName").text("Error: Invalid company ID");
+                $("#companyLogo").attr("src", "https://via.placeholder.com/140?text=No+Logo");
+                $("#companyIndustry, #quickIndustry").text("N/A");
+                $("#companyAddress").text("N/A");
+                $("#companyEmail").text("N/A");
+                $("#companyPhone").text("N/A");
+                $("#companyWebsite").text("N/A");
+                $('#jobContainer').html('<div class="alert alert-warning">No company information available</div>');
+                return;
+            }
+
+            // Initialize map
+            initMap();
+
+            // Fetch company details
+            $.ajax({
+                url: `http://localhost:5086/api/AdminApi/getrecruiter/${companyId}`,
+                type: "GET",
+                contentType: "application/json",
+                success: function (company) {
+                    if (!company) {
+                        $("#companyName").text("Error: Company not found");
+                        return;
+                    }
+
+                    // Update company logo
+                    if (company.c_company_logo) {
+                        $("#companyLogo").attr("src", company.c_company_logo);
+                    }
+
+                    // Update company info
+                    $("#companyName").text(company.c_company_name || "Company Name");
+                    $("#companyTagline").text(company.c_tagline || "Building innovative solutions for tomorrow's challenges");
+                    $("#companyAbout").text(company.c_about || $("#companyAbout").text());
+                    $("#companyIndustry, #quickIndustry").text(company.c_industry || "N/A");
+                    $("#companyAddress").text(company.c_company_address || "N/A");
+                    $("#companyEmail")
+                        .text(company.c_company_email || "N/A")
+                        .attr("href", company.c_company_email ? `mailto:${company.c_company_email}` : "#");
+                    $("#companyPhone").text(company.c_company_phone || "N/A");
+                    $("#companyWebsite")
+                        .text(company.c_website || "N/A")
+                        .attr("href", company.c_website || "#");
+
+                    // Update document title
+                    document.title = company.c_company_name + " | Company Profile";
+
+                    // Update map with company address
+                    if (company.c_company_address) {
+                        updateMap(company.c_company_address);
+                    } else {
+                        showNoLocationMessage();
+                    }
+
+                    // Fetch company jobs
+                    $.ajax({
+                        url: `http://localhost:5086/api/AdminApi/jobs-with-company-info/${companyId}`,
+                        type: "GET",
+                        contentType: "application/json",
+                        success: function (jobs) {
+                            if (!jobs || jobs.length === 0) {
+                                $('#jobContainer').html('<div class="alert alert-info">No open positions at the moment</div>');
+                                return;
+                            }
+
+                            let jobsHTML = '';
+                            
+                            jobs.forEach(job => {
+                                const isNew = job.c_post_date && new Date(job.c_post_date) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                                
+                                jobsHTML += `
+                                    <div class="job-card">
+                                        ${isNew ? '<span class="job-badge">New</span>' : ''}
+                                        <h4 class="job-title">${job.c_job_title || 'No Title'}</h4>
+                                        <div class="job-meta">
+                                            <span class="job-meta-item">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                                ${job.c_job_location || 'N/A'}
+                                            </span>
+                                            <span class="job-meta-item">
+                                                <i class="fas fa-money-bill-wave"></i>
+                                                ${job.c_salary_range || 'Not disclosed'}
+                                            </span>
+                                            <span class="job-meta-item">
+                                                <i class="fas fa-briefcase"></i>
+                                                ${job.c_job_experience ? job.c_job_experience + '+ yrs' : 'Entry Level'}
+                                            </span>
+                                        </div>
+                                        <p class="job-description">${job.c_job_desc ? job.c_job_desc : 'No description available'}</p>
+                                        <a href="/CandidateJob/JobDetails?c_job_id=${job.c_job_id}" class="view-job-btn">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    </div>
+                                `;
+                            });
+                            
+                            $('#jobContainer').html(jobsHTML);
+                        },
+                        error: function (xhr) {
+                            $('#jobContainer').html('<div class="alert alert-danger">Failed to load jobs</div>');
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    $("#companyName").text("Error loading company details");
+                }
+            });
+        });
+    </script>
+}

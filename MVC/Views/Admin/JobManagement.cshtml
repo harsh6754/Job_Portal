@@ -1,0 +1,299 @@
+@{
+    ViewData["Title"] = "Job Management";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    :root {
+        --admin-primary: #1a56db;
+        --admin-secondary: #7e3af2;
+        --admin-success: #0e9f6e;
+        --admin-danger: #e02424;
+        --admin-warning: #f59e0b;
+        --admin-bg: #f9fafb;
+        --admin-card: #ffffff;
+        --admin-border: #e5e7eb;
+        --admin-text: #111827;
+        --admin-text-light: #6b7280;
+    }
+
+    .admin-header {
+        background: var(--admin-card);
+       
+        border-radius: var(--border-radius);
+        padding: var(--card-padding);
+        margin-bottom: var(--section-margin);
+        box-shadow: var(--box-shadow);
+    }
+
+    .header-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--admin-text);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .header-subtitle {
+        color: var(--admin-text-light);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    .admin-card {
+        background: var(--admin-card);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--admin-border);
+        transition: var(--transition);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: var(--card-margin);
+    }
+
+    .admin-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--box-shadow);
+        border-color: var(--admin-primary);
+    }
+
+    .company-header {
+        padding: var(--card-padding);
+        border-bottom: 1px solid var(--admin-border);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .company-logo {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--admin-border);
+    }
+
+    .company-title {
+        flex: 1;
+    }
+
+    .company-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--admin-text);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .company-industry {
+        font-size: 0.875rem;
+        color: var(--admin-text-light);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .company-status {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-approved {
+        background-color: var(--admin-success);
+        color: white;
+    }
+
+    .status-pending {
+        background-color: var(--admin-warning);
+        color: white;
+    }
+
+    .company-body {
+        padding: var(--card-padding);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--card-padding);
+        margin-bottom: var(--card-padding);
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        color: var(--admin-text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        font-size: 0.875rem;
+        color: var(--admin-text);
+        font-weight: 500;
+    }
+
+    .card-footer {
+        margin-top: auto;
+        padding: var(--card-padding);
+        border-top: 1px solid var(--admin-border);
+    }
+
+    .view-jobs-button {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background-color: var(--admin-primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+
+    .view-jobs-button:hover {
+        background-color: #1e429f;
+        transform: translateY(-1px);
+    }
+
+    .meta-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: var(--card-margin);
+        font-size: 0.875rem;
+        color: var(--admin-text-light);
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .meta-item i {
+        color: var(--admin-primary);
+    }
+    .Test
+    {
+      margin-top: 15px;
+      margin-left: 15px;
+    }
+</style>
+<div class="Test">
+    @* <div class="card"></div> *@
+    <div class="card-header bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title">
+                <i class="fas fa-tasks me-2"></i>Job Management
+            </h5>
+        </div>
+    </div>
+@* <div class="admin-header">
+    <h5 class="header-title">
+        <i class="fas fa-briefcase me-2"></i>Job Management
+    </h5> *@
+  
+@* </div> *@
+
+<div class="container-fluid">
+    <div class="row g-4" id="companyContainer">
+        <!-- Company Cards will be appended here -->
+    </div>
+</div>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "http://localhost:5086/api/AdminApi/companies-with-recruiters",
+                type: "GET",
+                success: function (data) {
+                    data.forEach(item => {
+                        const card = `
+                            <div class="col-md-6 col-lg-4">
+                                <div class="admin-card">
+                                    <div class="company-header">
+                                        <img src="${item.c_logo_url ?? 'https://via.placeholder.com/80'}" alt="Company Logo" class="company-logo" />
+                                        <div class="company-title">
+                                            <h3 class="company-name">${item.c_company_name}</h3>
+                                            <div class="company-industry">
+                                                <i class="bi bi-briefcase-fill"></i>
+                                                ${item.c_dept_name}
+                                            </div>
+                                        </div>
+                                        <span class="company-status ${item.c_is_approved ? 'status-approved' : 'status-pending'}">
+                                            ${item.c_is_approved ? 'Approved' : 'Pending'}
+                                        </span>
+                                    </div>
+                                    <div class="company-body">
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <span class="info-label">Recruiter Name</span>
+                                                <span class="info-value">${item.c_recruiter_name}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Contact Number</span>
+                                                <span class="info-value">${item.c_contact_number}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Email Address</span>
+                                                <span class="info-value">${item.c_recruiter_email ?? 'N/A'}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">Register Date</span>
+                                                <span class="info-value">${new Date(item.c_created_at).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+                                        <div class="meta-info">
+                                            <div class="meta-item">
+                                                <i class="bi bi-clock-fill"></i>
+                                                Last Updated: ${new Date(item.c_created_at).toLocaleDateString()}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <button class="view-jobs-button" onclick="viewJobs(${item.c_id})">
+                                            <i class="bi bi-binoculars-fill"></i>
+                                            View Company Details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        $("#companyContainer").append(card);
+                    });
+                },
+                error: function (err) {
+                    console.error("Error fetching data:", err);
+                    $("#companyContainer").html(`
+                        <div class="col-12">
+                            <div class="alert alert-danger" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Failed to load company information. Please try again later.
+                            </div>
+                        </div>
+                    `);
+                }
+            });
+        });
+
+        function viewJobs(companyId) {
+            window.location.href = `./JobListing?companyId=${companyId}`;
+        }
+    </script>
+}

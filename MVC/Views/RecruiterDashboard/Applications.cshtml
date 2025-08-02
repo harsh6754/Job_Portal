@@ -1,0 +1,1435 @@
+@{
+    ViewData["Title"] = "Manage Applications";
+    Layout = "~/Views/Shared/_RecruiterLayout.cshtml";
+}
+
+<style>
+    :root {
+        --primary: #3a57e8;
+        --primary-light: #eaedfc;
+        --secondary: #2c3e50;
+        --success: #00c689;
+        --success-light: #d7f8ee;
+        --danger: #e53f3c;
+        --danger-light: #ffebeb;
+        --warning: #f8a93b;
+        --warning-light: #fff8e9;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --border: #e5e9f2;
+        --card-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    /* Global Styles */
+    .dashboard-container {
+        max-width: 1320px;
+        margin: auto;
+        padding: 2rem;
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    /* Animations */
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes slideInUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    @@keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(58, 87, 232, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(58, 87, 232, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(58, 87, 232, 0); }
+    }
+
+    /* Card Styles */
+    .dashboard-card {
+        background-color: white;
+        border-radius: 14px;
+        box-shadow: var(--card-shadow);
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border);
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        transform: translateY(-3px);
+    }
+
+    /* Header */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .page-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+
+    .page-breadcrumb a {
+        color: #64748b;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .page-breadcrumb a:hover {
+        color: var(--primary);
+    }
+
+    .page-breadcrumb .separator {
+        color: #cbd5e1;
+    }
+
+    .dashboard-title {
+        font-size: 1.85rem;
+        font-weight: 700;
+        color: var(--dark);
+        position: relative;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+    }
+
+    .dashboard-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 70px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), #6e8efb);
+        border-radius: 4px;
+    }
+
+    /* Stats Cards */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+        animation: slideInUp 0.5s ease-out forwards;
+    }
+
+    .stat-card {
+        background-color: white;
+        border-radius: 14px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .stat-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1.25rem;
+        font-size: 1.3rem;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover .stat-icon {
+        transform: scale(1.1);
+    }
+
+    .stat-icon.purple {
+        background-color: #ede9fe;
+        color: #7c3aed;
+    }
+
+    .stat-icon.blue {
+        background-color: #dbeafe;
+        color: #3b82f6;
+    }
+
+    .stat-icon.green {
+        background-color: #d7f8ee;
+        color: #00c689;
+    }
+
+    .stat-icon.red {
+        background-color: #ffebeb;
+        color: #e53f3c;
+    }
+
+    .stat-content h3 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--dark);
+        transition: all 0.2s;
+    }
+
+    .stat-card:hover .stat-content h3 {
+        color: var(--primary);
+    }
+
+    .stat-content p {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    /* Filter Section */
+    .filter-section {
+        background-color: white;
+        border-radius: 14px;
+        padding: 1.75rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+        animation: slideInUp 0.5s ease-out 0.1s forwards;
+        box-shadow: var(--card-shadow);
+    }
+
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.85rem 1.25rem;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        background-color: #f8fafc;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(58, 87, 232, 0.15);
+        background-color: white;
+    }
+
+    .form-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%232c3e50' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 0.85rem;
+        padding-right: 2.5rem;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #4b5563;
+    }
+
+    /* Table Styles */
+    .table-container {
+        background-color: white;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border);
+        animation: slideInUp 0.5s ease-out 0.2s forwards;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+        font-size: 1rem;
+        letter-spacing: 0.01em;
+    }
+
+    .table th {
+        background: linear-gradient(90deg, var(--primary-light) 60%, #f8fafc 100%);
+        color: var(--primary);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.06em;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 2px solid var(--primary);
+        text-align: left;
+        border-right: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .table th:last-child {
+        border-right: none;
+    }
+
+    .table td {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        color: #334155;
+        vertical-align: middle;
+        background-color: #fff;
+        border-right: 1px solid var(--border);
+        transition: background 0.2s;
+    }
+
+    .table td:last-child {
+        border-right: none;
+    }
+
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .table tbody tr {
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .table tbody tr:hover {
+        background: #f4f7fe;
+        box-shadow: 0 2px 8px rgba(58,87,232,0.06);
+    }
+
+    /* Profile Column */
+    .profile-column {
+        display: flex;
+        align-items: center;
+        gap: 1.1rem;
+    }
+
+    .profile-column img {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2.5px solid var(--primary-light);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    .table tr:hover .profile-column img {
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(58,87,232,0.12);
+    }
+
+    .profile-details .name {
+        font-weight: 600;
+        color: #334155;
+        display: block;
+        font-size: 1.05rem;
+    }
+
+    .profile-details .email {
+        font-size: 0.89rem;
+        color: #64748b;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.45rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        gap: 0.4rem;
+        background: #f3f4f6;
+        color: var(--primary);
+        border: 1px solid var(--border);
+        transition: background 0.2s, color 0.2s;
+    }
+
+    .status-badge.shortlisted {
+        background-color: var(--success-light);
+        color: var(--success);
+        border-color: #b6f0d7;
+    }
+
+    .status-badge.rejected {
+        background-color: var(--danger-light);
+        color: var (--danger);
+        border-color: #ffc9c9;
+    }
+
+    .status-badge.pending, .status-badge.under {
+        background-color: var(--warning-light);
+        color: var(--warning);
+        border-color: #ffe6b0;
+    }
+
+    /* Action Buttons */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        padding: 0.6rem 1.1rem;
+        border-radius: 10px;
+        transition: all 0.3s;
+        cursor: pointer;
+        font-size: 0.875rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: none;
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--secondary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn-success {
+        background-color: var(--success);
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #00b178;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn-danger {
+        background-color: var(--danger);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #d93432;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn-warning {
+        background-color: var(--warning);
+        color: white;
+    }
+
+    .btn-warning:hover {
+        background-color: #e89c30;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn-sm {
+        padding: 0.45rem 0.9rem;
+        font-size: 0.75rem;
+        border-radius: 8px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-start;
+    }
+
+    /* Modal Design */
+    .modal-content {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 16px 32px rgba(0,0,0,0.15);
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background-color: var(--primary-light);
+        border-bottom: 1px solid var(--border);
+        padding: 1.5rem 1.75rem;
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+    }
+
+    .modal-title {
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 1.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .modal-body {
+        padding: 1.75rem;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        padding: 1.25rem 1.75rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .btn-close {
+        background-color: rgba(0,0,0,0.05);
+        border: none;
+        color: #64748b;
+        font-size: 1.25rem;
+        padding: 0.6rem;
+        opacity: 0.7;
+        transition: all 0.2s;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+    }
+
+    .btn-close:hover {
+        opacity: 1;
+        color: var(--danger);
+        background-color: rgba(229, 63, 60, 0.1);
+    }
+
+    /* Resume Styling */
+    .resume-style {
+        line-height: 1.6;
+    }
+
+    .resume-header {
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--primary) 0%, #6e8efb 100%);
+        color: white;
+        gap: 2.5rem;
+        border-radius: 16px;
+        box-shadow: 0 8px 16px rgba(58, 87, 232, 0.2);
+    }
+
+    .resume-header img {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .resume-header h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+
+    .resume-header p {
+        font-size: 1.05rem;
+        color: rgba(255, 255, 255, 0.95);
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .resume-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .resume-section h4 {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--primary) !important;
+        margin-bottom: 1.25rem;
+        border-left: 4px solid var(--primary);
+        padding-left: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .resume-section p {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+        color: #4b5563;
+    }
+
+    .resume-section strong {
+        color: #1f2937;
+    }
+
+    .edu-item, .work-item {
+        background-color: #f8fafc;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        border-left: 4px solid var(--primary);
+        transition: all 0.3s;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .edu-item:hover, .work-item:hover {
+        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        transform: translateY(-3px);
+        border-left-color: #6e8efb;
+    }
+
+    /* Empty state */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    
+    .empty-state img {
+        width: 140px;
+        margin-bottom: 2rem;
+        opacity: 0.7;
+        transition: all 0.3s;
+    }
+    
+    .empty-state:hover img {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.4rem;
+        color: #475569;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .empty-state p {
+        color: #64748b;
+        max-width: 450px;
+        margin: 0 auto;
+        font-size: 1.05rem;
+        line-height: 1.6;
+    }
+
+    /* DataTables specific styling */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border-radius: 8px;
+        border: none !important;
+        padding: 0.4rem 0.8rem;
+        margin: 0 3px;
+        background: #f8fafc;
+        transition: all 0.3s;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: var(--primary-light);
+        color: var(--primary) !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: var(--primary);
+        color: white !important;
+        box-shadow: 0 2px 6px rgba(58, 87, 232, 0.3);
+    }
+    
+    .dataTables_wrapper .dataTables_info {
+        color: #64748b;
+        padding-top: 1rem;
+        font-size: 0.95rem;
+    }
+    
+    .dataTables_wrapper .dataTables_length select {
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        padding: 0.4rem;
+        background-color: #f8fafc;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .filter-controls {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .resume-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+        
+        .dashboard-container {
+            padding: 1rem;
+        }
+
+        .table th, .table td {
+            padding: 0.85rem 0.7rem;
+            font-size: 0.95rem;
+        }
+        .profile-column img {
+            width: 36px;
+            height: 36px;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    @* <!-- Breadcrumb -->
+    <div class="page-breadcrumb">
+        <a href="../RecruiterDashboard/Index">Dashboard</a>
+        <span class="separator">/</span>
+        <span>Manage Applications</span>
+    </div> *@
+
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Manage Applications</h1>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalApplications">0</h3>
+                <p>Total Applications</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="shortlistedCount">0</h3>
+                <p>Shortlisted</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="rejectedCount">0</h3>
+                <p>Rejected</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="pendingCount">0</h3>
+                <p>Pending Review</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-header">
+            <h2 class="filter-title">
+                <i class="fas fa-filter"></i> Filter Applications
+            </h2>
+        </div>
+        <div class="filter-controls">
+            <div class="form-group">
+                <label for="jobTitleFilter" class="form-label">Job Title</label>
+                <select id="jobTitleFilter" class="form-select">
+                    <option value="">All Job Titles</option>
+                    <!-- Dynamic job titles will be populated here -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="statusFilter" class="form-label">Application Status</label>
+                <select id="statusFilter" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="shortlisted">Shortlisted</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="under review">Under Review</option>
+                    <option value="pending">Pending</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-container">
+        <div class="table-responsive">
+            <table id="applicationsTable" class="table">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Candidate</th>
+                        <th>Contact</th>
+                        <th>ATS Score</th>
+                        <th>Applied Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="applicationsTableBody">
+                    <!-- Dynamic rows will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Empty state (will be shown when no applications) -->
+        <div class="empty-state d-none" id="emptyState">
+            <img src="https://cdn-icons-png.flaticon.com/512/6598/6598519.png" alt="No applications">
+            <h3>No Applications Found</h3>
+            <p>There are no applications matching your filter criteria.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Viewing Details -->
+<div class="modal fade" id="applicationDetailsModal" tabindex="-1" aria-labelledby="applicationDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="applicationDetailsModalLabel">
+                    <i class="fas fa-user-circle me-2"></i>Application Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body resume-style">
+                <div id="applicationDetailsContent">
+                    <!-- Dynamic content will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="selectButton">
+                    <i class="fas fa-check me-1"></i> Shortlist
+                </button>
+                <button type="button" class="btn btn-warning" id="reviewButton">
+                    <i class="fas fa-search me-1"></i> Under Review
+                </button>
+                <button type="button" class="btn btn-danger" id="rejectButton">
+                    <i class="fas fa-times me-1"></i> Reject
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Scheduling Interview -->
+<div class="modal fade" id="scheduleInterviewModal" tabindex="-1" aria-labelledby="scheduleInterviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scheduleInterviewModalLabel">
+                    <i class="fas fa-calendar-alt me-2"></i>Schedule Interview
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="scheduleInterviewForm">
+                    <input type="hidden" id="userId" name="userId">
+                    <input type="hidden" id="companyId" name="companyId">
+                    <div class="mb-3">
+                        <label for="interviewDate" class="form-label">Interview Date</label>
+                        <input type="date" class="form-control" id="interviewDate" name="interviewDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="interviewTime" class="form-label">Interview Time</label>
+                        <input type="time" class="form-control" id="interviewTime" name="interviewTime" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="saveScheduleButton">
+                    <i class="fas fa-save me-1"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Add Font Awesome if not already included
+            if (!$('link[href*="font-awesome"]').length) {
+                $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">');
+            }
+            
+            var compid = null;
+            var email = "";
+            var fullname = "";
+            var jobid = "";
+
+            function getUserIdFromToken() {
+                const token = localStorage.getItem("token");
+                if (!token) return null;
+
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    return payload.uid;
+                } catch (e) {
+                    console.error("Error decoding token:", e);
+                    return null;
+                }
+            }
+
+            const userId = getUserIdFromToken();
+            
+            // Initialize DataTable
+            const table = $('#applicationsTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                searching: false,
+                language: {
+                    emptyTable: "No applications found"
+                }
+            });
+
+            function fetchCompanyId(callback) {
+                $.ajax({
+                    url: `http://localhost:5086/api/CompanyApi/getCompanyId/${userId}`,
+                    type: "GET",
+                    success: function (response) {
+                        console.log("company id", response);
+
+                        if (!response || response === 0) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Company Not Registered',
+                                text: 'You have not registered your company. Please complete the registration process.',
+                                confirmButtonColor: '#4361ee'
+                            }).then(() => {
+                                setTimeout(() => {
+                                    window.location = '../RecruiterDashboard/CompanyRegistration';
+                                }, 500);
+                            });
+                            return;
+                        }
+
+                        // Check if the company is approved
+                        $.ajax({
+                            url: `http://localhost:5086/api/CompanyApi/getCompanyStatus/${response}`,
+                            type: "GET",
+                            success: function (isApproved) {
+                                if (!isApproved) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Company Not Approved',
+                                        text: 'Your company registration is pending approval. Please wait for approval.',
+                                        confirmButtonColor: '#4361ee'
+                                    }).then(() => {
+                                        setTimeout(() => {
+                                            window.location = '../RecruiterDashboard/Index';
+                                        }, 500);
+                                    });
+                                    return;
+                                }
+
+                                // If the company is registered and approved, proceed with the callback
+                                compid = response;
+                                callback(response);
+                            },
+                            error: function (xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Failed to verify company approval status. Please try again later.',
+                                    confirmButtonColor: '#4361ee'
+                                });
+                                console.error("Company Approval Error:", xhr.status, xhr.statusText);
+                            }
+                        });
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to fetch company information. Please try again later.',
+                            confirmButtonColor: '#4361ee'
+                        });
+                        console.error("Company ID Error:", xhr.status, xhr.statusText);
+                    }
+                });
+            }
+
+            // Call the function to fetch company ID and then fetch applications
+            fetchCompanyId(function(companyId) {
+                fetchApplications(companyId);
+            });
+
+            function fetchApplications(companyId) {
+                $.ajax({
+                    url: `http://localhost:5086/api/ApplyJob/GetApplyJobApplication/${companyId}`,
+                    method: "GET",
+                    success: function (response) {
+                        if (!response || response.length === 0) {
+                            $("#emptyState").removeClass("d-none");
+                            $("#applicationsTable").addClass("d-none");
+                            return;
+                        }
+
+                        $("#emptyState").addClass("d-none");
+                        $("#applicationsTable").removeClass("d-none");
+                        
+                        updateDashboardStats(response);
+                        populateTable(response);
+                        populateFilters(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching applications:", error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to load applications. Please try again later.',
+                            confirmButtonColor: '#4361ee'
+                        });
+                    },
+                });
+            }
+
+            function updateDashboardStats(applications) {
+                // Total applications
+                $('#totalApplications').text(applications.length);
+                
+                // Count by status
+                const shortlisted = applications.filter(app => 
+                    app.c_status?.toLowerCase() === "shortlisted").length;
+                $('#shortlistedCount').text(shortlisted);
+                
+                const rejected = applications.filter(app => 
+                    app.c_status?.toLowerCase() === "rejected").length;
+                $('#rejectedCount').text(rejected);
+                
+                const pending = applications.filter(app => 
+                    app.c_status?.toLowerCase() === "pending" || 
+                    app.c_status?.toLowerCase() === "under review").length;
+                $('#pendingCount').text(pending);
+            }
+
+            // Populate the table with applications
+            function populateTable(applications) {
+                table.clear();
+                
+                applications.forEach((app) => {
+                    let statusClass = app.c_status?.toLowerCase() || "pending";
+                    // Adjust for "Under Review" status
+                    if (statusClass === "under review") {
+                        statusClass = "under";
+                    }
+                    
+                    const interviewButton = app.c_status === "Shortlisted"
+                        ? `<button class="btn btn-success btn-sm schedule-interview-btn" data-id="${app.c_application_id}" data-uid="${app.user.c_userId}" data-email="${app.user.Email}" data-fullname="${app.user.c_fullName}" data-jobid="${app.job_Post.c_job_id}" data-bs-toggle="modal" data-bs-target="#scheduleInterviewModal">
+                            <i class="fas fa-calendar-alt"></i> Schedule
+                        </button>`
+                        : "";
+                    
+                    table.row.add([
+                        `<span class="fw-semibold">${app.job_Post.c_job_title || "N/A"}</span>`,
+                        `<div class="profile-column">
+                            <img src="${app.user.c_profileImage}" alt="Profile Image">
+                            <div class="profile-details">
+                                <span class="name">${app.user.c_fullName}</span>
+                            </div>
+                        </div>`,
+                        `<div>
+                            <div><i class="fas fa-envelope text-primary me-1"></i> ${app.user.Email}</div>
+                            <div><i class="fas fa-phone text-success me-1"></i> ${app.user.c_phoneNumber}</div>
+                        </div>`,
+                        `<span class="fw-semibold">${app.c_ats_score || "N/A"}</span>`,
+                        `<span>${formatDate(app.c_apply_date)}</span>`,
+                        `<span class="status-badge ${statusClass}">
+                            <i class="fas fa-${statusClass === 'shortlisted' ? 'check-circle' : statusClass === 'rejected' ? 'times-circle' : 'clock'}"></i>
+                            ${app.c_status}
+                        </span>`,
+                        `<div class="action-buttons">
+                            <button class="btn btn-primary btn-sm view-details-btn" data-id="${app.c_application_id}" data-bs-toggle="modal" data-bs-target="#applicationDetailsModal">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            ${interviewButton}
+                        </div>`
+                    ]).draw(false);
+                });
+            }
+
+            // Populate the filter dropdowns
+            function populateFilters(applications) {
+                const jobTitleFilter = $("#jobTitleFilter");
+                jobTitleFilter.empty().append('<option value="">All Job Titles</option>');
+                
+                const jobTitles = [...new Set(applications.map(app => app.job_Post.c_job_title))];
+                jobTitles.forEach(title => {
+                    if (title) {
+                        jobTitleFilter.append(`<option value="${title}">${title}</option>`);
+                    }
+                });
+            }
+
+            // Filter the table based on dropdown selections
+            function filterTable() {
+                const selectedJobTitle = $("#jobTitleFilter").val().toLowerCase();
+                const selectedStatus = $("#statusFilter").val().toLowerCase();
+                
+                // Filter the table
+                table.rows().every(function() {
+                    const rowData = this.data();
+                    const jobTitle = $(rowData[0]).text().toLowerCase();
+                    const status = $(rowData[5]).text().toLowerCase().trim();
+                    
+                    const matchesJobTitle = !selectedJobTitle || jobTitle.includes(selectedJobTitle);
+                    const matchesStatus = !selectedStatus || status.includes(selectedStatus);
+                    
+                    this.nodes().to$().toggle(matchesJobTitle && matchesStatus);
+                });
+                
+                // Update info and pagination
+                table.draw(false);
+                
+                // Show/hide empty state
+                if (table.rows(':visible').count() === 0) {
+                    $("#emptyState").removeClass("d-none");
+                    $("#applicationsTable_wrapper").addClass("d-none");
+                } else {
+                    $("#emptyState").addClass("d-none");
+                    $("#applicationsTable_wrapper").removeClass("d-none");
+                }
+            }
+
+            // Event listeners for the filters
+            $("#jobTitleFilter, #statusFilter").on("change", filterTable);
+
+            // Set application ID on modal open
+            $(document).on("click", ".view-details-btn", function () {
+                const applicationId = $(this).data("id");
+                $("#applicationDetailsModal").data("application-id", applicationId);
+                
+                $.ajax({
+                    url: `http://localhost:5086/api/ApplyJob/GetApplyJobApplication/${compid}`,
+                    method: "GET",
+                    success: function (apps) {     
+                        const app = apps.find(a => a.c_application_id === applicationId);
+                        if (!app) {
+                            console.error("Application not found.");
+                            return;
+                        }       
+                        const user = app.user || {};
+                        const resume = app.userResume || {};
+
+                        const status = (app.c_status || "").toLowerCase();
+                        if (status === "shortlisted" || status === "rejected") {
+                            $("#applicationDetailsModal .modal-footer").hide();
+                        } else {
+                            $("#applicationDetailsModal .modal-footer").show();
+                        }
+
+                        // Format education details
+                        const eduHtml = (app.education_Details || []).map(e => `
+                            <div class="edu-item">
+                                <p><strong>Qualification:</strong> ${e.c_HighestQualification || 'N/A'}</p>
+                                <p><strong>Degree:</strong> ${e.c_Degree || 'N/A'}</p>
+                                <p><strong>Specialization:</strong> ${e.c_Specialization || 'N/A'}</p>
+                                <p><strong>University:</strong> ${e.c_UniversityName || 'N/A'}</p>
+                                <p><strong>Year of Passing:</strong> ${e.c_YearOfPassing || 'N/A'}</p>
+                                <p><strong>Percentage:</strong> ${e.c_percentage || 'N/A'}</p>
+                            </div>
+                        `).join('');
+
+                        // Format work experience
+                        const workHtml = (app.work_Experience || []).map(w => `
+                            <div class="work-item">
+                                <p><strong>Company:</strong> ${w.c_CompanyName || 'N/A'}</p>
+                                <p><strong>Job Title:</strong> ${w.c_JobTitle || 'N/A'}</p>
+                                <p><strong>Years:</strong> ${w.c_years_work || 'N/A'}</p>
+                            </div>
+                        `).join('');
+
+                        const detailsHtml = `
+                            <div class="resume-header">
+                                <img src="${user.c_profileImage}" alt="Profile Image">
+                                <div class="resume-header-right">
+                                    <h2>${user.c_fullName || "N/A"}</h2>
+                                    <p><i class="fas fa-envelope me-2"></i>${user.Email || "N/A"}</p>
+                                    <p><i class="fas fa-phone me-2"></i>${user.c_phoneNumber || "N/A"}</p>
+                                </div>
+                            </div>
+
+                            <div class="resume-section">
+                                <h4><i class="fas fa-graduation-cap"></i> Education</h4>
+                                ${eduHtml || "<p>No education data found.</p>"}
+                            </div>
+
+                            <div class="resume-section">
+                                <h4><i class="fas fa-briefcase"></i> Work Experience</h4>
+                                ${workHtml || "<p>No work experience data found.</p>"}
+                            </div>
+
+                            <div class="resume-section">
+                                <h4><i class="fas fa-file-alt"></i> Resume</h4>
+                                <a href="/user_resume/${resume.c_ResumeFilePath}" class="btn btn-primary" target="_blank">
+                                    <i class="fas fa-download me-1"></i> ${resume.c_ResumeFilePath ? "Download Resume" : "No Resume Uploaded"}
+                                </a>
+                            </div>
+                        `;
+
+                        $("#applicationDetailsContent").html(detailsHtml);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching application details:", error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to load application details',
+                            confirmButtonColor: '#4361ee'
+                        });
+                    }
+                });
+            });
+
+            // Schedule interview button
+            $(document).on("click", ".schedule-interview-btn", function () {            
+                const uid = $(this).data("uid");
+                
+                $("#scheduleInterviewForm #userId").val(uid);
+                $("#scheduleInterviewForm #companyId").val(compid);
+
+                email = $(this).data("email");
+                fullname = $(this).data("fullname");
+                jobid = $(this).data("jobid");
+            });
+
+            // Save schedule button click
+            $("#saveScheduleButton").on("click", function () {
+                if (!$("#interviewDate").val() || !$("#interviewTime").val()) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Missing Information',
+                        text: 'Please select both date and time for the interview',
+                        confirmButtonColor: '#4361ee'
+                    });
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append("c_user_id", $("#scheduleInterviewForm #userId").val());
+                formData.append("c_company_id", compid);
+                formData.append("c_interview_date", $("#scheduleInterviewForm #interviewDate").val());
+                formData.append("c_interview_time", $("#scheduleInterviewForm #interviewTime").val());
+                formData.append("c_interview_status","Remaining");
+                formData.append("c_email", email);
+                formData.append("c_fullName", fullname);
+                formData.append("c_job_id", jobid);
+                
+                // Show loading state
+                Swal.fire({
+                    title: 'Processing...',
+                    text: 'Scheduling interview',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: `http://localhost:5086/api/ApplyJob/InterviewSchedule`,
+                    method: "POST",
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (response) {
+                        if (response.data === 2) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Already Scheduled',
+                                text: 'The interview is already scheduled for this application.',
+                                confirmButtonColor: '#4361ee'
+                            }).then(()=>{
+                                $("#scheduleInterviewModal").modal("hide");
+                                window.location = '/RecruiterDashboard/Interviews';
+                            });
+                        } else if (response.data === 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Interview Scheduled',
+                                text: 'The interview has been successfully scheduled.',
+                                confirmButtonColor: '#4361ee'
+                            }).then(() => {
+                                $("#scheduleInterviewModal").modal("hide");
+                                window.location = '/RecruiterDashboard/Interviews';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'An unexpected error occurred. Please try again later.',
+                                confirmButtonColor: '#4361ee'
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error scheduling interview:", error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to schedule the interview. Please try again later.',
+                            confirmButtonColor: '#4361ee'
+                        });
+                    }
+                });
+            });
+
+            // Reject button
+            $("#rejectButton").on("click", function () {
+                const applicationId = $("#applicationDetailsModal").data("application-id");
+                updateApplicationStatus(applicationId, "Rejected");
+            });
+
+            // Review button
+            $("#reviewButton").on("click", function () {
+                const applicationId = $("#applicationDetailsModal").data("application-id");
+                updateApplicationStatus(applicationId, "Under Review");
+            });
+
+            // Shortlist button
+            $("#selectButton").on("click", function () {
+                const applicationId = $("#applicationDetailsModal").data("application-id");
+                updateApplicationStatus(applicationId, "Shortlisted");
+            });
+
+            function updateApplicationStatus(applicationId, status) {
+                if (!applicationId) {
+                    console.error("Application ID not found.");
+                    return;
+                }
+
+                // Show confirmation dialog
+                Swal.fire({
+                    title: `Confirm Status Change`,
+                    text: `Are you sure you want to change this application's status to ${status}?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4361ee',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, update status',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading state
+                        Swal.fire({
+                            title: 'Processing...',
+                            text: 'Updating application status',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        const formData = new FormData();
+                        formData.append("c_application_id", applicationId);
+                        formData.append("c_status", status);
+
+                        $.ajax({
+                            url: `http://localhost:5086/api/ApplyJob/UpdateStatusOfJobApplication`,
+                            method: "PUT",
+                            processData: false,
+                            contentType: false,
+                            data: formData,
+                            success: function (res) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Status Updated',
+                                    text: `The application status has been updated to ${status}.`,
+                                    confirmButtonColor: '#4361ee'
+                                }).then(() => {
+                                    $("#applicationDetailsModal").modal("hide");
+                                    fetchApplications(compid);
+                                });
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("Error updating application status:", error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Failed to update the application status. Please try again later.',
+                                    confirmButtonColor: '#4361ee'
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            function formatDate(dateString) {
+                if (!dateString) return 'N/A';
+
+                // Handle different date formats
+                let date;
+                if (dateString.includes('-')) {
+                    // Format: dd-MM-yyyy
+                    const parts = dateString.split(' ')[0].split('-');
+                    if (parts.length === 3) {
+                        const day = parts[0];
+                        const month = parts[1];
+                        const year = parts[2];
+                        return `${day}/${month}/${year}`;
+                    }
+                } else if (dateString.includes('/')) {
+                    // Format: MM/dd/yyyy
+                    date = new Date(dateString);
+                    return date.toLocaleDateString('en-GB', {day: '2-digit', month: '2-digit', year: 'numeric'});
+                }
+
+                return dateString;
+            }
+        });
+    </script>
+}

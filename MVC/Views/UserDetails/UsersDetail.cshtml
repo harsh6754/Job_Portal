@@ -1,0 +1,1850 @@
+@{
+    ViewData["Title"] = "User Profile";
+    Layout = "~/Views/Shared/_NewLayout.cshtml";
+}
+
+<style>
+    :root {
+        --resume-primary: #2c3e50;
+        --resume-secondary: #3498db;
+        --resume-accent: #2980b9;
+        --resume-light: #ecf0f1;
+        --resume-dark: #34495e;
+        --resume-text: #333;
+        --resume-text-light: #666;
+        --resume-text-lighter: #999;
+        --resume-white: #fff;
+        --resume-border: #e0e0e0;
+        --resume-shadow: rgba(0, 0, 0, 0.1);
+        --resume-success: #27ae60;
+        --resume-warning: #f39c12;
+        --resume-danger: #e74c3c;
+        --resume-gray-light: #f5f5f5;
+        --resume-gray: #e0e0e0;
+        --resume-transition: all 0.3s ease;
+    }
+
+    body {
+        background-color: #f9fafb;
+        color: var(--resume-text);
+        font-family: 'Roboto', 'Segoe UI', sans-serif;
+        line-height: 1.6;
+    }
+
+    /* Resume Container */
+    .resume-container {
+        max-width: 1000px;
+        margin: 3rem auto;
+        background: var(--resume-white);
+        box-shadow: 0 5px 25px var(--resume-shadow);
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Resume Header */
+    .resume-header {
+        position: relative;
+        background: var(--resume-primary);
+        padding: 2rem;
+        color: var(--resume-white);
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-gap: 2rem;
+        align-items: center;
+    }
+
+    .resume-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 10px;
+        background: var(--resume-secondary);
+    }
+
+    .profile-photo-container {
+        position: relative;
+    }
+
+    .profile-photo {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 5px solid rgba(255, 255, 255, 0.2);
+        object-fit: cover;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-status {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        width: 20px;
+        height: 20px;
+        background: var(--resume-success);
+        border: 3px solid var(--resume-white);
+        border-radius: 50%;
+    }
+
+    .header-details {
+        align-self: center;
+    }
+
+    .profile-name {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: 0.5px;
+    }
+
+    .profile-title {
+        font-size: 1.2rem;
+        font-weight: 400;
+        margin: 0 0 1rem 0;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .profile-contact {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .contact-item i {
+        font-size: 1rem;
+        color: var(--resume-secondary);
+    }
+
+    /* Resume Body */
+    .resume-body {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 600px;
+    }
+
+    /* Resume Sidebar */
+    .resume-sidebar {
+        background: var(--resume-gray-light);
+        padding: 2rem;
+        border-right: 1px solid var(--resume-border);
+    }
+
+    .sidebar-section {
+        margin-bottom: 2rem;
+    }
+
+    .sidebar-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-heading {
+        position: relative;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--resume-primary);
+        margin: 0 0 1.5rem 0;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--resume-secondary);
+    }
+
+    /* Skills Section */
+    .skills-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .skill-item {
+        margin-bottom: 1rem;
+    }
+
+    .skill-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .skill-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.4rem;
+    }
+
+    .skill-name {
+        font-weight: 500;
+        color: var(--resume-dark);
+    }
+
+    .skill-level {
+        font-size: 0.85rem;
+        color: var(--resume-text-light);
+    }
+
+    .skill-bar {
+        height: 6px;
+        background: var(--resume-gray);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .skill-progress {
+        height: 100%;
+        background: var(--resume-secondary);
+        width: 0;
+        transition: width 1s ease-in-out;
+    }
+
+    /* Personal Info */
+    .personal-info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .personal-info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .personal-info-item i {
+        color: var(--resume-secondary);
+        margin-top: 0.2rem;
+        width: 16px;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: var(--resume-text);
+        margin-right: 0.25rem;
+    }
+
+    .info-content {
+        color: var(--resume-text-light);
+    }
+
+    /* Main Content */
+    .resume-main {
+        padding: 2rem;
+    }
+
+    .main-section {
+        margin-bottom: 2.5rem;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .main-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .main-heading {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--resume-primary);
+        margin: 0 0 1.5rem 0;
+        position: relative;
+        padding-bottom: 0.75rem;
+    }
+
+    .main-heading::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 50px;
+        height: 3px;
+        background: var(--resume-secondary);
+    }
+
+    /* Timeline Style */
+    .timeline {
+        position: relative;
+        margin-left: 1rem;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 2px;
+        background: var(--resume-secondary);
+        opacity: 0.3;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-left: 2rem;
+        padding-bottom: 2rem;
+    }
+
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -6px;
+        top: 5px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--resume-white);
+        border: 2px solid var(--resume-secondary);
+        z-index: 1;
+    }
+
+    .timeline-date {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: var(--resume-secondary);
+        color: var(--resume-white);
+        border-radius: 15px;
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .timeline-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--resume-dark);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .timeline-subtitle {
+        font-size: 1rem;
+        color: var(--resume-text-light);
+        margin: 0 0 0.75rem 0;
+    }
+
+    .timeline-content {
+        color: var(--resume-text-lighter);
+        font-size: 0.95rem;
+    }
+
+    /* Projects */
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .project-card {
+        border: 1px solid var(--resume-border);
+        border-radius: 8px;
+        overflow: hidden;
+        transition: var(--resume-transition);
+    }
+
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .project-img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+    }
+
+    .project-body {
+        padding: 1.25rem;
+    }
+
+    .project-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--resume-dark);
+        margin: 0 0 0.75rem 0;
+    }
+
+    .project-description {
+        color: var(--resume-text-light);
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .project-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .project-tag {
+        background: var(--resume-gray-light);
+        color: var(--resume-text-light);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+    }
+
+    .project-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--resume-secondary);
+        font-weight: 500;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: var(--resume-transition);
+    }
+
+    .project-link:hover {
+        color: var(--resume-accent);
+    }
+
+    /* Download Section */
+    .resume-footer {
+        background: var(--resume-gray-light);
+        padding: 1.5rem 2rem;
+        border-top: 1px solid var(--resume-border);
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .download-btn {
+        padding: 0.75rem 2rem;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--resume-transition);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+    }
+
+    .download-btn i {
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: var(--resume-secondary);
+        color: var(--resume-white);
+    }
+
+    .btn-primary:hover {
+        background: var(--resume-accent);
+        transform: translateY(-2px);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: var(--resume-dark);
+        border: 1px solid var(--resume-border);
+    }
+
+    .btn-outline:hover {
+        background: var(--resume-gray);
+        transform: translateY(-2px);
+    }
+
+    /* Animations */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Adjustments */
+    @@media (max-width: 900px) {
+        .resume-body {
+            grid-template-columns: 1fr;
+        }
+        
+        .resume-sidebar {
+            border-right: none;
+            border-bottom: 1px solid var(--resume-border);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .resume-header {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        
+        .profile-photo-container {
+            justify-self: center;
+            margin-bottom: 1rem;
+        }
+        
+        .profile-contact {
+            justify-content: center;
+        }
+        
+        .projects-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .resume-container {
+            margin: 1rem;
+        }
+        
+        .resume-header {
+            padding: 1.5rem 1rem;
+        }
+        
+        .resume-sidebar, .resume-main {
+            padding: 1.5rem 1rem;
+        }
+        
+        .profile-name {
+            font-size: 2rem;
+        }
+        
+        .profile-contact {
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+    }
+
+    /* ATS Rating Section */
+    .ats-section {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        margin-bottom: 2rem;
+        border: 1px solid var(--resume-border);
+    }
+    
+    .ats-header {
+        background: var(--resume-primary);
+        padding: 1rem 1.5rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .ats-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .ats-score-container {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .ats-score {
+        font-size: 1.75rem;
+        font-weight: 700;
+    }
+    
+    .ats-score-ring {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: conic-gradient(var(--ring-color) var(--score-degree), rgba(255, 255, 255, 0.1) 0);
+        transform: rotate(-90deg);
+    }
+    
+    .ats-body {
+        padding: 1.5rem;
+    }
+    
+    .ats-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .ats-metric {
+        border: 1px solid var(--resume-border);
+        border-radius: 6px;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .ats-metric-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .ats-metric-icon.high {
+        background: rgba(39, 174, 96, 0.1);
+        color: var(--resume-success);
+    }
+    
+    .ats-metric-icon.medium {
+        background: rgba(243, 156, 18, 0.1);
+        color: var(--resume-warning);
+    }
+    
+    .ats-metric-icon.low {
+        background: rgba(231, 76, 60, 0.1);
+        color: var(--resume-danger);
+    }
+    
+    .ats-metric-details {
+        flex: 1;
+    }
+    
+    .ats-metric-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0 0 0.25rem 0;
+        color: var(--resume-dark);
+    }
+    
+    .ats-metric-score {
+        font-size: 0.85rem;
+        color: var(--resume-text-light);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .ats-metric-bar {
+        flex: 1;
+        height: 4px;
+        background: var(--resume-gray);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+    
+    .ats-metric-value {
+        height: 100%;
+        background: var(--resume-secondary);
+    }
+    
+    .ats-improvements {
+        background: var(--resume-gray-light);
+        border-radius: 6px;
+        padding: 1.25rem;
+    }
+    
+    .ats-improvements-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 1rem 0;
+        color: var(--resume-dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .ats-tips {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .ats-tip {
+        position: relative;
+        margin-bottom: 0.75rem;
+        padding-left: 1.5rem;
+        font-size: 0.9rem;
+        color: var(--resume-text-light);
+    }
+    
+    .ats-tip:last-child {
+        margin-bottom: 0;
+    }
+    
+    .ats-tip::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.5rem;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--resume-secondary);
+    }
+
+    /* Modal Styles for ATS Rating Popup */
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 1000;
+        backdrop-filter: blur(3px);
+    }
+    
+    .modal-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.9);
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        z-index: 1001;
+        opacity: 0;
+        transition: all 0.3s ease;
+        display: none;
+        overflow-y: auto;
+    }
+    
+    .modal-container.active {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+        display: block;
+    }
+    
+    .modal-backdrop.active {
+        display: block;
+    }
+    
+    .modal-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: white;
+        font-size: 1.2rem;
+        transition: all 0.2s ease;
+        z-index: 5;
+    }
+    
+    .modal-close:hover {
+        background: rgba(255, 255, 255, 0.5);
+        transform: rotate(90deg);
+    }
+    
+    /* ATS Analysis Button Styles */
+    .ats-analysis-btn {
+        background: linear-gradient(135deg, var(--resume-primary), var(--resume-secondary));
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ats-analysis-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.1) 50%);
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.3s ease;
+    }
+    
+    .ats-analysis-btn:hover::after {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+    
+    .ats-analysis-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Pulse animation for the ATS button */
+    @@keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+        }
+    }
+    
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+</style>
+
+<div class="resume-container" id="profile-container">
+    <!-- Resume Header -->
+    <header class="resume-header">
+        <div class="profile-photo-container">
+            <img id="user-image" src="default.jpg" alt="Profile Photo" class="profile-photo">
+            <div class="profile-status"></div>
+        </div>
+        
+        <div class="header-details">
+            <h1 class="profile-name" id="user-name">John Doe</h1>
+            <h2 class="profile-title" id="user-job-title">Frontend Developer</h2>
+            
+            <div class="profile-contact">
+                <span class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span id="user-email">johndoe@example.com</span>
+                </span>
+                <span class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span id="user-phone">+91 1234567890</span>
+                </span>
+                <span class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="user-locations">Bengaluru, India</span>
+                </span>
+                <span class="contact-item">
+                    <i class="fas fa-user"></i>
+                    <span id="user-gender">Male</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Resume Body - Two Column Layout -->
+    <div class="resume-body">
+        <!-- Sidebar -->
+        <aside class="resume-sidebar">
+            <!-- Skills Section -->
+            <div class="sidebar-section">
+                <h3 class="section-heading">Skills</h3>
+                <div class="skills-list" id="user-skills-container">
+                    <!-- Skills will be dynamically populated -->
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">JavaScript</span>
+                            <span class="skill-level">Advanced</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">HTML/CSS</span>
+                            <span class="skill-level">Expert</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 95%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <span class="skill-name">React</span>
+                            <span class="skill-level">Intermediate</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 75%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Job Preferences -->
+            <div class="sidebar-section">
+                <h3 class="section-heading">Job Preferences</h3>
+                <div class="personal-info-list">
+                    <div class="personal-info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <span class="info-label">Preferred Locations:</span>
+                            <span class="info-content" id="user-pref-locations">Bengaluru, Pune, Remote</span>
+                        </div>
+                    </div>
+                    <div class="personal-info-item">
+                        <i class="fas fa-briefcase"></i>
+                        <div>
+                            <span class="info-label">Preferred Roles:</span>
+                            <span class="info-content" id="user-roles">Frontend Developer, UI Engineer</span>
+                        </div>
+                    </div>
+                    <div class="personal-info-item">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <div>
+                            <span class="info-label">Expected Salary:</span>
+                            <span class="info-content" id="user-salary">₹10-12 LPA</span>
+                        </div>
+                    </div>
+                    <div class="personal-info-item">
+                        <i class="fas fa-hourglass-half"></i>
+                        <div>
+                            <span class="info-label">Notice Period:</span>
+                            <span class="info-content" id="user-notice-period">30 days</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Education Details -->
+            <div class="sidebar-section">
+                <h3 class="section-heading">Education</h3>
+                <div class="personal-info-list">
+                    <div class="personal-info-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <div>
+                            <span class="info-label">Degree:</span>
+                            <span class="info-content" id="user-degree">B.Tech in Computer Science</span>
+                        </div>
+                    </div>
+                    <div class="personal-info-item">
+                        <i class="fas fa-university"></i>
+                        <div>
+                            <span class="info-label">University:</span>
+                            <span class="info-content" id="user-university">XYZ University</span>
+                        </div>
+                    </div>
+                    <div class="personal-info-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <div>
+                            <span class="info-label">Year of Passing:</span>
+                            <span class="info-content" id="user-year">2024</span>
+                        </div>
+                    </div>
+                    <div class="personal-info-item">
+                        <i class="fas fa-certificate"></i>
+                        <div>
+                            <span class="info-label">Highest Qualification:</span>
+                            <span class="info-content" id="user-qualification">Bachelor's Degree</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="resume-main">
+            <!-- Professional Summary -->
+            <section class="main-section">
+                <h3  class="main-heading">Professional Summary</h3>
+                <p id="user-summary">
+                    Dedicated Frontend Developer with expertise in creating responsive, intuitive user interfaces. 
+                    Proficient in modern JavaScript frameworks with a strong foundation in HTML, CSS, and UI/UX principles. 
+                    Passionate about building accessible web applications that provide exceptional user experiences.
+                </p>
+            </section>
+            
+            <!-- Work Experience -->
+            <section class="main-section">
+                <h3 class="main-heading">Work Experience</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date" id="user-exp-date">2022 - Present</div>
+                        <h4 class="timeline-title" id="user-job-role">Frontend Developer</h4>
+                        <h5 class="timeline-subtitle" id="user-company">ABC Tech Solutions</h5>
+                        <div class="timeline-content" id="user-job-description">
+                            <p>Developed and maintained responsive web applications using React.js, Redux, and modern JavaScript. Collaborated with design and backend teams to implement user interfaces and integrate API services.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-date">2021 - 2022</div>
+                        <h4 class="timeline-title">Junior Web Developer</h4>
+                        <h5 class="timeline-subtitle">XYZ Digital</h5>
+                        <div class="timeline-content">
+                            <p>Assisted in developing UI components and implementing responsive designs. Participated in code reviews and learned industry best practices.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Projects -->
+            <section class="main-section">
+                <h3 class="main-heading">Projects</h3>
+                <div class="projects-grid">
+                    <div class="project-card">
+                        <img src="https://placehold.co/600x400/e2e8f0/64748b?text=Project+Image" alt="Project" class="project-img">
+                        <div class="project-body">
+                            <h4 class="project-title" id="user-project-title">E-Waste Trading Platform</h4>
+                            <p class="project-description" id="user-project-desc">An online marketplace for buying and selling electronic waste with recycling options.</p>
+                            <div class="project-tags">
+                                <span class="project-tag">React</span>
+                                <span class="project-tag">Node.js</span>
+                                <span class="project-tag">MongoDB</span>
+                            </div>
+                            <a href="#" class="project-link" id="user-project-link">
+                                <i class="fas fa-external-link-alt"></i> View Project
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <img src="https://placehold.co/600x400/e2e8f0/64748b?text=Project+Image" alt="Project" class="project-img">
+                        <div class="project-body">
+                            <h4 class="project-title">Weather Dashboard</h4>
+                            <p class="project-description">Real-time weather tracking application with forecast and historical data visualization.</p>
+                            <div class="project-tags">
+                                <span class="project-tag">JavaScript</span>
+                                <span class="project-tag">Weather API</span>
+                                <span class="project-tag">Chart.js</span>
+                            </div>
+                            <a href="#" class="project-link">
+                                <i class="fas fa-external-link-alt"></i> View Project
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Resume Footer with Download Buttons -->
+    <div class="resume-footer">
+        <button class="download-btn ats-analysis-btn pulse" id="ats-analysis-btn">
+            <i class="fas fa-robot"></i> ATS Resume Analysis
+        </button>
+        <button class="download-btn btn-primary" id="download-pdf">
+            <i class="fas fa-file-pdf"></i> Download as PDF
+        </button>
+        <button class="download-btn btn-outline" id="download-img">
+            <i class="fas fa-image"></i> Download as Image
+        </button>
+    </div>
+</div>
+
+<!-- Third: ADD this modal container for the ATS analysis at the end of the page (before scripts) -->
+<div class="modal-backdrop" id="ats-modal-backdrop"></div>
+<div class="modal-container" id="ats-modal">
+    <div class="ats-section">
+        <div class="ats-header">
+            <h3 class="ats-title">
+                <i class="fas fa-robot"></i> ATS Compatibility Score
+            </h3>
+            <div class="ats-score-container">
+                <div class="ats-score-ring" id="ats-score-ring"></div>
+                <span class="ats-score" id="ats-score">0%</span>
+            </div>
+            <div class="modal-close" id="ats-modal-close">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <div class="ats-body">
+            <div class="ats-metrics">
+                <div class="ats-metric">
+                    <div class="ats-metric-icon" id="keywordIcon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <div class="ats-metric-details">
+                        <h4 class="ats-metric-title">Keyword Optimization</h4>
+                        <div class="ats-metric-score">
+                            <span id="keywordScore">0%</span>
+                            <div class="ats-metric-bar">
+                                <div class="ats-metric-value" id="keywordBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ats-metric">
+                    <div class="ats-metric-icon" id="completenessIcon">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <div class="ats-metric-details">
+                        <h4 class="ats-metric-title">Profile Completeness</h4>
+                        <div class="ats-metric-score">
+                            <span id="completenessScore">0%</span>
+                            <div class="ats-metric-bar">
+                                <div class="ats-metric-value" id="completenessBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ats-metric">
+                    <div class="ats-metric-icon" id="experienceIcon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="ats-metric-details">
+                        <h4 class="ats-metric-title">Experience Detail</h4>
+                        <div class="ats-metric-score">
+                            <span id="experienceScore">0%</span>
+                            <div class="ats-metric-bar">
+                                <div class="ats-metric-value" id="experienceBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ats-metric">
+                    <div class="ats-metric-icon" id="formatIcon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="ats-metric-details">
+                        <h4 class="ats-metric-title">ATS-Friendly Format</h4>
+                        <div class="ats-metric-score">
+                            <span id="formatScore">0%</span>
+                            <div class="ats-metric-bar">
+                                <div class="ats-metric-value" id="formatBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ats-improvements">
+                <h4 class="ats-improvements-title">
+                    <i class="fas fa-lightbulb"></i> Improvement Suggestions
+                </h4>
+                <ul class="ats-tips" id="ats-tips">
+                    <li class="ats-tip">Click "Analyze" to get personalized ATS optimization tips.</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button class="download-btn btn-primary" id="analyze-resume-btn" style="min-width: 180px;">
+                    <i class="fas fa-chart-bar"></i> Analyze Resume
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Animate skill bars on load
+            setTimeout(function() {
+                $('.skill-progress').each(function() {
+                    $(this).css('width', $(this).attr('style').split(':')[1]);
+                });
+            }, 500);
+            
+            function getUserIdFromToken() {
+                let token = localStorage.getItem("token");
+                if (!token) return null;
+                let payload = JSON.parse(atob(token.split('.')[1]));
+                return payload.uid;
+            }
+
+            // Get User ID dynamically
+            var userId = getUserIdFromToken();
+            if (!userId) {
+                console.error("User ID not found in token.");
+                return;
+            }
+
+            // Load profile data
+            $.ajax({
+                url: `http://localhost:5086/api/UserDetails/GetUserProfileDetail/${userId}`,
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response) {
+                        console.log(response);
+
+                        // Update profile image, name, contact info
+                        $("#user-image").attr("src", response.c_image || "default.jpg");
+                        $("#user-name").text(response.c_fullname || "N/A");
+                        $("#user-email").text(response.c_email || "N/A");
+                        $("#user-phone").text(response.c_mobile_number || "N/A");
+                        $("#user-gender").text(response.c_gender || "N/A");
+
+                        // Update education details
+                        if (response.education_Details) {
+                            $("#user-degree").text(response.education_Details.c_Degree || "N/A");
+                            $("#user-qualification").text(response.education_Details.c_HighestQualification || "N/A");
+                            $("#user-university").text(response.education_Details.c_UniversityName || "N/A");
+                            $("#user-year").text(response.education_Details.c_YearOfPassing || "N/A");
+                        }
+
+                        // Update work experience
+                        if (response.experience) {
+                            $("#user-company").text(response.experience.c_CompanyName || "N/A");
+                            $("#user-job-title").text(response.experience.c_JobTitle || "N/A");
+                            $("#user-job-role").text(response.experience.c_JobTitle || "N/A");
+                            
+                            const yearsWorked = response.experience.c_years_work || "N/A";
+                            $("#user-exp-date").text(yearsWorked !== "N/A" ? 
+                                `${new Date().getFullYear() - yearsWorked} - Present` : "N/A");
+                            
+                            // Set job description if available (using placeholder if not)
+                            if (response.experience.c_JobDescription) {
+                                $("#user-job-description").html(`<p>${response.experience.c_JobDescription}</p>`);
+                            }
+                        }
+
+                        // Update skills with progress bars
+                        if (response.skills && response.skills.c_skill_name) {
+                            const skillsContainer = $("#user-skills-container");
+                            skillsContainer.empty();
+                            
+                            const skills = response.skills.c_skill_name.split(',').map(skill => skill.trim());
+                            const skillLevels = ["Beginner", "Intermediate", "Advanced", "Expert"];
+                            const percentages = [55, 75, 90, 95];
+                            
+                            skills.forEach((skill, index) => {
+                                if (skill) {
+                                    // Randomly assign a skill level for demonstration
+                                    const randomLevel = Math.floor(Math.random() * skillLevels.length);
+                                    const level = skillLevels[randomLevel];
+                                    const percentage = percentages[randomLevel];
+                                    
+                                    skillsContainer.append(`
+                                        <div class="skill-item">
+                                            <div class="skill-header">
+                                                <span class="skill-name">${skill}</span>
+                                                <span class="skill-level">${level}</span>
+                                            </div>
+                                            <div class="skill-bar">
+                                                <div class="skill-progress" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                    `);
+                                    
+                                    // Animate after a short delay
+                                    setTimeout(() => {
+                                        skillsContainer.find('.skill-progress').last().css('width', `${percentage}%`);
+                                    }, 100);
+                                }
+                            });
+                        }
+
+                        // Update job preferences
+                        if (response.preference) {
+                            $("#user-locations").text(response.preference.c_PreferredLocations?.split(',')[0] || "N/A");
+                            $("#user-pref-locations").text(response.preference.c_PreferredLocations || "N/A");
+                            $("#user-roles").text(response.preference.c_PreferredRoles || "N/A");
+                            $("#user-salary").text(response.preference.c_PreferredSalary || "N/A");
+                            
+                            // Set notice period if available
+                            if (response.preference.c_NoticePeriod) {
+                                $("#user-notice-period").text(response.preference.c_NoticePeriod);
+                            }
+                        }
+
+                        // Update professional summary based on experience if available
+                        if (response.experience) {
+                            let summary = "Dedicated ";
+                            summary += response.experience.c_JobTitle || "Professional";
+                            summary += " with ";
+                            summary += response.experience.c_years_work ? response.experience.c_years_work + "+" : "";
+                            summary += " years of expertise in the field. ";
+                            
+                            if (response.skills && response.skills.c_skill_name) {
+                                summary += "Proficient in " + response.skills.c_skill_name + ". ";
+                            }
+                            
+                            summary += "Passionate about delivering high-quality solutions and continuously improving skills.";
+                            
+                            $("#user-summary").text(summary);
+                        }
+
+                        // Update projects
+                        if (response.projects) {
+                            $("#user-project-title").text(response.projects.c_Project_Title || "N/A");
+                            $("#user-project-desc").text(response.projects.c_Project_Description || "N/A");
+                            $("#user-project-link").attr("href", response.projects.c_ProjectLink || "#");
+                        }
+
+                        // Calculate and update ATS rating
+                        setTimeout(() => {
+                            const atsRating = calculateATSRating(response);
+                            updateATSRatingUI(atsRating);
+                        }, 1000); // Small delay to let other UI updates finish
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching user data:", error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Failed to load profile data. Please try again later.",
+                        confirmButtonColor: "var(--resume-secondary)"
+                    });
+                }
+            });
+
+            // Download as Image
+            document.getElementById('download-img').addEventListener('click', function () {
+                const button = this;
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                button.disabled = true;
+
+                html2canvas(document.getElementById('profile-container'), {
+                    scale: 2,
+                    logging: true,
+                    useCORS: true,
+                    allowTaint: true
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = 'resume_' + new Date().toISOString().slice(0, 10) + '.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Download Complete",
+                        text: "Your resume image has been downloaded.",
+                        confirmButtonColor: "var(--resume-secondary)",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }).catch(err => {
+                    console.error("Error generating image:", err);
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Failed to generate image. Please try again.",
+                        confirmButtonColor: "var(--resume-secondary)"
+                    });
+                });
+            });
+
+            // Download as PDF
+            document.getElementById('download-pdf').addEventListener('click', function () {
+                const button = this;
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                button.disabled = true;
+
+                html2canvas(document.getElementById('profile-container'), {
+                    scale: 2,
+                    logging: true,
+                    useCORS: true,
+                    allowTaint: true
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    
+                    // Calculate image dimensions to fit PDF
+                    const imgWidth = 190;
+                    const pageHeight = 277;
+                    const imgHeight = canvas.height * imgWidth / canvas.width;
+                    let heightLeft = imgHeight;
+                    let position = 10; // top margin
+
+                    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+
+                    // Add new pages if content is longer than one page
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+
+                    pdf.save('resume_' + new Date().toISOString().slice(0, 10) + '.pdf');
+
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Download Complete",
+                        text: "Your resume PDF has been downloaded.",
+                        confirmButtonColor: "var(--resume-secondary)",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }).catch(err => {
+                    console.error("Error generating PDF:", err);
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+
+                    Swal.fire({
+                        icon: "error", 
+                        title: "Error",
+                        text: "Failed to generate PDF. Please try again.",
+                        confirmButtonColor: "var(--resume-secondary)"
+                    });
+                });
+            });
+
+            // Open ATS Analysis Modal
+            document.getElementById('ats-analysis-btn').addEventListener('click', function () {
+                document.getElementById('ats-modal-backdrop').classList.add('active');
+                document.getElementById('ats-modal').classList.add('active');
+            });
+
+            // Close ATS Analysis Modal
+            document.getElementById('ats-modal-close').addEventListener('click', function () {
+                document.getElementById('ats-modal-backdrop').classList.remove('active');
+                document.getElementById('ats-modal').classList.remove('active');
+            });
+
+            // Analyze Resume Button
+            document.getElementById('analyze-resume-btn').addEventListener('click', function () {
+                const button = this;
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+                button.disabled = true;
+
+                // Simulate analysis delay
+                setTimeout(() => {
+                    const atsRating = calculateATSRating(response);
+                    updateATSRatingUI(atsRating);
+
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 2000);
+            });
+        });
+
+        // ATS Rating System
+        function calculateATSRating(userData) {
+            const metrics = {
+                keyword: { score: 0, tips: [] },
+                completeness: { score: 0, tips: [] },
+                experience: { score: 0, tips: [] },
+                format: { score: 0, tips: [] }
+            };
+            
+            // Default high format score since we're providing an ATS-friendly template
+            metrics.format.score = 95;
+            
+            // 1. Calculate keyword optimization
+            let keywordScore = 0;
+            const jobTitle = userData.experience?.c_JobTitle || '';
+            const skills = userData.skills?.c_skill_name || '';
+            
+            if (jobTitle && skills) {
+                // Check if skills align with job title (simplified version)
+                const relevantSkillSets = {
+                    'developer': ['javascript', 'html', 'css', 'react', 'angular', 'vue', 'node', 'python', 'java', 'c#', '.net', 'php', 'sql', 'mongodb', 'api'],
+                    'designer': ['ui', 'ux', 'figma', 'sketch', 'photoshop', 'illustrator', 'indesign', 'wireframe', 'prototype'],
+                    'analyst': ['excel', 'sql', 'tableau', 'power bi', 'data', 'analysis', 'statistics', 'python', 'r', 'spss'],
+                    'manager': ['leadership', 'management', 'agile', 'scrum', 'jira', 'team', 'budget', 'strategy'],
+                    'engineer': ['development', 'testing', 'devops', 'ci/cd', 'aws', 'azure', 'cloud', 'docker', 'kubernetes']
+                };
+                
+                // Determine job category
+                let jobCategory = '';
+                for (const category in relevantSkillSets) {
+                    if (jobTitle.toLowerCase().includes(category)) {
+                        jobCategory = category;
+                        break;
+                    }
+                }
+                
+                if (jobCategory) {
+                    const relevantSkills = relevantSkillSets[jobCategory];
+                    const userSkills = skills.toLowerCase().split(',').map(s => s.trim());
+                    
+                    // Calculate how many relevant skills the user has
+                    const matchingSkills = userSkills.filter(skill => 
+                        relevantSkills.some(relevantSkill => skill.includes(relevantSkill))
+                    );
+                    
+                    keywordScore = Math.min(100, Math.round((matchingSkills.length / Math.min(5, relevantSkills.length)) * 100));
+                    
+                    if (keywordScore < 60) {
+                        metrics.keyword.tips.push(`Add more ${jobCategory}-specific skills that match your job title.`);
+                    }
+                } else {
+                    keywordScore = 50; // Default if job category can't be determined
+                    metrics.keyword.tips.push("Ensure your job title clearly reflects your profession.");
+                }
+            } else {
+                keywordScore = 20;
+                if (!jobTitle) metrics.keyword.tips.push("Add your current job title for better keyword matching.");
+                if (!skills) metrics.keyword.tips.push("List relevant skills to improve keyword optimization.");
+            }
+            
+            metrics.keyword.score = keywordScore;
+            
+            // 2. Calculate profile completeness
+            let completenessScore = 0;
+            const requiredSections = [
+                { name: 'Basic Info', filled: Boolean(userData.c_fullname && userData.c_email) },
+                { name: 'Skills', filled: Boolean(userData.skills?.c_skill_name) },
+                { name: 'Work Experience', filled: Boolean(userData.experience?.c_JobTitle && userData.experience?.c_CompanyName) },
+                { name: 'Education', filled: Boolean(userData.education_Details?.c_Degree && userData.education_Details?.c_UniversityName) },
+                { name: 'Job Preferences', filled: Boolean(userData.preference?.c_PreferredRoles) }
+            ];
+            
+            const filledSections = requiredSections.filter(section => section.filled).length;
+            completenessScore = Math.round((filledSections / requiredSections.length) * 100);
+            
+            // Add tips for incomplete sections
+            requiredSections.forEach(section => {
+                if (!section.filled) {
+                    metrics.completeness.tips.push(`Complete your ${section.name} section.`);
+                }
+            });
+            
+            metrics.completeness.score = completenessScore;
+            
+            // 3. Calculate experience detail quality
+            let experienceScore = 0;
+            if (userData.experience) {
+                const exp = userData.experience;
+                let detailPoints = 0;
+                
+                if (exp.c_JobTitle) detailPoints += 20;
+                if (exp.c_CompanyName) detailPoints += 20;
+                if (exp.c_years_work) detailPoints += 20;
+                if (exp.c_JobDescription && exp.c_JobDescription.length > 50) detailPoints += 20;
+                if (exp.c_JobDescription && exp.c_JobDescription.includes('achieve')) detailPoints += 20; // Looks for achievement terms
+                
+                experienceScore = detailPoints;
+                
+                if (!exp.c_JobDescription || exp.c_JobDescription.length < 50) {
+                    metrics.experience.tips.push("Add more details to your job description with quantifiable achievements.");
+                }
+                
+                if (!exp.c_years_work) {
+                    metrics.experience.tips.push("Include your years of work experience for better assessment.");
+                }
+            } else {
+                metrics.experience.tips.push("Add work experience details to improve your profile strength.");
+            }
+            
+            metrics.experience.score = experienceScore;
+            
+            // Calculate overall ATS score (weighted average)
+            const weights = {
+                keyword: 0.35,
+                completeness: 0.25,
+                experience: 0.25,
+                format: 0.15
+            };
+            
+            const overallScore = Math.round(
+                metrics.keyword.score * weights.keyword +
+                metrics.completeness.score * weights.completeness +
+                metrics.experience.score * weights.experience +
+                metrics.format.score * weights.format
+            );
+            
+            // Additional general tips
+            if (overallScore < 70) {
+                const generalTips = [
+                    "Use industry-standard terminology in your profile.",
+                    "Avoid using tables or complex formatting that ATS might not parse well.",
+                    "Include relevant keywords from job descriptions you're targeting.",
+                    "Quantify achievements with metrics and numbers when possible."
+                ];
+                
+                // Add 1-2 general tips
+                const tipsToAdd = Math.min(2, generalTips.length);
+                for (let i = 0; i < tipsToAdd; i++) {
+                    const randomIndex = Math.floor(Math.random() * generalTips.length);
+                    const tip = generalTips.splice(randomIndex, 1)[0];
+                    if (!metrics.keyword.tips.includes(tip) && 
+                        !metrics.completeness.tips.includes(tip) && 
+                        !metrics.experience.tips.includes(tip)) {
+                        // Add to the category with fewest tips
+                        const minCategory = Object.keys(metrics).reduce((min, cat) => 
+                            metrics[cat].tips.length < metrics[min].tips.length ? cat : min, 'keyword');
+                        metrics[minCategory].tips.push(tip);
+                    }
+                }
+            }
+            
+            return {
+                overall: overallScore,
+                metrics: metrics
+            };
+        }
+        
+        function updateATSRatingUI(rating) {
+            // Update overall score with animation
+            const overallScore = rating.overall;
+            const scoreElement = document.getElementById('ats-score');
+            const ringElement = document.getElementById('ats-score-ring');
+            
+            // Reset score
+            let currentScore = 0;
+            const targetScore = overallScore;
+            const duration = 1500; // ms
+            const interval = 30; // ms
+            const steps = Math.max(1, Math.floor(duration / interval));
+            const increment = (targetScore - currentScore) / steps;
+            
+            // Set ring color based on score
+            let ringColor;
+            if (overallScore >= 80) {
+                ringColor = 'var(--resume-success)';
+            } else if (overallScore >= 60) {
+                ringColor = 'var(--resume-warning)';
+            } else {
+                ringColor = 'var(--resume-danger)';
+            }
+            
+            // Animate score counter and ring
+            const scoreInterval = setInterval(() => {
+                currentScore += increment;
+                if ((increment > 0 && currentScore >= targetScore) || 
+                    (increment < 0 && currentScore <= targetScore)) {
+                    currentScore = targetScore;
+                    clearInterval(scoreInterval);
+                }
+                
+                scoreElement.textContent = `${Math.round(currentScore)}%`;
+                
+                // Update ring
+                const scoreDegree = (currentScore / 100) * 360;
+                ringElement.style.setProperty('--score-degree', `${scoreDegree}deg`);
+                ringElement.style.setProperty('--ring-color', ringColor);
+            }, interval);
+            
+            // Update individual metrics
+            for (const [key, data] of Object.entries(rating.metrics)) {
+                // Update score text
+                const scoreElement = document.getElementById(`${key}Score`);
+                if (scoreElement) scoreElement.textContent = `${data.score}%`;
+                
+                // Update progress bar with animation
+                const barElement = document.getElementById(`${key}Bar`);
+                if (barElement) {
+                    setTimeout(() => {
+                        barElement.style.width = `${data.score}%`;
+                    }, 300);
+                }
+                
+                // Update icon color class
+                const iconElement = document.getElementById(`${key}Icon`);
+                if (iconElement) {
+                    iconElement.classList.remove('high', 'medium', 'low');
+                    if (data.score >= 80) {
+                        iconElement.classList.add('high');
+                    } else if (data.score >= 60) {
+                        iconElement.classList.add('medium');
+                    } else {
+                        iconElement.classList.add('low');
+                    }
+                }
+            }
+            
+            // Update improvement tips
+            const tipsContainer = document.getElementById('ats-tips');
+            if (tipsContainer) {
+                tipsContainer.innerHTML = ''; // Clear tips
+                
+                const allTips = [];
+                for (const category in rating.metrics) {
+                    rating.metrics[category].tips.forEach(tip => {
+                        if (!allTips.includes(tip)) {
+                            allTips.push(tip);
+                        }
+                    });
+                }
+                
+                if (allTips.length > 0) {
+                    allTips.forEach(tip => {
+                        const tipElement = document.createElement('li');
+                        tipElement.className = 'ats-tip';
+                        tipElement.textContent = tip;
+                        tipsContainer.appendChild(tipElement);
+                    });
+                } else {
+                    // No improvement needed
+                    const tipElement = document.createElement('li');
+                    tipElement.className = 'ats-tip';
+                    tipElement.innerHTML = '<strong>Great job!</strong> Your profile looks optimized for ATS systems.';
+                    tipsContainer.appendChild(tipElement);
+                }
+            }
+        }
+    </script>
+    
+    <!-- Add the following JavaScript for the ATS modal and button interaction -->
+    <script>
+        $(document).ready(function () {
+            // Add these new handlers for the ATS modal
+            
+            // Variables to store user data
+            let userData = null;
+            let atsAnalysisComplete = false;
+            
+            // Open ATS modal when the button is clicked
+            $("#ats-analysis-btn").on("click", function() {
+                $("#ats-modal-backdrop").addClass("active");
+                $("#ats-modal").addClass("active");
+                
+                // Reset ATS UI if previous analysis was done
+                if (atsAnalysisComplete) {
+                    resetATSUI();
+                    atsAnalysisComplete = false;
+                }
+            });
+            
+            // Close modal when clicking the close button or backdrop
+            $("#ats-modal-close, #ats-modal-backdrop").on("click", function() {
+                $("#ats-modal-backdrop").removeClass("active");
+                $("#ats-modal").removeClass("active");
+            });
+            
+            // Prevent modal from closing when clicking inside it
+            $("#ats-modal").on("click", function(e) {
+                e.stopPropagation();
+            });
+            
+            // Analyze button click handler
+            $("#analyze-resume-btn").on("click", function() {
+                const button = $(this);
+                
+                // Show loading state
+                button.html('<i class="fas fa-spinner fa-spin"></i> Analyzing...');
+                button.prop("disabled", true);
+                
+                // If we already have user data, use it; otherwise fetch it
+                if (userData) {
+                    runATSAnalysis(userData, button);
+                } else {
+                    // Get User ID dynamically
+                    const userId = getUserIdFromToken();
+                    if (!userId) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Authentication Error",
+                            text: "Unable to identify your profile. Please log in again.",
+                            confirmButtonColor: "var(--resume-secondary)"
+                        });
+                        button.html('<i class="fas fa-chart-bar"></i> Analyze Resume');
+                        button.prop("disabled", false);
+                        return;
+                    }
+                    
+                    // Fetch user data for analysis
+                    $.ajax({
+                        url: `http://localhost:5086/api/UserDetails/GetUserProfileDetail/${userId}`,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(response) {
+                            // Store user data for future analyses
+                            userData = response;
+                            runATSAnalysis(userData, button);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error fetching user data for ATS analysis:", error);
+                            button.html('<i class="fas fa-chart-bar"></i> Analyze Resume');
+                            button.prop("disabled", false);
+                            
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: "Failed to load profile data for analysis. Please try again.",
+                                confirmButtonColor: "var(--resume-secondary)"
+                            });
+                        }
+                    });
+                }
+            });
+            
+            // Function to run ATS analysis once we have userData
+            function runATSAnalysis(data, button) {
+                // Add a small delay to simulate processing
+                setTimeout(() => {
+                    const atsRating = calculateATSRating(data);
+                    updateATSRatingUI(atsRating);
+                    
+                    // Restore button state
+                    button.html('<i class="fas fa-check-circle"></i> Analysis Complete');
+                    
+                    // Change button to a "Re-analyze" button after a delay
+                    setTimeout(() => {
+                        button.html('<i class="fas fa-sync-alt"></i> Re-analyze Resume');
+                        button.prop("disabled", false);
+                    }, 2000);
+                    
+                    atsAnalysisComplete = true;
+                }, 1500);
+            }
+            
+            // Reset ATS UI for new analysis
+            function resetATSUI() {
+                // Reset scores and progress bars
+                $('#ats-score').text('0%');
+                $('#ats-score-ring').css('--score-degree', '0deg');
+                
+                ['keyword', 'completeness', 'experience', 'format'].forEach(key => {
+                    $(`#${key}Score`).text('0%');
+                    $(`#${key}Bar`).css('width', '0%');
+                    $(`#${key}Icon`).removeClass('high medium low');
+                });
+                
+                // Reset tips
+                $('#ats-tips').html('<li class="ats-tip">Click "Analyze" to get personalized ATS optimization tips.</li>');
+            }
+            
+            // Modify the existing AJAX success callback to store userData but NOT automatically calculate ATS
+            const originalAjaxSuccess = $.ajax;
+            $.ajax = function(options) {
+                if (options.url && options.url.includes('GetUserProfileDetail')) {
+                    const originalSuccessFn = options.success;
+                    
+                    options.success = function(response) {
+                        // Call the original success function
+                        if (originalSuccessFn) {
+                            originalSuccessFn(response);
+                        }
+                        
+                        // Store user data for future ATS analysis but don't calculate automatically
+                        if (response) {
+                            userData = response;
+                            
+                            // REMOVED the automatic ATS calculation from here
+                            // setTimeout(() => {
+                            //     const atsRating = calculateATSRating(response);
+                            //     updateATSRatingUI(atsRating);
+                            // }, 1000);
+                        }
+                    };
+                }
+                
+                return originalAjaxSuccess.apply(this, arguments);
+            };
+            
+            // The existing calculateATSRating and updateATSRatingUI functions remain unchanged
+        });
+    </script>
+}

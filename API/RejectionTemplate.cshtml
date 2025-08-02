@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application Rejected - CareerLink</title>
+    <link rel="stylesheet" href="/api/emailStyles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9edf2;
+            width: 100%;
+        }
+        .page {
+            width: 100%;
+            min-height: 50vh;
+            padding: 50px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            max-width: 800px;
+            background-color: #ffffff;
+            border: 1px solid #dcdcdc;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .email-header {
+            background-color: #f1f5f9;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .email-header img {
+            width: 200px;
+            height: auto;
+        }
+
+        .email-body {
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        .email-body h2 {
+            color: #d0342c;
+            font-size: 28px;
+            margin-bottom: 25px;
+        }
+
+        .email-body p {
+            font-size: 17px;
+            color: #444;
+            line-height: 1.8;
+            margin-bottom: 18px;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: black;
+        }
+
+        .email-body a.button {
+            display: inline-block;
+            background-color: #0b65c3;
+            color: #fff;
+            padding: 14px 30px;
+            margin-top: 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .email-body a.button:hover {
+            background-color: #094cb1;
+        }
+
+        .email-footer {
+            padding: 25px 20px;
+            font-size: 14px;
+            color: #888;
+            background-color: #f8f9fa;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="email-wrapper">
+            <div class="email-header">
+                <img src="https://res.cloudinary.com/dhruvil20/image/upload/v1743946773/2removebg-preview_x58xrm.png" alt="CareerLink Logo">
+            </div>
+            <div class="email-body">
+                <h2>Application Rejected</h2>
+                <p>We regret to inform you that your application for <strong class="highlight">{{CompanyName}}</strong> has been <strong>rejected</strong>.</p>
+                <p><strong>Reason:</strong> {{Reason}}</p>
+                <p>If you believe this was a mistake or have any concerns, please contact our support team.</p>
+                <a href="mailto:careerlink2025@gmail.com" class="button">Contact Support</a>
+            </div>
+            <div class="email-footer">
+                &copy; CareerLink. All rights reserved.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

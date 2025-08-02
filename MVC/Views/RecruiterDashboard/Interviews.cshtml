@@ -1,0 +1,1296 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_RecruiterLayout";
+}
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-light: #eef1ff;
+        --success: #10b981;
+        --success-light: #ecfdf5;
+        --warning: #f59e0b;
+        --warning-light: #fffbeb;
+        --danger: #ef4444;
+        --danger-light: #fef2f2;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-700: #374151;
+        --gray-900: #111827;
+    }
+
+    .dashboard-container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 0 1rem;
+        animation: fadeIn 0.5s ease-out forwards;
+        margin-top: 1.5rem;
+    }
+
+    /* Header */
+     .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .dashboard-title {
+        font-size: 1.85rem;
+        font-weight: 700;
+        color: var(--dark);
+        position: relative;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+    }
+
+    .dashboard-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 70px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), #6e8efb);
+        border-radius: 4px;
+    }
+
+    
+       /* Stats Cards */
+   .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+        animation: slideInUp 0.5s ease-out forwards;
+    }
+
+    .stat-content h3 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--dark);
+        transition: all 0.2s;
+    }
+
+    .stat-card:hover .stat-content h3 {
+        color: var(--primary);
+    }
+
+    .stat-content p {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+     .stat-card {
+        background-color: white;
+        border-radius: 14px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border);
+        transition: all 0.3s ease;
+    }
+
+     .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .stat-title {
+        color: var(--text-light);
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+    .stat-value {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-change {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+    }
+
+   .stat-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1.25rem;
+        font-size: 1.3rem;
+        transition: all 0.3s ease;
+    }
+     .stat-card:hover .stat-icon {
+        transform: scale(1.1);
+    }
+
+      .stat-icon.purple {
+        background-color: #ede9fe;
+        color: #7c3aed;
+    }
+
+.stat-icon.blue {
+        background-color: #dbeafe;
+        color: #3b82f6;
+    }
+
+     .stat-icon.green {
+        background-color: #d7f8ee;
+        color: #00c689;
+    }
+    .stat-icon.red {
+        background-color: #ffebeb;
+        color: #e53f3c;
+    }
+
+    
+    .view-selector {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .view-button {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        color: var(--gray-700);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .view-button.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+    
+    .interviews-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .table {
+        border-radius: 0;
+        border: none;
+        margin-bottom: 0;
+    }
+    
+    .table th {
+        background: var(--gray-100);
+        color: var(--gray-700);
+        font-weight: 600;
+        border-bottom: 1px solid var(--gray-200);
+        padding: 1rem;
+    }
+    
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    
+    .table tr:hover {
+        background-color: var(--primary-light);
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border-radius: 20px;
+    }
+    
+    .status-badge.remaining {
+        background-color: var(--warning-light);
+        color: var(--warning);
+        border: 1px solid var(--warning);
+    }
+    
+    .status-badge.done {
+        background-color: var(--success-light);
+        color: var (--success);
+        border: 1px solid var(--success);
+    }
+
+    .profile-column {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .profile-column img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--primary);
+    }
+
+    .profile-column .profile-details {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .profile-column .profile-details .name {
+        font-weight: 600;
+        color: var(--gray-900);
+    }
+    
+    .profile-column .profile-details .position {
+        font-size: 0.8rem;
+        color: var(--gray-700);
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-join {
+        background: var(--primary);
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .btn-join:hover {
+        background: #3651d4;
+        transform: translateY(-2px);
+    }
+    
+    .btn-reschedule {
+        background: white;
+        border: 1px solid var(--gray-300);
+        color: var(--gray-700);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .btn-reschedule:hover {
+        background: var(--gray-100);
+        transform: translateY(-2px);
+    }
+    
+    .interview-status {
+        position: relative;
+        width: 100%;
+        background-color: #ffffff;
+        border: 1px solid var(--gray-300);
+        border-radius: 6px;
+        padding: 0.4rem 0.5rem;
+        color: var(--gray-900);
+        transition: all 0.2s;
+        font-size: 0.9rem;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.5rem center;
+        background-size: 1em;
+        padding-right: 2rem;
+    }
+    
+    .interview-status:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+    }
+    
+    .update-status-btn {
+        background: var(--primary);
+        border: none;
+        color: white;
+        padding: 0.4rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+    }
+    
+    .update-status-btn:hover {
+        background: #3651d4;
+    }
+    
+    /* Modal styling */
+    .modal-content {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .modal-header {
+        background: var(--primary-light);
+        border-bottom: none;
+        padding: 1.5rem;
+        border-radius: 16px 16px 0 0;
+    }
+    
+    .modal-title {
+        color: var(--primary);
+        font-weight: 600;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-footer {
+        border-top: none;
+        padding: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+        border: 1px solid var(--gray-300);
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+    }
+    
+    /* Empty state */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        text-align: center;
+    }
+    
+    .empty-state img {
+        width: 120px;
+        margin-bottom: 1.5rem;
+        opacity: 0.7;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.25rem;
+        color: var(--gray-700);
+        margin-bottom: 0.75rem;
+    }
+    
+    .empty-state p {
+        color: var(--gray-700);
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    /* Loading state */
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        padding: 2rem;
+    }
+    
+    /* Calendar view styling would go here */
+
+    /* Filter Controls */
+    .filter-controls {
+        background-color: white;
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-controls .form-label {
+        font-weight: 500;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+    }
+    
+    .filter-controls .form-select {
+        border: 1px solid var(--gray-300);
+        border-radius: 8px;
+        padding: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .filter-controls .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+    }
+</style>
+<main class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Interview Schedule</h1>
+        <div class="header-actions">
+            <button class="btn btn-sm btn-outline-primary me-2" id="todayBtn">
+                <i class="fas fa-calendar-day me-1"></i> Today
+            </button>
+            <button class="btn btn-sm btn-outline-primary" id="upcomingBtn">
+                <i class="fas fa-calendar-week me-1"></i> Upcoming
+    </button>
+        </div>
+    </div>
+    
+    <!-- Stats Overview -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalInterviews">0</h3>
+                <p class="stat-title">Total Interviews</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-calendar-day"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="todayInterviews">0</h3>
+                <p class="stat-title">Today's Interviews</p>
+            </div>
+        </div>
+        <div class="stat-card ">
+            <div class="stat-icon red">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="pendingInterviews">0</h3>
+                <p class="stat-title">Pending Interviews</p>
+            </div>
+        </div>
+        <div class="stat-card ">
+            <div class="stat-icon blue">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="completedInterviews">0</h3>
+                <p class="stat-title">Completed Interviews</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- View Selector -->
+    <div class="view-selector">
+        <button class="view-button active" id="tableViewBtn">
+            <i class="fas fa-list me-1"></i> List View
+        </button>
+        <button class="view-button" id="calendarViewBtn">
+            <i class="fas fa-calendar-alt me-1"></i> Calendar View
+        </button>
+    </div>
+    
+    <!-- Filter Controls -->
+    <div class="filter-controls mb-3">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="jobTitleFilter" class="form-label">
+                        <i class="fas fa-briefcase me-1"></i> Job Title
+                    </label>
+                    <select id="jobTitleFilter" class="form-select">
+                        <option value="">All Job Titles</option>
+                        <!-- Dynamic job titles will be populated here -->
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="statusFilter" class="form-label">
+                        <i class="fas fa-tasks me-1"></i> Interview Status
+                    </label>
+                    <select id="statusFilter" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="Done">Done</option>
+                        <option value="Remaining">Remaining</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Interview Table View -->
+    <div class="interviews-card" id="tableView">
+        <div class="table-responsive">
+            <table id="applicationsTable" class="table">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Candidate</th>
+                        <th>Contact Details</th>
+                        <th>Schedule</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="interviewsTableBody">
+                    <!-- Interviews will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Empty state (will be shown when no interviews) -->
+        <div class="empty-state d-none" id="emptyState">
+            <img src="https://cdn-icons-png.flaticon.com/512/6598/6598519.png" alt="No interviews">
+            <h3>No Interviews Scheduled</h3>
+            <p>You don't have any interviews scheduled at the moment.</p>
+        </div>
+        
+        <!-- Loading state -->
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Calendar View (to be implemented) -->
+    <div class="interviews-card d-none" id="calendarView">
+        <div id="interviewCalendar" class="p-3"></div>
+    </div>
+</main>
+
+<!-- Modal for Rescheduling Interview -->
+<div class="modal fade" id="scheduleInterviewModal" tabindex="-1" aria-labelledby="scheduleInterviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scheduleInterviewModalLabel">
+                    <i class="fas fa-calendar-alt me-2"></i>Reschedule Interview
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="candidate-info mb-4 p-3 bg-light rounded">
+                    <h6 class="mb-2">Candidate Information</h6>
+                    <div class="d-flex align-items-center">
+                        <img src="" id="candidateImage" class="rounded-circle me-3" width="40" height="40">
+                        <div>
+                            <p class="mb-0 fw-bold" id="candidateName">Loading...</p>
+                            <p class="mb-0 small text-muted" id="candidateEmail">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <form id="scheduleInterviewForm">
+                    <input type="hidden" id="userId" name="userId">
+                    <input type="hidden" id="interviewId" name="interviewId">
+                    
+                    <div class="mb-3">
+                        <label for="interviewDate" class="form-label">
+                            <i class="fas fa-calendar me-2"></i>Interview Date
+                        </label>
+                        <input type="date" class="form-control" id="interviewDate" name="interviewDate" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="interviewTime" class="form-label">
+                            <i class="fas fa-clock me-2"></i>Interview Time
+                        </label>
+                        <input type="time" class="form-control" id="interviewTime" name="interviewTime" required>
+                    </div>
+                    
+                    <div class="form-text mb-3">
+                        <i class="fas fa-info-circle me-1"></i> An email notification will be sent to the candidate with the updated schedule.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="saveScheduleButton">
+                    <i class="fas fa-save me-1"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" />
+
+    <script>
+        $(document).ready(function () {
+            // Global variables
+            var compid = null;
+            var allInterviews = [];
+            var email = "";
+            var fullname = "";
+            var profileImage = "";
+            
+            // Show loading spinner
+            function showLoading() {
+                $("#loadingSpinner").show();
+                $("#emptyState").addClass("d-none");
+                $("#interviewsTableBody").addClass("d-none");
+            }
+            
+            // Hide loading spinner
+            function hideLoading() {
+                $("#loadingSpinner").hide();
+                $("#interviewsTableBody").removeClass("d-none");
+            }
+            
+            // Show empty state
+            function showEmptyState() {
+                $("#emptyState").removeClass("d-none");
+                $("#interviewsTableBody").addClass("d-none");
+            }
+            
+            // Initialize with loading state
+            showLoading();
+            
+            // Set up DataTable
+            const table = $('#applicationsTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[2, 'asc']], // Sort by schedule date
+                dom: '<"d-flex justify-content-between align-items-center mb-3"lf>rt<"d-flex justify-content-between align-items-center mt-3"ip>',
+                language: {
+                    emptyTable: "",
+                    zeroRecords: "",
+                    search: "<i class='fas fa-search me-1'></i>Search:",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ interviews",
+                    infoEmpty: "Showing 0 interviews",
+                    infoFiltered: "(filtered from _MAX_ total interviews)"
+                },
+                columns: [
+                    { data: 'jobTitle' }, // Job title
+                    { data: 'candidate' }, // Candidate name and photo
+                    { data: 'contact' },   // Email and phone
+                    { data: 'schedule' },  // Date and time
+                    { data: 'status' },    // Status and update
+                    { data: 'actions' }    // Actions (join, reschedule)
+                ],
+                columnDefs: [
+                    { className: "align-middle", targets: "_all" }
+                ],
+                drawCallback: function() {
+                    if($(this).find('tbody tr').length == 0) {
+                        showEmptyState();
+                    }
+                }
+            });
+            
+            // Get user ID from token
+            function getUserIdFromToken() {
+                const token = localStorage.getItem("token");
+                if (!token) return null;
+
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    return payload.uid;
+                } catch (e) {
+                    console.error("Error decoding token:", e);
+                    return null;
+                }
+            }
+            
+            // Get company ID and then fetch interviews
+            const userId = getUserIdFromToken();
+            console.log("User ID is:", userId);
+
+            if (!userId) {
+                hideLoading();
+                showEmptyState();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Authentication Error',
+                    text: 'Please log in to view your interviews.',
+                    confirmButtonColor: '#4361ee'
+                });
+                return;
+            }
+
+            $.ajax({
+                url: `http://localhost:5086/api/CompanyApi/getCompanyId/${userId}`,
+                type: "GET",
+                success: function (response) {
+                    console.log("Company ID:", response);
+                    compid = response;
+                    fetchInterviews(compid);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching company ID:", error);
+                    hideLoading();
+                    showEmptyState();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load company information.',
+                        confirmButtonColor: '#4361ee'
+                    });
+                }
+            });  
+            
+            // Fetch interviews from API
+            function fetchInterviews(compid) {
+                showLoading();
+                
+                $.ajax({
+                    url: `http://localhost:5086/api/ApplyJob/GetInterviews_ScheduleByCompany/${compid}`,
+                    method: "GET",
+                    success: function (response) {
+                        console.log("API Response:", response);
+                        allInterviews = response || [];
+                        
+                        // Update statistics
+                        updateStatistics(allInterviews);
+                        
+                        // Populate job title filter
+                        populateJobTitleFilter(allInterviews);
+                        
+                        if (!response || response.length === 0) {
+                            console.log("No data received from API");
+                            hideLoading();
+                            showEmptyState();
+                            return;
+                        }
+
+                        table.clear();
+
+                        response.forEach((interview) => {
+                            const jobTitle = interview.job_post?.c_job_title || 'N/A';
+                            const meetingUrl = interview.c_meeting_url?.replace("UserDashboard", "RecruiterDashboard") || "#";
+                            @* const jobTitle = interview.job?.jobTitle || 'N/A'; *@
+                            const fullName = interview.user?.c_fullName || 'Unknown';
+                            const email = interview.user?.Email || 'N/A';
+                            const mobile = interview.user?.c_phoneNumber || 'N/A';
+                            const profileImage = interview.user?.c_profileImage || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                            const formattedDate = formatDate(interview.c_interview_date);
+                            const statusClass = interview.c_interview_status === "Done" ? "done" : "remaining";
+                            
+                            table.row.add({
+                                jobTitle: `<span>${jobTitle}</span>`,
+                                candidate: `
+                                    <div class="profile-column">
+                                        <img src="${profileImage}" alt="Profile" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
+                                        <div class="profile-details">
+                                            <span class="name">${fullName}</span>
+                                            <span class="position text-muted">${jobTitle}</span>
+                                        </div>
+                                    </div>`,
+                                contact: `
+                                    <div>
+                                        <div><i class="fas fa-envelope me-2 text-muted"></i>${email}</div>
+                                        <div class="mt-1"><i class="fas fa-phone me-2 text-muted"></i>${mobile}</div>
+                                    </div>`,
+                                schedule: `
+                                    <div>
+                                        <div><i class="fas fa-calendar me-2 text-primary"></i>${formattedDate}</div>
+                                        <div class="mt-1"><i class="fas fa-clock me-2 text-primary"></i>${interview.c_interview_time}</div>
+                                    </div>`,
+                                status: `
+                                    <div class="d-flex align-items-center">
+                                        <span class="status-badge ${statusClass} me-2">
+                                            ${interview.c_interview_status}
+                                        </span>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                Change
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item status-option" href="#" 
+                                                       data-id="${interview.c_interview_id}" 
+                                                       data-status="Remaining">
+                                                        <i class="fas fa-clock me-2 text-warning"></i>Remaining
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item status-option" href="#" 
+                                                       data-id="${interview.c_interview_id}" 
+                                                       data-status="Done">
+                                                        <i class="fas fa-check me-2 text-success"></i>Done
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>`,
+                                actions: `
+                                    <div class="action-buttons">
+                                        <button class="btn-join" onclick="window.open('${meetingUrl}', '_blank')">
+                                            <i class="fas fa-video"></i> Join
+                                        </button>
+                                        <button class="btn-reschedule"
+                                            data-id="${interview.c_interview_id}"
+                                            data-user-id="${interview.c_user_id}"
+                                            data-email="${email}"
+                                            data-fullname="${fullName}"
+                                            data-image="${profileImage}"
+                                            data-bs-toggle="modal"  
+                                            data-bs-target="#scheduleInterviewModal">
+                                            <i class="fas fa-calendar-alt"></i> Reschedule
+                                        </button>
+                                    </div>`
+                            }).draw(false);
+                        });
+                        
+                        hideLoading();
+                        
+                        // Initialize calendar if needed
+                        initCalendar(allInterviews);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching interviews:", error);
+                        hideLoading();
+                        showEmptyState();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to load interview schedules'
+                        });
+                    }
+                });
+            }
+            
+            // Update statistics based on interviews data
+            function updateStatistics(interviews) {
+                const today = new Date().toISOString().split('T')[0];
+                
+                const totalCount = interviews.length;
+                
+                const todayCount = interviews.filter(interview => {
+                    const interviewDate = interview.c_interview_date.split(' ')[0].split('-').reverse().join('-');
+                    return interviewDate === today;
+                }).length;
+                
+                const pendingCount = interviews.filter(interview => 
+                    interview.c_interview_status === "Remaining"
+                ).length;
+                
+                const completedCount = interviews.filter(interview => 
+                    interview.c_interview_status === "Done"
+                ).length;
+                
+                // Update the stats on the page
+                $("#totalInterviews").text(totalCount);
+                $("#todayInterviews").text(todayCount);
+                $("#pendingInterviews").text(pendingCount);
+                $("#completedInterviews").text(completedCount);
+            }
+            
+            // Calendar view initialization
+            function initCalendar(interviews) {
+                // Create calendar events from interviews
+                const events = interviews.map(interview => {
+                    const dateParts = interview.c_interview_date.split(' ')[0].split('-');
+                    const day = dateParts[0];
+                    const month = dateParts[1];
+                    const year = dateParts[2];
+                    
+                    const timeParts = interview.c_interview_time.split(':');
+                    
+                    return {
+                        id: interview.c_interview_id,
+                        title: `${interview.user?.c_fullName || 'Candidate'} - ${interview.job?.jobTitle || 'Interview'}`,
+                        start: `${year}-${month}-${day}T${interview.c_interview_time}`,
+                        backgroundColor: interview.c_interview_status === "Done" ? '#10b981' : '#4361ee',
+                        borderColor: interview.c_interview_status === "Done" ? '#10b981' : '#4361ee',
+                        textColor: 'white',
+                        extendedProps: {
+                            interviewId: interview.c_interview_id,
+                            status: interview.c_interview_status,
+                            candidateName: interview.user?.c_fullName || 'Unknown',
+                            candidateEmail: interview.user?.Email || 'N/A',
+                            meetingUrl: interview.c_meeting_url?.replace("UserDashboard", "RecruiterDashboard") || "#"
+                        }
+                    };
+                });
+                
+                // Initialize FullCalendar
+                const calendarEl = document.getElementById('interviewCalendar');
+                const calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    },
+                    events: events,
+                    eventClick: function(info) {
+                        // Show interview details when clicked
+                        Swal.fire({
+                            title: info.event.title,
+                            html: `
+                                <div class="text-start">
+                                    <p><strong>Date:</strong> ${info.event.start.toLocaleDateString()}</p>
+                                    <p><strong>Time:</strong> ${info.event.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                                    <p><strong>Status:</strong> ${info.event.extendedProps.status}</p>
+                                    <p><strong>Candidate:</strong> ${info.event.extendedProps.candidateName}</p>
+                                    <p><strong>Email:</strong> ${info.event.extendedProps.candidateEmail}</p>
+                                </div>
+                            `,
+                            showCancelButton: true,
+                            showDenyButton: true,
+                            confirmButtonText: 'Join Meeting',
+                            denyButtonText: 'Reschedule',
+                            cancelButtonText: 'Close',
+                            confirmButtonColor: '#4361ee',
+                            denyButtonColor: '#6c757d'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Open meeting URL
+                                window.open(info.event.extendedProps.meetingUrl, '_blank');
+                            } else if (result.isDenied) {
+                                // Find the interview in the allInterviews array
+                                const interview = allInterviews.find(i => i.c_interview_id === info.event.extendedProps.interviewId);
+                                if (interview) {
+                                    // Open reschedule modal with data
+                                    openRescheduleModal(
+                                        interview.c_interview_id,
+                                        interview.user?.c_user_id,
+                                        interview.user?.Email || 'N/A',
+                                        interview.user?.c_fullName || 'Unknown',
+                                        interview.user?.c_profileImage || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
+                                    );
+                                }
+                            }
+                        });
+                    }
+                });
+                
+                calendar.render();
+                
+                // Store the calendar instance for filtering
+                calendarEl._fullCalendar = calendar;
+            }
+            
+            // Open reschedule modal with candidate data
+            function openRescheduleModal(interviewId, userId, candidateEmail, candidateName, candidateImage) {
+                $("#interviewId").val(interviewId);
+                $("#userId").val(userId);
+                email = candidateEmail;
+                fullname = candidateName;
+                
+                // Update candidate info in modal
+                $("#candidateName").text(candidateName);
+                $("#candidateEmail").text(candidateEmail);
+                $("#candidateImage").attr("src", candidateImage || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png');
+                
+                // Open modal
+                new bootstrap.Modal(document.getElementById('scheduleInterviewModal')).show();
+            }
+            
+            // Handle reschedule button click
+            $(document).on("click", ".btn-reschedule", function () {
+                const interviewId = $(this).data("id");
+                const userId = $(this).data("user-id");
+                email = $(this).data("email");
+                fullname = $(this).data("fullname");
+                profileImage = $(this).data("image") || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                
+                $("#interviewId").val(interviewId);
+                $("#userId").val(userId);
+                
+                // Update candidate info in modal
+                $("#candidateName").text(fullname);
+                $("#candidateEmail").text(email);
+                $("#candidateImage").attr("src", profileImage);
+            });
+            
+            // Handle Save button click in the modal
+            $("#saveScheduleButton").click(function () {
+                // Show loading state on button
+                const $btn = $(this);
+                $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+                $btn.prop('disabled', true);
+                
+                const formData = new FormData();
+                formData.append("c_interview_id", $("#interviewId").val());
+                formData.append("c_interview_date", $("#interviewDate").val());
+                formData.append("c_interview_time", $("#interviewTime").val());
+                formData.append("c_email", email);
+                formData.append("c_fullname", fullname);
+                
+                if (!formData.get("c_interview_date") || !formData.get("c_interview_time")) {
+                    $btn.html('<i class="fas fa-save me-1"></i> Save Changes');
+                    $btn.prop('disabled', false);
+                    
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Validation Error',
+                        text: 'Please fill in all required fields.',
+                        confirmButtonColor: '#4361ee'
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    url: `http://localhost:5086/api/ApplyJob/UpdateInterviewSchedule`,
+                    method: "PUT",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        // Reset button
+                        $btn.html('<i class="fas fa-save me-1"></i> Save Changes');
+                        $btn.prop('disabled', false);
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Interview rescheduled successfully!',
+                            confirmButtonColor: '#4361ee'
+                        }).then(() => {
+                            $("#scheduleInterviewModal").modal("hide");
+                            fetchInterviews(compid); // Refresh data
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        // Reset button
+                        $btn.html('<i class="fas fa-save me-1"></i> Save Changes');
+                        $btn.prop('disabled', false);
+                        
+                        console.error("Error updating schedule:", error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to reschedule interview. Please try again later.',
+                            confirmButtonColor: '#4361ee'
+                        });
+                    }
+                });
+            });
+
+            // Handle status change via dropdown
+            $(document).on("click", ".status-option", function(e) {
+                e.preventDefault();
+                
+                const interviewId = $(this).data("id");
+                const newStatus = $(this).data("status");
+                
+                // Show confirmation
+                Swal.fire({
+                    title: 'Update Status',
+                    text: `Change interview status to "${newStatus}"?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4361ee',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, update it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        updateInterviewStatus(interviewId, newStatus);
+                    }
+                });
+            });
+            
+            // Update interview status
+            function updateInterviewStatus(interviewId, status) {
+                const formData = new FormData();
+                formData.append("c_interview_id", interviewId);
+                formData.append("c_interview_status", status);
+                
+                $.ajax({
+                    url: `http://localhost:5086/api/ApplyJob/UpdateInterviewStatus`,
+                    method: "PUT",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Interview status updated successfully!',
+                            confirmButtonColor: '#4361ee',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        
+                        fetchInterviews(compid); // Refresh data
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error updating status:", error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to update interview status.',
+                            confirmButtonColor: '#4361ee'
+                        });
+                    }
+                });
+            }
+            
+            // View switching
+            $("#tableViewBtn").click(function() {
+                $(this).addClass("active");
+                $("#calendarViewBtn").removeClass("active");
+                $("#tableView").removeClass("d-none");
+                $("#calendarView").addClass("d-none");
+            });
+            
+            $("#calendarViewBtn").click(function() {
+                $(this).addClass("active");
+                $("#tableViewBtn").removeClass("active");
+                $("#calendarView").removeClass("d-none");
+                $("#tableView").addClass("d-none");
+                
+                // Trigger resize to make calendar render properly
+                window.dispatchEvent(new Event('resize'));
+            });
+            
+            // Filter buttons
+            $("#todayBtn").click(function() {
+                const today = new Date().toLocaleDateString();
+                table.search(today).draw();
+            });
+            
+            $("#upcomingBtn").click(function() {
+                table.search("Remaining").draw();
+            });
+
+            // Format date helper function
+            function formatDate(dateString) {
+                if (!dateString) return 'N/A';
+
+                // Manually parse "dd-MM-yyyy HH:mm:ss"
+                const parts = dateString.split(' ')[0].split('-');
+                if (parts.length === 3) {
+                    const day = parts[0];
+                    const month = parts[1];
+                    const year = parts[2];
+                    return `${day}/${month}/${year}`;
+                }
+
+                return dateString;
+            }
+
+            // Populate job title filter with unique job titles
+            function populateJobTitleFilter(interviews) {
+                const jobTitleFilter = $("#jobTitleFilter");
+                jobTitleFilter.empty().append('<option value="">All Job Titles</option>');
+                
+                // Extract unique job titles
+                const uniqueJobTitles = [...new Set(interviews.map(interview => 
+                    interview.job_post?.c_job_title || 'N/A'
+                ))];
+                
+                // Sort job titles alphabetically
+                uniqueJobTitles.sort();
+                
+                // Add options to the select element
+                uniqueJobTitles.forEach(title => {
+                    jobTitleFilter.append(`<option value="${title}">${title}</option>`);
+                });
+            }
+            
+            // Apply filters to the table
+            function applyFilters() {
+                const jobTitleValue = $("#jobTitleFilter").val();
+                const statusValue = $("#statusFilter").val();
+                
+                // Create a custom search function
+                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                    // If no filter is selected, show all records
+                    if (!jobTitleValue && !statusValue) {
+                        return true;
+                    }
+                    
+                    // Get row data
+                    const jobTitle = data[0]; // First column is job title
+                    const status = data[4].includes("Done") ? "Done" : "Remaining"; // Fifth column contains status
+                    
+                    // Check job title filter
+                    const jobTitleMatch = !jobTitleValue || jobTitle.includes(jobTitleValue);
+                    
+                    // Check status filter
+                    const statusMatch = !statusValue || status === statusValue;
+                    
+                    // Return true if both conditions match
+                    return jobTitleMatch && statusMatch;
+                });
+                
+                // Redraw the table with the new filters
+                table.draw();
+                
+                // Remove the custom search function
+                $.fn.dataTable.ext.search.pop();
+                
+                // Also update calendar view if it's active and visible
+                if ($("#calendarView").is(":visible")) {
+                    updateCalendarFilters(jobTitleValue, statusValue);
+                }
+            }
+            
+            // Update calendar with the same filters
+            function updateCalendarFilters(jobTitleValue, statusValue) {
+                const calendarEl = document.getElementById('interviewCalendar');
+                const calendar = calendarEl._fullCalendar;
+                
+                if (!calendar) return;
+                
+                // Filter events
+                calendar.getEvents().forEach(event => {
+                    const shouldShow = (!jobTitleValue || event.title.includes(jobTitleValue)) && 
+                                     (!statusValue || event.extendedProps.status === statusValue);
+                    
+                    if (shouldShow) {
+                        event.setProp('display', 'auto');
+                    } else {
+                        event.setProp('display', 'none');
+                    }
+                });
+            }
+
+            // Event listeners for filter changes
+            $("#jobTitleFilter, #statusFilter").change(function() {
+                applyFilters();
+            });
+            
+            // Add a reset filters button functionality
+            $(".view-selector").append(`
+                <button class="view-button ms-2" id="resetFiltersBtn">
+                    <i class="fas fa-undo-alt me-1"></i> Reset Filters
+                </button>
+            `);
+            
+            $("#resetFiltersBtn").click(function() {
+                $("#jobTitleFilter, #statusFilter").val('');
+                applyFilters();
+            });
+        });
+    </script>
+}

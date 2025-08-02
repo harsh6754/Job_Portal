@@ -1,0 +1,278 @@
+@{
+    ViewData["Title"] = "Candidate Listing";
+    Layout = "_AdminLayout";
+    var jobId = ViewBag.jobId;
+}
+
+<style>
+    .text-primary {
+        color: #4361ee !important;
+    }
+    .btn-primary {
+        background-color: #4361ee !important;
+        border-color: #4361ee !important;
+    }
+    .btn-primary:hover {
+        background-color: #3f51b5 !important;
+        border-color: #3f51b5 !important;
+    }
+    .main-container {
+        background-color: var(--light-color);
+        min-height: 100vh;
+        padding: var(--page-padding);
+    }
+    .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        background: white;
+        margin-bottom: var(--card-margin);
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+        background: white;
+        border-bottom: none;
+        padding: var(--card-padding);
+    }
+    .card-title {
+        color: #1f2937;
+        font-weight: 600;
+        margin: 0;
+    }
+    .candidate-card {
+        padding: var(--card-padding);
+        height: 100%;
+    }
+    .profile-img {
+        width: 100px;
+        height: 100px;
+        border-radius: var(--border-radius);
+        object-fit: cover;
+        border: 3px solid #fff;
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+    }
+    .profile-img:hover {
+        transform: scale(1.05);
+    }
+    .candidate-info {
+        margin-left: var(--card-padding);
+    }
+    .candidate-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+    .candidate-contact {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+    .candidate-contact i {
+        width: 20px;
+        color: #4361ee;
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-top: var(--card-margin);
+    }
+    .status-badge.pending {
+        background-color: #fef9c3;
+        color: #854d0e;
+    }
+    .status-badge.shortlisted {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+    .status-badge.rejected {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    .status-badge i {
+        margin-right: 0.5rem;
+    }
+    .applied-date {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-top: var(--card-margin);
+    }
+    .view-details-btn {
+        margin-top: var(--card-padding);
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+    .view-details-btn:hover {
+        transform: translateY(-2px);
+    }
+    .stats-card {
+        background: linear-gradient(135deg, #4361ee 0%, #3f51b5 100%);
+        color: white;
+        border-radius: var(--border-radius);
+        padding: var(--card-padding);
+        margin-bottom: var(--section-margin);
+    }
+    .stats-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    .stats-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    .empty-state {
+        text-align: center;
+        padding: var(--card-padding);
+        color: #6b7280;
+    }
+    .empty-state i {
+        font-size: 3rem;
+        color: #4361ee;
+        margin-bottom: var(--card-margin);
+    }
+</style>
+
+<main class="main-container">
+    <div class="container-fluid">
+        <!-- Stats Section -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-label">Total Applications</div>
+                        <div id="totalApplications" class="stats-value">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-label">Shortlisted</div>
+                        <div id="shortlistedCount" class="stats-value">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stats-label">Pending Review</div>
+                        <div id="pendingCount" class="stats-value">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Candidates List -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">
+                        <i class="fas fa-users me-2 text-primary"></i>Candidates Applied
+                    </h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="candidateContainer" class="row g-4">
+                    <!-- Candidate cards will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        const jobId = "@jobId";
+
+        $(document).ready(function () {
+            $.ajax({
+                url: `http://localhost:5086/api/AdminApi/applied-jobs/${jobId}`,
+                type: "GET",
+                success: function (data) {
+                    if (!data || data.length === 0) {
+                        $('#candidateContainer').html(`
+                            <div class="col-12">
+                                <div class="empty-state">
+                                    <i class="fas fa-users-slash"></i>
+                                    <h4>No candidates found</h4>
+                                    <p>There are no applications for this job position yet.</p>
+                                </div>
+                            </div>
+                        `);
+                        return;
+                    }
+
+                    // Update stats
+                    $("#totalApplications").text(data.length);
+                    const shortlisted = data.filter(c => c.c_status.toLowerCase() === 'shortlisted').length;
+                    const pending = data.filter(c => c.c_status.toLowerCase() === 'pending').length;
+                    $("#shortlistedCount").text(shortlisted);
+                    $("#pendingCount").text(pending);
+
+                    data.forEach(candidate => {
+                        const statusClass = candidate.c_status.toLowerCase();
+                        const statusIcon = statusClass === 'shortlisted' ? 'fa-check-circle' : 
+                                         statusClass === 'rejected' ? 'fa-times-circle' : 'fa-clock';
+                        
+                        const card = `
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card candidate-card">
+                                    <div class="d-flex">
+                                        <img src="${candidate.profileImageUrl ?? 'https://via.placeholder.com/100'}" 
+                                             class="profile-img" 
+                                             alt="${candidate.c_userName}" />
+                                        <div class="candidate-info">
+                                            <h5 class="candidate-name">${candidate.c_userName}</h5>
+                                            <div class="candidate-contact">
+                                                <i class="fas fa-envelope me-2"></i>${candidate.c_email}
+                                            </div>
+                                            <div class="candidate-contact">
+                                                <i class="fas fa-phone me-2"></i>${candidate.c_mobile}
+                                            </div>
+                                            <div class="status-badge ${statusClass}">
+                                                <i class="fas ${statusIcon}"></i>
+                                                ${candidate.c_status}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="applied-date">
+                                        <i class="fas fa-calendar-alt me-2"></i>
+                                        Applied on: ${candidate.c_apply_at ? new Date(candidate.c_apply_at).toLocaleDateString() : 'N/A'}
+                                    </div>
+                                    @* <a href="/Admin/CandidateDetails/${candidate.id}" 
+                                       class="btn btn-primary view-details-btn w-100">
+                                        View Details <i class="fas fa-arrow-right ms-2"></i>
+                                    </a> *@
+                                </div>
+                            </div>
+                        `;
+                        $('#candidateContainer').append(card);
+                    });
+                },
+                error: function (err) {
+                    console.error("Error loading candidates:", err);
+                    $('#candidateContainer').html(`
+                        <div class="col-12">
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <h4>No candidates found</h4>
+                                <p>There are no applications for this job position yet.</p>
+                            </div>
+                        </div>
+                    `);
+                }
+            });
+        });
+    </script>
+}

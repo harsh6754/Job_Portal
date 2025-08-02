@@ -1,0 +1,382 @@
+@{
+    ViewData["Title"] = "User Management";
+    Layout = "_AdminLayout";
+}
+<style>
+    .k-pager-numbers .k-link.k-state-selected {
+        color: white;
+        background-color: #3A56D4;
+    }
+
+    .k-pager-numbers .k-link {
+        color: #3A56D4;
+    }
+
+    .k-pager-numbers .k-link:hover {
+        color: white;
+        background-color: #3f51b575;
+    }
+
+    #exportBtn {
+        background-color: #4361ee;
+        border: 2px solid #4361ee;
+        color: white;
+    }
+
+    .k-grid-header .k-grid-filter.k-state-active,
+    .k-grid-header .k-header-column-menu.k-state-active,
+    .k-grid-header .k-hierarchy-cell .k-icon.k-state-active {
+        color: black;
+        background-color: white;
+    }
+
+    .card {
+        margin-bottom: var(--section-margin);
+    }
+
+    .card-header {
+        padding: var(--card-padding);
+    }
+
+    .card-body {
+        padding: var(--card-padding);
+    }
+
+    .form-group {
+        margin-bottom: var(--card-margin);
+    }
+
+    .form-label {
+        margin-bottom: 0.5rem;
+    }
+
+    #usersGrid {
+        margin-top: var(--card-margin);
+    }
+
+    .Test {
+        margin-top: 15px;
+        margin-left: 15px;
+    }
+    .dashboard-header
+    {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
+
+<div class="Test">
+    <div class="card">
+        <div class="card-header">
+            <div class="dashboard-header">
+                <h5 class="card-title">
+                    <i class="fas fa-users-cog me-2"></i>User Management
+                </h5>
+                <div class="btn-group-responsive">
+                    <button type="button" class="btn btn-outline-primary" id="exportPdfBtn">
+                        <i class="fas fa-file-pdf me-1"></i>Export PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Filters -->
+            <div class="row mb-4 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Role</label>
+                    <select class="form-select" id="roleFilter1">
+                        <option value="">All Roles</option>
+                        <option value="Candidate">Candidate</option>
+                        <option value="Recruiter">Recruiter</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="roleFilter2">
+                        <option value="">All</option>
+                        <option value="Block">Block</option>
+                        <option value="UnBlock">Unblock</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label d-block">&nbsp;</label>
+                    <button type="button" class="btn btn-primary w-100" id="applyFilters">
+                        <i class="fas fa-filter me-2"></i>Apply Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Users Grid -->
+            <div id="usersGrid"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var grid = $("#usersGrid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "http://localhost:5086/api/AdminApi/get-user",
+                            dataType: "json"
+                        }
+                    },
+                    schema: {
+                        model: {
+                            id: "c_userId",
+                            fields: {
+                                c_userId: { type: "number" },
+                                c_username: { type: "string" },
+                                c_fullName: { type: "string" },
+                                Email: { type: "string" },
+                                c_phoneNumber: { type: "string" },
+                                c_gender: { type: "string" },
+                                Role: { type: "string" },
+                                c_IsBlock: { type: "boolean" }
+                            }
+                        }
+                    }
+                },
+                pdf: {
+                    allPages: true,
+                    avoidLinks: true,
+                    paperSize: "A4",
+                    margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "2cm" },
+                    landscape: true,
+                    repeatHeaders: true,
+                    fileName: "Users.pdf",
+                    title: "",
+                    template: () => `
+            <div style="text-align: center; padding-top: 10px;">
+                <img src="https://res.cloudinary.com/dhruvil20/image/upload/v1743946773/2removebg-preview_x58xrm.png" alt="CareerLink Logo" style="height: 60px;" />
+                <div style="font-size: 20px; font-weight: bold; margin-top: 10px;">User List</div>
+                <hr style="margin: 10px 0;" />
+            </div>
+        `
+                }
+                ,
+
+                columns: [
+                    { field: "c_fullName", title: "Full Name" },
+                    { field: "Email", title: "Email" },
+                    { field: "Role", title: "Role" },
+                    { field: "c_gender", title: "Gender" },
+                    { field: "c_phoneNumber", title: "Mobile" },
+                    {
+                        title: "Actions",
+                        template: function (dataItem) {
+                            var blockUnblockBtn = dataItem.c_IsBlock
+                                ? `<button class="btn btn-sm btn-outline-success action-btn toggle-block-btn" data-id="${dataItem.c_userId}" data-status="unblock" title="Unblock User">
+                                        <i class="fas fa-circle-check"></i>
+                                       </button>`
+                                : `<button class="btn btn-sm btn-outline-danger action-btn toggle-block-btn" data-id="${dataItem.c_userId}" data-status="block" title="Block User">
+                                        <i class="fas fa-ban"></i>
+                                       </button>`;
+
+                            return `
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <button class="btn btn-sm btn-outline-danger action-btn delete-btn" data-id="${dataItem.c_userId}" title="Delete User">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        ${blockUnblockBtn}
+                                    </div>`;
+                        },
+                        width: "180px",
+                        attributes: { "class": "text-center" }
+                    }
+                ],
+                sortable: true,
+                pageable: {
+                    pageSize: 10,
+                    pageSizes: [10, 25, 50]
+                },
+                toolbar: ["search"],
+                 search: {
+                    fields: [
+                        { name: "c_fullName", operator: "contains" },
+                        { name: "Email", operator: "contains" },
+                        { name: "Role", operator: "contains" }
+                    ]
+                },
+                height: 600
+            }).data("kendoGrid");
+
+            $("#applyFilters").click(function () {
+                var role = $("#roleFilter1").val();
+                var status = $("#roleFilter2").val();
+                var filters = [];
+
+                if (role) {
+                    filters.push({ field: "Role", operator: "eq", value: role });
+                }
+                if (status) {
+                    filters.push({ field: "c_IsBlock", operator: "eq", value: status === "Block" });
+                }
+
+                grid.dataSource.filter(filters);
+            });
+
+            $("#usersGrid").on("click", ".delete-btn", function () {
+                var dataItem = grid.dataItem($(this).closest("tr"));
+                deleteUser(dataItem);
+            });
+
+            $("#usersGrid").on("click", ".toggle-block-btn", function () {
+                var userId = $(this).data("id");
+
+                $.ajax({
+                    url: `http://localhost:5086/api/AdminApi/block-unblock/${userId}`,
+                    type: "POST",
+                    beforeSend: function () {
+                        Swal.fire({
+                            title: "Updating user status...",
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+                    },
+                    success: function () {
+                        Swal.fire({
+                            title: "Success!",
+                            text: "User block status has been updated.",
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+
+                        $("#usersGrid").data("kendoGrid").dataSource.read();
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            title: "Error!",
+                            text: xhr.responseText || "Failed to toggle user status.",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+
+            $("#exportBtn").click(function () {
+                var actionsColumnIndex = grid.columns.findIndex(col => col.title === "Actions");
+
+                if (actionsColumnIndex >= 0) {
+                    grid.hideColumn(actionsColumnIndex);
+                }
+
+                grid.saveAsPDF();
+
+                setTimeout(() => {
+                    if (actionsColumnIndex >= 0) {
+                        grid.showColumn(actionsColumnIndex);
+                    }
+                }, 1000);
+            });
+
+            function deleteUser(dataItem) {
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This action will permanently delete the user!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    cancelButtonText: "Cancel",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `http://localhost:5086/api/AdminApi/delete-user/${dataItem.c_userId}`,
+                            type: "DELETE",
+                            beforeSend: function () {
+                                Swal.fire({
+                                    title: "Deleting...",
+                                    text: "Please wait...",
+                                    icon: "info",
+                                    allowOutsideClick: false,
+                                    showConfirmButton: false,
+                                    didOpen: () => Swal.showLoading()
+                                });
+                            },
+                            success: function () {
+                                Swal.fire({
+                                    title: "Deleted!",
+                                    text: "User has been deleted successfully.",
+                                    icon: "success",
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+
+                                grid.dataSource.read();
+                            },
+                            error: function (xhr) {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: xhr.responseText || "Failed to delete user. Please try again.",
+                                    icon: "error"
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            // PDF Export functionality
+            $("#exportPdfBtn").click(function() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'mm', 'a4');
+                const gridData = grid.dataSource.data();
+                
+                // Set document properties
+                doc.setProperties({
+                    title: 'User List Report',
+                    subject: 'List of Users',
+                    author: 'CareerLink Admin'
+                });
+
+                // Add header
+                doc.setFontSize(20);
+                doc.text('User List Report', 15, 15);
+                doc.setFontSize(12);
+                doc.text('Generated on: ' + new Date().toLocaleString(), 15, 22);
+
+                // Prepare data for the table
+                const tableData = gridData.map(item => [
+                    item.c_fullName || 'N/A',
+                    item.Email || 'N/A',
+                    item.Role || 'N/A',
+                    item.c_gender || 'N/A',
+                    item.c_phoneNumber || 'N/A',
+                    item.c_IsBlock ? 'Blocked' : 'Active'
+                ]);
+
+                // Add table
+                doc.autoTable({
+                    head: [['Full Name', 'Email', 'Role', 'Gender', 'Mobile', 'Status']],
+                    body: tableData,
+                    startY: 30,
+                    styles: {
+                        fontSize: 10,
+                        cellPadding: 3
+                    },
+                    headStyles: {
+                        fillColor: [67, 97, 238],
+                        textColor: [255, 255, 255]
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 245, 245]
+                    }
+                });
+
+                // Save the PDF
+                doc.save('user-list-report.pdf');
+            });
+        });
+    </script>
+}

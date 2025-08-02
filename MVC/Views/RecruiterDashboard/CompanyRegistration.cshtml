@@ -1,0 +1,1171 @@
+@{
+    Layout = "../Shared/_RecruiterLayout.cshtml";
+}
+
+<style>
+    :root {
+        --primary-color: #2563eb;
+        --primary-light: #dbeafe;
+        --primary-dark: #1e40af;
+        --secondary-color: #64748b;
+        --success-color: #10b981;
+        --error-color: #ef4444;
+        --text-dark: #1e293b;
+        --text-light: #94a3b8;
+        --border-color: #e2e8f0;
+        --bg-light: #f8fafc;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --border-radius: 0.5rem;
+        --transition: all 0.3s ease;
+    }
+
+    .registration-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .form-header {
+        background: linear-gradient(120deg, var(--primary-color), var(--primary-dark));
+        padding: 2rem;
+        color: white;
+        position: relative;
+    }
+
+    .form-header h2 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.75rem;
+    }
+
+    .form-header p {
+        margin-top: 0.5rem;
+        opacity: 0.9;
+    }
+
+    .form-header::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        right: 0;
+        height: 10px;
+        background: linear-gradient(120deg, var(--primary-light), var(--primary-color));
+        opacity: 0.6;
+    }
+
+    .form-body {
+        padding: 2rem;
+    }
+
+    /* Form Steps */
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .step-indicator::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--border-color);
+        transform: translateY(-50%);
+        z-index: 1;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        transition: var(--transition);
+        color: var(--secondary-color);
+    }
+
+    .step-title {
+        font-size: 0.85rem;
+        color: var(--secondary-color);
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .step.active .step-number {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+    .step.active .step-title {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .step.completed .step-number {
+        background: var(--success-color);
+        border-color: var(--success-color);
+        color: white;
+    }
+
+    .step-content {
+        display: none;
+    }
+
+    .step-content.active {
+        display: block;
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    /* Form Controls */
+    .form-label {
+        display: block;
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-hint {
+        font-size: 0.75rem;
+        color: var(--text-light);
+        margin-top: 0.25rem;
+    }
+
+    .form-control {
+        height: 48px;
+        border: 1px solid var(--border-color);
+        border-radius: 0.375rem;
+        padding: 0 1rem;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        width: 100%;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        outline: none;
+    }
+
+    .form-select {
+        height: 48px;
+        border: 1px solid var(--border-color);
+        border-radius: 0.375rem;
+        padding: 0 1rem;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        width: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 1em;
+        appearance: none;
+    }
+
+    .form-control.is-invalid, .form-select.is-invalid {
+        border-color: var(--error-color);
+    }
+
+    .form-control.is-valid, .form-select.is-valid {
+        border-color: var(--success-color);
+    }
+
+    .invalid-feedback {
+        color: var(--error-color);
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+    }
+
+    .valid-feedback {
+        color: var(--success-color);
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+    }
+
+    /* File Upload */
+    .file-upload-container {
+        border: 2px dashed var(--border-color);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: var(--transition);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        background: var(--bg-light);
+    }
+
+    .file-upload-container:hover, .file-upload-container.dragover {
+        border-color: var(--primary-color);
+        background-color: rgba(37, 99, 235, 0.05);
+    }
+
+    .file-upload-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .upload-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(37, 99, 235, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: var(--primary-color);
+    }
+
+    /* Preview */
+    .preview-container {
+        margin-top: 1rem;
+    }
+
+    .logo-preview {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        padding: 0.25rem;
+        background: white;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .file-preview-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 0.375rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .file-preview-icon {
+        margin-right: 0.75rem;
+        color: var(--primary-color);
+        font-size: 1.25rem;
+    }
+
+    /* Navigation */
+    .form-navigation {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 48px;
+        padding: 0 1.5rem;
+        font-weight: 500;
+        border-radius: 0.375rem;
+        transition: var(--transition);
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--secondary-color);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+        background: var(--bg-light);
+        color: var(--text-dark);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: var(--primary-color);
+        border: 1px solid currentColor;
+    }
+
+    .btn-outline:hover {
+        background: rgba(37, 99, 235, 0.05);
+    }
+
+    .btn-danger {
+        background: transparent;
+        color: var(--error-color);
+        border: 1px solid currentColor;
+    }
+
+    .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.05);
+    }
+
+    .btn-icon {
+        margin-right: 0.5rem;
+    }
+
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .registration-container {
+            margin: 1rem;
+        }
+
+        .form-header, .form-body {
+            padding: 1.5rem;
+        }
+
+        .step-title {
+            font-size: 0.75rem;
+        }
+
+        .step-number {
+            width: 35px;
+            height: 35px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .step-title {
+            display: none;
+        }
+
+        .step-indicator {
+            margin-bottom: 1.5rem;
+        }
+    }
+
+    /* Animations */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .formatted-input {
+        text-transform: uppercase;
+    }
+</style>
+
+<div class="registration-container">
+    <div class="form-header">
+        <h2>Company Registration</h2>
+        <p>Register your company to start posting jobs and finding the right talent</p>
+    </div>
+
+    <div class="form-body">
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-title">Basic Information</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-title">Company Details</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-title">Documents & Media</div>
+            </div>
+        </div>
+
+        <form enctype="multipart/form-data" id="companyForm" class="needs-validation" novalidate>
+            <!-- Step 1: Basic Information -->
+            <div class="step-content active" id="step1">
+                <div class="row g-4">
+                    <!-- Company Name -->
+                    <div class="col-md-6">
+                        <label for="companyName" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="companyName" name="c_company_name" required
+                            placeholder="Enter your company name" minlength="3" maxlength="100">
+                        <div class="invalid-feedback">Please provide a valid company name (3-100 characters).</div>
+                        <div id="valid-name" class="invalid-feedback"></div>
+                    </div>
+
+                    <!-- Company Email -->
+                    <div class="col-md-6">
+                        <label for="companyEmail" class="form-label">Company Email</label>
+                        <input type="email" class="form-control" id="companyEmail" name="c_company_email" required
+                            placeholder="contact@yourcompany.com" pattern="[a-z0-9._%+-]+@@[a-z0-9.-]+\.[a-z]{2,4}$">
+                        <div class="invalid-feedback">Please provide a valid email address.</div>
+                        <div id="valid-email" class="invalid-feedback"></div>
+                    </div>
+
+                    <!-- Company Phone -->
+                    <div class="col-md-6">
+                        <label for="companyPhone" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="companyPhone" name="c_company_phone" required
+                            placeholder="10-digit phone number" pattern="^\d{10}$" maxlength="10">
+                        <div class="invalid-feedback">Please provide a valid 10-digit phone number.</div>
+                    </div>
+
+                    <!-- Website -->
+                    <div class="col-md-6">
+                        <label for="website" class="form-label">Website URL <span class="text-muted">(Optional)</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="background-color: #f8fafc; border-right: none;">https://</span>
+                            <input type="text" class="form-control" id="website" name="c_website"
+                                style="border-left: none;"
+                                placeholder="yourcompany.com">
+                        </div>
+                        <div id="url-feedback" class="invalid-feedback"></div>
+                        <div class="form-hint">Enter your domain without "https://"</div>
+                    </div>
+
+                    <!-- Industry -->
+                    <div class="col-md-12">
+                        <label for="industry" class="form-label">Industry</label>
+                        <select class="form-select" id="industry" name="c_industry" required>
+                            <option value="" selected disabled>Select your industry</option>
+                            <!-- Options will be populated via JavaScript -->
+                        </select>
+                        <div class="invalid-feedback">Please select an industry.</div>
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <div></div> <!-- Empty div for spacing -->
+                    <button type="button" class="btn btn-primary" onclick="nextStep(1)">
+                        Continue <i class="fas fa-arrow-right btn-icon" style="margin-left: 0.5rem;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Company Details -->
+            <div class="step-content" id="step2">
+                <div class="row g-4">
+                    <!-- Company Address -->
+                    <div class="col-12">
+                        <label for="companyAddress" class="form-label">Company Address</label>
+                        <input type="text" class="form-control" id="companyAddress" name="c_company_address" required
+                            placeholder="Enter your full business address" minlength="10" maxlength="200">
+                        <div class="invalid-feedback">Please provide a valid address (10-200 characters).</div>
+                    </div>
+
+                    <!-- Registration Number -->
+                    <div class="col-md-6">
+                        <label for="companyRegNumber" class="form-label">Company Registration Number (CIN)</label>
+                        <input type="text" class="form-control formatted-input" id="companyRegNumber" 
+                            name="c_company_reg_number" required placeholder="Eg: U74999MH2020PTC123456"
+                            pattern="^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$">
+                        <div class="invalid-feedback">Please provide a valid CIN (Format: U74999MH2020PTC123456)</div>
+                        <div id="valid-register" class="invalid-feedback"></div>
+                        <div class="form-hint">21-character alphanumeric code issued by ROC</div>
+                    </div>
+
+                    <!-- Tax ID Number -->
+                    <div class="col-md-6">
+                        <label for="taxIdNumber" class="form-label">PAN Number</label>
+                        <input type="text" class="form-control formatted-input" id="taxIdNumber" 
+                            name="c_tax_id_number" required placeholder="Eg: ABCDE1234F"
+                            pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$">
+                        <div class="invalid-feedback">Please provide a valid PAN (Format: ABCDE1234F)</div>
+                        <div id="valid-pan" class="invalid-feedback"></div>
+                        <div class="form-hint">10-character alphanumeric identifier issued by IT Department</div>
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
+                        <i class="fas fa-arrow-left btn-icon"></i> Back
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+                        Continue <i class="fas fa-arrow-right btn-icon" style="margin-left: 0.5rem;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Media & Documents -->
+            <div class="step-content" id="step3">
+                <div class="row g-4">
+                    <!-- Logo Upload -->
+                    <div class="col-md-6">
+                        <label class="form-label">Company Logo</label>
+                        <div class="file-upload-container" id="logoUploadContainer">
+                            <input type="file" id="companyLogo" name="companyLogo" class="file-upload-input"
+                                accept="image/*">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <p class="mb-1">Drag & drop your logo here or click to browse</p>
+                                <small class="text-muted">Recommended size: 300x300px (Max 2MB)</small>
+                            </div>
+                        </div>
+                        <div class="preview-container text-center" id="logoPreview"></div>
+                    </div>
+
+                    <!-- Legal Documents -->
+                    <div class="col-md-6">
+                        <label class="form-label">Legal Documents</label>
+                        <div class="file-upload-container" id="documentsUploadContainer">
+                            <input type="file" id="legalDocuments" name="legalDocuments" class="file-upload-input"
+                                multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="upload-icon">
+                                    <i class="fas fa-file-upload"></i>
+                                </div>
+                                <p class="mb-1">Drag & drop documents here or click to browse</p>
+                                <small class="text-muted">Accepted formats: PDF (Max 5 files, 10MB each)</small>
+                            </div>
+                        </div>
+                        <div class="preview-container" id="filePreview"></div>
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(3)">
+                        <i class="fas fa-arrow-left btn-icon"></i> Back
+                    </button>
+                    <button type="submit" id="registerBtn" class="btn btn-primary">
+                        <span class="spinner-border spinner-border-sm d-none" id="submitSpinner" role="status"></span>
+                        <span id="submitText">Complete Registration</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let companyNames = [], companyEmails = [], companyRegistrationNumber = [], companyTaxIdNumber = [];
+    
+    // Form navigation functions
+    function nextStep(currentStep) {
+        // Validate current step
+        const currentStepEl = document.getElementById(`step${currentStep}`);
+        const inputs = currentStepEl.querySelectorAll('input[required], select[required]');
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            if (!input.checkValidity()) {
+                input.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                input.classList.add('is-valid');
+                input.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            // Show error message
+            Swal.fire({
+                icon: 'error',
+                title: 'Please Complete All Fields',
+                text: 'Fill in all required fields before proceeding to the next step',
+                confirmButtonColor: '#2563eb',
+            });
+            return;
+        }
+        
+        // Move to next step
+        const nextStepNum = currentStep + 1;
+        
+        // Hide current step
+        document.getElementById(`step${currentStep}`).classList.remove('active');
+        // Show next step
+        document.getElementById(`step${nextStepNum}`).classList.add('active');
+        
+        // Update step indicator
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('completed');
+        document.querySelector(`.step[data-step="${nextStepNum}"]`).classList.add('active');
+        
+        // Scroll to top
+        window.scrollTo(0, 0);
+    }
+    
+    function prevStep(currentStep) {
+        const prevStepNum = currentStep - 1;
+        
+        // Hide current step
+        document.getElementById(`step${currentStep}`).classList.remove('active');
+        // Show previous step
+        document.getElementById(`step${prevStepNum}`).classList.add('active');
+        
+        // Update step indicator
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+        document.querySelector(`.step[data-step="${prevStepNum}"]`).classList.remove('completed');
+        document.querySelector(`.step[data-step="${prevStepNum}"]`).classList.add('active');
+        
+        // Scroll to top
+        window.scrollTo(0, 0);
+    }
+    
+    $('#companyName').change(function(){
+        var name = $('#companyName').val();
+        if(companyNames.includes(name)) {
+            $('#valid-name').text('This Company Name is already taken');
+            $('#companyName').addClass('is-invalid');
+        } else {
+            $('#valid-name').text('');
+            if(name.length >= 3) {
+                $('#companyName').addClass('is-valid');
+                $('#companyName').removeClass('is-invalid');
+            }
+        }
+    });
+    
+    $('#companyEmail').change(function(){
+        var email = $('#companyEmail').val();
+        if(companyEmails.includes(email)) {
+            $('#valid-email').text('This Company Email is already taken');
+            $('#companyEmail').addClass('is-invalid');
+        } else {
+            $('#valid-email').text('');
+            if($('#companyEmail')[0].checkValidity()) {
+                $('#companyEmail').addClass('is-valid');
+                $('#companyEmail').removeClass('is-invalid');
+            }
+        }
+    });
+    
+    function getUserIdFromToken() {
+        let token = localStorage.getItem("token");
+        if (!token) return null;
+
+        try {
+            let payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.uid;
+        } catch (e) {
+            console.error("Error decoding token:", e);
+            return null;
+        }
+    }
+
+    $(document).ready(function () {
+        const userId = getUserIdFromToken();
+        if (!userId) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Session Expired',
+                text: 'You need to log in again',
+                confirmButtonColor: '#2563eb',
+            }).then(() => {
+                window.location.href = '/Auth/Login';
+            });
+            return;
+        }
+
+        $.ajax({
+            url: `http://localhost:5086/api/CompanyApi/getCompanyId/${userId}`,
+            type: "GET",
+            success: function (response) {
+                console.log("company id " + response);
+                const companyId = response;
+
+                if (companyId != 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Company Already Registered',
+                        text: 'Your company is already registered on the platform.',
+                        confirmButtonColor: '#2563eb'
+                    }).then(() => {
+                        window.location = '../RecruiterDashboard/Index';
+                    });
+                }
+                else {
+                    $.ajax({
+                        url: "http://localhost:5086/api/CompanyApi/getMandatoryFields",
+                        type: "GET",
+                        dataType: "json",
+                        success: function (data) {
+                            data.forEach((company) => {
+                                companyNames.push(company.c_company_name);
+                                companyEmails.push(company.c_company_email);
+                                companyRegistrationNumber.push(company.c_company_reg_number);
+                                companyTaxIdNumber.push(company.c_tax_id_number);
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error fetching companies:", error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to load registered companies data. Please refresh the page.',
+                                confirmButtonColor: '#2563eb',
+                            });
+                        }
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching company ID:", error);
+            }
+        });
+
+        // Fetch industries for dropdown
+        $.ajax({
+            url: "http://localhost:5086/api/IndustryApi/industries",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                const industryDropdown = $("#industry");
+                industryDropdown.empty().append('<option value="" selected disabled>Select your industry</option>');
+
+                $.each(data, function (index, item) {
+                    industryDropdown.append(`<option value="${item.id}">${item.industry_name}</option>`);
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching industries:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to load industries. Please refresh the page.',
+                    confirmButtonColor: '#2563eb',
+                });
+            }
+        });
+
+        // CIN (Company Registration Number) Validation
+        $('#companyRegNumber').on('input', function() {
+            const cin = $(this).val().toUpperCase();
+            $(this).val(cin); // Force uppercase
+            
+            const cinRegex = /^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/;
+            
+            if (cin === '') {
+                $(this).removeClass('is-valid is-invalid');
+                $('#valid-register').text('');
+            } else if (cinRegex.test(cin)) {
+                $(this).addClass('is-valid');
+                $(this).removeClass('is-invalid');
+                $('#valid-register').text('');
+                
+                // Check if CIN is already taken
+                if (companyRegistrationNumber.includes(cin)) {
+                    $('#valid-register').text('This CIN is already registered');
+                    $(this).addClass('is-invalid');
+                    $(this).removeClass('is-valid');
+                }
+            } else {
+                $(this).addClass('is-invalid');
+                $(this).removeClass('is-valid');
+            }
+        });
+
+        // PAN Number Validation
+        $('#taxIdNumber').on('input', function() {
+            const pan = $(this).val().toUpperCase();
+            $(this).val(pan); // Force uppercase
+            
+            const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+            
+            if (pan === '') {
+                $(this).removeClass('is-valid is-invalid');
+                $('#valid-pan').text('');
+            } else if (panRegex.test(pan)) {
+                $(this).addClass('is-valid');
+                $(this).removeClass('is-invalid');
+                $('#valid-pan').text('');
+                
+                // Check if PAN is already taken
+                if (companyTaxIdNumber.includes(pan)) {
+                    $('#valid-pan').text('This PAN is already registered');
+                    $(this).addClass('is-invalid');
+                    $(this).removeClass('is-valid');
+                }
+            } else {
+                $(this).addClass('is-invalid');
+                $(this).removeClass('is-valid');
+            }
+        });
+
+        $('#website').on('input', function() {
+            const website = $(this).val().trim();
+            const websiteRegex = /^(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+            
+            if (website === '') {
+                $(this).removeClass('is-valid is-invalid');
+                $('#url-feedback').text('');
+            } else if (websiteRegex.test(website)) {
+                $(this).addClass('is-valid');
+                $(this).removeClass('is-invalid');
+                $('#url-feedback').text('');
+            } else {
+                $('#url-feedback').text('Enter a valid URL');
+                $(this).addClass('is-invalid');
+                $(this).removeClass('is-valid');
+            }
+        });
+
+        // File upload functionality
+        function setupFileUpload(containerId, inputId, previewId) {
+            const container = $(`#${containerId}`);
+            const input = $(`#${inputId}`);
+            const preview = $(`#${previewId}`);
+
+            // Click handler
+            container.on('click', function (e) {
+                if ($(e.target).is('input')) return;
+                input.trigger('click');
+            });
+
+            // Drag and drop
+            container.on('dragover', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                container.addClass('dragover');
+            });
+
+            container.on('dragleave', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                container.removeClass('dragover');
+            });
+
+            container.on('drop', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                container.removeClass('dragover');
+
+                if (e.originalEvent.dataTransfer.files.length) {
+                    input[0].files = e.originalEvent.dataTransfer.files;
+                    handleFileSelection(inputId, input[0].files);
+                }
+            });
+
+            // Change handler
+            input.on('change', function () {
+                if (this.files && this.files.length > 0) {
+                    handleFileSelection(inputId, this.files);
+                }
+            });
+        }
+
+        // Initialize file uploads
+        setupFileUpload('logoUploadContainer', 'companyLogo', 'logoPreview');
+        setupFileUpload('documentsUploadContainer', 'legalDocuments', 'filePreview');
+
+        // File preview and validation
+        function handleFileSelection(inputId, files) {
+            if (!files || files.length === 0) return;
+
+            if (inputId === 'companyLogo') {
+                // Validate logo
+                const file = files[0];
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                const maxSize = 2 * 1024 * 1024; // 2MB
+
+                if (!validTypes.includes(file.type)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid File Type',
+                        text: 'Please upload an image file (JPEG, PNG, GIF)',
+                        confirmButtonColor: '#2563eb',
+                    });
+                    return;
+                }
+
+                if (file.size > maxSize) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'File Too Large',
+                        text: 'Image size should be less than 2MB',
+                        confirmButtonColor: '#2563eb',
+                    });
+                    return;
+                }
+
+                // Display preview
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#logoPreview").html(`
+                        <div class="mt-3">
+                            <img src="${e.target.result}" class="logo-preview mb-2" alt="Logo Preview">
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-danger btn-sm" onclick="clearLogo()">
+                                    <i class="fas fa-times me-1"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                };
+                reader.readAsDataURL(file);
+            }
+            else if (inputId === 'legalDocuments') {
+                // Validate documents
+                const validTypes = ['application/pdf', '.pdf'];
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                const maxFiles = 5;
+
+                if (files.length > maxFiles) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Too Many Files',
+                        text: `Maximum ${maxFiles} files allowed`,
+                        confirmButtonColor: '#2563eb',
+                    });
+                    return;
+                }
+
+                let invalidFiles = [];
+                let oversizedFiles = [];
+
+                Array.from(files).forEach(file => {
+                    if (!validTypes.includes(file.type)) {
+                        invalidFiles.push(file.name);
+                    }
+                    if (file.size > maxSize) {
+                        oversizedFiles.push(file.name);
+                    }
+                });
+
+                if (invalidFiles.length > 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid File Types',
+                        text: `Please upload PDF files only`,
+                        confirmButtonColor: '#2563eb',
+                    });
+                    return;
+                }
+
+                if (oversizedFiles.length > 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Files Too Large',
+                        text: `Files exceeding 10MB limit: ${oversizedFiles.join(', ')}`,
+                        confirmButtonColor: '#2563eb',
+                    });
+                    return;
+                }
+
+                // Display preview
+                let previewHtml = '<div class="d-flex flex-column mt-3">';
+                Array.from(files).forEach((file, index) => {
+                    previewHtml += `
+                        <div class="file-preview-item">
+                            <i class="fas fa-file-pdf file-preview-icon"></i>
+                            <div class="flex-grow-1 text-truncate">${file.name}</div>
+                            <small class="text-muted ms-2">${formatFileSize(file.size)}</small>
+                        </div>
+                    `;
+                });
+                previewHtml += `
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-danger btn-sm mt-2" onclick="clearDocuments()">
+                            <i class="fas fa-times me-1"></i> Remove All
+                        </button>
+                    </div>
+                </div>`;
+
+                $("#filePreview").html(previewHtml);
+            }
+        }
+
+        // Form submission
+        $("#companyForm").submit(function (event) {
+            event.preventDefault();
+
+            // Validate all steps
+            let isValid = true;
+            const requiredFields = document.querySelectorAll('input[required], select[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.checkValidity()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Form Validation Error',
+                    text: 'Please fill all required fields correctly',
+                    confirmButtonColor: '#2563eb',
+                });
+                return;
+            }
+
+            // Additional validation
+            // CIN format
+            const cin = $("#companyRegNumber").val().trim();
+            const cinRegex = /^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/;
+            
+            if (!cinRegex.test(cin)) {
+                $("#companyRegNumber").addClass('is-invalid');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid CIN Format',
+                    text: 'Please enter a valid CIN in the format: U74999MH2020PTC123456',
+                    confirmButtonColor: '#2563eb',
+                });
+                return;
+            }
+
+            // Check if CIN is already taken
+            if (companyRegistrationNumber.includes(cin)) {
+                $("#companyRegNumber").addClass('is-invalid');
+                $('#valid-register').text('This CIN is already registered');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Duplicate CIN',
+                    text: 'This Company Registration Number is already registered',
+                    confirmButtonColor: '#2563eb',
+                });
+                return;
+            }
+
+            // PAN format
+            const pan = $("#taxIdNumber").val().trim();
+            const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+            
+            if (!panRegex.test(pan)) {
+                $("#taxIdNumber").addClass('is-invalid');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid PAN Format',
+                    text: 'Please enter a valid PAN Number in the format: ABCDE1234F',
+                    confirmButtonColor: '#2563eb',
+                });
+                return;
+            }
+
+            // Check if PAN is already taken
+            if (companyTaxIdNumber.includes(pan)) {
+                $("#taxIdNumber").addClass('is-invalid');
+                $('#valid-pan').text('This PAN is already registered');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Duplicate PAN',
+                    text: 'This PAN Number is already registered',
+                    confirmButtonColor: '#2563eb',
+                });
+                return;
+            }
+
+            // Prepare form data
+            const formData = new FormData(this);
+            formData.append("c_owner_id", userId);
+
+            // Show loading state
+            $("#submitSpinner").removeClass('d-none');
+            $("#submitText").text('Processing...');
+            $("#registerBtn").prop('disabled', true);
+
+            // Submit form
+            $.ajax({
+                url: "http://localhost:5086/api/CompanyApi/Register",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Registration Successful!',
+                            text: 'Your company has been registered successfully.',
+                            confirmButtonColor: '#2563eb',
+                            willClose: () => {
+                                window.location.href = '/RecruiterDashboard';
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Registration Failed',
+                            text: response.message || 'Registration failed',
+                            confirmButtonColor: '#2563eb',
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    let errorMsg = 'An error occurred during registration';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        errorMsg = response.message || errorMsg;
+                    } catch (e) {
+                        console.error(e);
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Registration Error',
+                        text: errorMsg,
+                        confirmButtonColor: '#2563eb',
+                    });
+                },
+                complete: function () {
+                    $("#submitSpinner").addClass('d-none');
+                    $("#submitText").text('Complete Registration');
+                    $("#registerBtn").prop('disabled', false);
+                }
+            });
+        });
+    });
+
+    // Helper functions
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function clearLogo() {
+        $("#companyLogo").val('');
+        $("#logoPreview").empty();
+    }
+
+    function clearDocuments() {
+        $("#legalDocuments").val('');
+        $("#filePreview").empty();
+    }
+</script>

@@ -1,0 +1,111 @@
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="~/css/Meeting.css" rel="stylesheet" />
+
+<div class="auth-container">
+    <!-- Animated shapes -->
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/@@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script> <!-- Add this to decode JWT -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            Swal.fire({
+                icon: "warning",
+                title: "Unauthorized",
+                text: "You must be logged in to access this page.",
+                confirmButtonColor: "#2563eb"
+            }).then(() => {
+                window.location.href = "/Login";
+            });
+        } else {
+            try {
+                const decoded = jwt_decode(token);
+                const role = decoded.role;  // Adjust based on your token's claims
+                const userId = decoded.userId;
+
+                // ✅ OPTIONAL: You can also check for specific roles
+                if (role !== "Recruiter") {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Access Denied",
+                        text: "You are not authorized to access the meeting.",
+                        confirmButtonColor: "#dc2626"
+                    }).then(() => {
+                        window.location.href = "/AccessDenied"; // or another fallback
+                    });
+                }
+
+                // ✅ If needed, you can use userId or role further in your logic
+                console.log("User ID:", userId);
+                console.log("Role:", role);
+
+            } catch (err) {
+                console.error("Invalid Token", err);
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid Token",
+                    text: "Please login again.",
+                    confirmButtonColor: "#2563eb"
+                }).then(() => {
+                    localStorage.removeItem("token");
+                    window.location.href = "/Login";
+                });
+            }
+        }
+    });
+        window.onload = function () {
+            function getUrlParams(url) {
+                let urlStr = url.split('?')[1];
+                const urlSearchParams = new URLSearchParams(urlStr);
+                const result = Object.fromEntries(urlSearchParams.entries());
+                return result;
+            }
+
+            const roomID = getUrlParams(window.location.href)['roomID'] || (Math.floor(Math.random() * 10000) + "");
+            const userID = Math.floor(Math.random() * 10000) + "";
+            const userName = "userName" + userID;
+            const appID = 610158396;
+            const serverSecret = "ffc302441bf88aae465df6d6db745047";
+            const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
+
+
+            const zp = ZegoUIKitPrebuilt.create(kitToken);
+            zp.joinRoom({
+                container: document.querySelector("#root"),
+                sharedLinks: [{
+                    name: 'Personal link',
+                    url: window.location.protocol + '//' + window.location.host + window.location.pathname + '?roomID=' + roomID,
+                }],
+                scenario: {
+                    mode: ZegoUIKitPrebuilt.VideoConference,
+                },
+
+                turnOnMicrophoneWhenJoining: false,
+                turnOnCameraWhenJoining: false,
+                showMyCameraToggleButton: true,
+                showMyMicrophoneToggleButton: true,
+                showAudioVideoSettingsButton: true,
+                showScreenSharingButton: true,
+                showTextChat: true,
+                showUserList: true,
+                maxUsers: 50,
+                layout: "Auto",
+                showLayoutButton: true,
+            });
+        }
+    </script>
+
+    </html>

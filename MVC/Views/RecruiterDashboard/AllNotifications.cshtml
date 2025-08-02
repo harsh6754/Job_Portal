@@ -1,0 +1,221 @@
+@{
+    ViewData["Title"] = "All Notifications";
+    Layout = "_RecruiterLayout";
+}
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(67, 97, 238, 0.05);
+        transform: none !important;
+    }
+
+    .table td {
+        max-width: 300px;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    .table th {
+        background-color: #f8fafc;
+        position: sticky;
+        top: 0;
+    }
+
+    .notification-message {
+        max-width: 300px;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    .table-responsive {
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+    }
+
+    .notification-type {
+        text-transform: capitalize;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">All Notifications</h5>
+            <div>
+                <button id="deleteSelectedNotifications" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash"></i> Delete Selected
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="selectAllNotifications">
+                                </div>
+                            </th>
+                            <th>Message</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="notificationsTableBody">
+                        <!-- Notifications will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let companyId;
+            let notifications = [];
+
+            // Function to get company ID
+            async function getCompanyId() {
+                try {
+                    const response = await fetch('http://localhost:5086/api/CompanyApi/getCompanyId/131');
+                    const data = await response.json();
+                    companyId = data;
+                    return data;
+                } catch (error) {
+                    console.error('Error fetching company ID:', error);
+                    return null;
+                }
+            }
+
+            // Function to load all notifications
+            async function loadAllNotifications() {
+                try {
+                    const response = await fetch(`http://localhost:5086/api/ApplyJob/All/${companyId}`);
+                    notifications = await response.json();
+                    updateNotificationTable();
+                } catch (error) {
+                    console.error('Error loading notifications:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to load notifications',
+                        icon: 'error',
+                        confirmButtonColor: '#4361ee',
+                    });
+                }
+            }
+
+            // Function to format date
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleString();
+            }
+
+            // Function to update notification table
+            function updateNotificationTable() {
+                const tableBody = $("#notificationsTableBody");
+                tableBody.empty();
+
+                notifications.forEach(notification => {
+                    const row = `
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input notification-checkbox" type="checkbox" value="${notification.notificationId}">
+                                </div>
+                            </td>
+                            <td class="notification-message">${notification.message}</td>
+                            <td>
+                                <span class="badge ${notification.isRead ? 'bg-success' : 'bg-warning'}">
+                                    ${notification.isRead ? 'Read' : 'Unread'}
+                                </span>
+                            </td>
+                            <td>${formatDate(notification.createdAt)}</td>
+                        </tr>
+                    `;
+                    tableBody.append(row);
+                });
+            }
+
+            // Select all checkbox functionality
+            $("#selectAllNotifications").change(function() {
+                $(".notification-checkbox").prop('checked', $(this).prop('checked'));
+            });
+
+            // Function to handle notification selection and deletion
+            async function handleNotificationSelection() {
+                const selectedNotifications = [];
+                $(".notification-checkbox:checked").each(function() {
+                    selectedNotifications.push(parseInt($(this).val()));
+                });
+
+                if (selectedNotifications.length === 0) {
+                    Swal.fire({
+                        title: 'No Selection',
+                        text: 'Please select at least one notification to delete',
+                        icon: 'warning',
+                        confirmButtonColor: '#4361ee',
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Delete Notifications?',
+                    text: `Are you sure you want to delete ${selectedNotifications.length} notification(s)?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4361ee',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Yes, delete them'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await fetch('http://localhost:5086/api/ApplyJob/DeleteMultiple', {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(selectedNotifications)
+                            });
+
+                            const data = await response.json();
+                            
+                            if (response.ok) {
+                                Swal.fire(
+                                    'Deleted!',
+                                    'Selected notifications have been deleted successfully.',
+                                    'success'
+                                ).then(() => {
+                                    loadAllNotifications();
+                                });
+                            } else {
+                                throw new Error('Failed to delete notifications');
+                            }
+                        } catch (error) {
+                            Swal.fire(
+                                'Error!',
+                                error.message,
+                                'error'
+                            );
+                        }
+                    }
+                });
+            }
+
+            // Add event listener for delete button
+            $("#deleteSelectedNotifications").click(handleNotificationSelection);
+
+            // Initialize
+            async function initialize() {
+                companyId = await getCompanyId();
+                if (companyId) {
+                    await loadAllNotifications();
+                }
+            }
+
+            initialize();
+        });
+    </script>
+} 

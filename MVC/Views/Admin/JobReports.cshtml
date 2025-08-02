@@ -1,0 +1,461 @@
+@{
+    ViewData["Title"] = "Job Post Reports";
+    Layout = "_AdminLayout";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-dark: #3a4db5;
+        --secondary: #6c757d;
+        --success: #28a745;
+        --info: #17a2b8;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --gray-100: #f8f9fa;
+        --gray-200: #e9ecef;
+        --gray-300: #dee2e6;
+        --gray-400: #ced4da;
+        --gray-500: #adb5bd;
+        --gray-600: #6c757d;
+        --gray-700: #495057;
+        --gray-800: #343a40;
+        --gray-900: #212529;
+        --border-radius: 0.5rem;
+        --border-radius-lg: 1rem;
+        --box-shadow: 0 2px 16px 0 rgba(60, 72, 88, 0.08);
+        --box-shadow-hover: 0 8px 32px 0 rgba(60, 72, 88, 0.18);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .admin-dashboard {
+        background: var(--gray-100);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .page-header {
+        background: white;
+        padding: 1.5rem;
+        border-radius: var(--border-radius-lg);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--box-shadow);
+        position: relative;
+        overflow: hidden;
+        @* border-left: 4px solid var(--danger); *@
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-title i {
+        font-size: 1.5rem;
+        @* color: var(--danger); *@
+    }
+
+    .page-subtitle {
+        font-size: 0.875rem;
+        color: var(--gray-600);
+        margin: 0;
+    }
+
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.75rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        display: flex;
+        align-items: right;
+        gap: 0.75rem;
+        transition: var(--transition);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--box-shadow-hover);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: var(--border-radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .stat-icon.reports {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger);
+    }
+
+    .stat-icon.jobs {
+        background: rgba(67, 97, 238, 0.1);
+        color: var(--primary);
+    }
+
+    .stat-icon.companies {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success);
+    }
+
+    .stat-info h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--gray-800);
+    }
+
+    .stat-info p {
+        font-size: 1.2rem;
+        color: var(--gray-900);
+        margin: 0;
+    }
+
+    .reports-table {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+    }
+
+    .table-header {
+        background: white;
+        padding: 1rem;
+    }
+
+    .table-header .table-row {
+        font-weight: 500;
+        color: var(--gray-600);
+        font-size: 0.875rem;
+        text-transform: none;
+        letter-spacing: normal;
+        text-align: center;
+    }
+
+    .table-row {
+        display: grid;
+        grid-template-columns: 2fr 2fr 2fr 1.5fr 3fr;
+        gap: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+        align-items: center;
+        text-align: center;
+    }
+
+    .table-row:first-child {
+        border-bottom: none;
+    }
+
+    .table-row:hover {
+        background: var(--gray-100);
+    }
+
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--gray-200);
+    }
+
+    .user-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: var(--gray-800);
+        font-size: 0.875rem;
+    }
+
+    .user-email {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+    }
+
+    .report-date {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        margin-top: 0.25rem;
+    }
+
+    .job-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--gray-700);
+    }
+
+    .job-cell i {
+        color: var(--gray-500);
+        font-size: 0.875rem;
+    }
+
+    .company-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .company-logo {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--gray-200);
+        padding: 4px;
+    }
+
+    .topic-cell {
+        text-align: center;
+    }
+
+    .badge-topic {
+        font-size: 0.75rem;
+        padding: 0.35em 0.75em;
+        border-radius: 2rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger);
+        display: inline-block;
+    }
+
+    .desc-cell {
+        font-size: 0.875rem;
+        color: var(--gray-700);
+        line-height: 1.5;
+        padding-left: 1rem;
+        @* border-left: 3px solid var(--primary); *@
+    }
+
+    .no-reports {
+        padding: 3rem;
+        text-align: center;
+        color: var(--gray-500);
+    }
+
+    .no-reports i {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--gray-400);
+    }
+
+    @@media (max-width: 991px) {
+        .table-row {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+            padding: 1rem;
+        }
+
+        .table-header {
+            display: none;
+        }
+
+        .user-cell,
+        .job-cell,
+        .company-cell,
+        .topic-cell,
+        .desc-cell {
+            padding: 0.5rem 0;
+        }
+
+        .topic-cell {
+            text-align: left;
+        }
+    }
+</style>
+
+<div class="admin-dashboard">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-flag"></i>
+                Job Post Reports
+            </h1>
+            <p class="page-subtitle"></p>
+        </div>
+
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon reports">
+                    <i class="fas fa-flag"></i>
+                </div>
+                <div class="stat-info">
+                      <p>Total Reports</p>
+                    <h3 id="totalReports">0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon jobs">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="stat-info">
+                    <p>Reported Jobs</p>
+                    <h3 id="totalJobs">0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon companies">
+                    <i class="fas fa-building"></i>
+                </div>
+                <div class="stat-info">
+                     <p>Companies Involved</p>
+                    <h3 id="totalCompanies">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="reports-table">
+            <div class="table-header">
+                <div class="table-row">
+                    <div>Reported By</div>
+                    <div>Job Title</div>
+                    <div>Company</div>
+                    <div>Report Topic</div>
+                    <div>Description</div>
+                </div>
+            </div>
+            <div id="reportsList"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function () {
+        let allReports = [];
+
+        fetchReports();
+
+        function fetchReports() {
+            $.ajax({
+                url: "http://localhost:5086/api/JobPostReport/GetJobReport",
+                method: "GET",
+                success: function (data) {
+                    allReports = data;
+                    updateStats(data);
+                    renderReports(data);
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load job post reports.',
+                        confirmButtonColor: '#4361ee'
+                    });
+                }
+            });
+        }
+
+       function updateStats(reports) {
+    console.log("Reports received:", reports);
+
+    const totalReports = reports.length;
+
+    // Extract job IDs and remove duplicates using a Set
+    const jobIds = reports.map(r => r.job_Post?.c_job_id).filter(id => id && id > 0);
+    const uniqueJobs = new Set(jobIds).size;
+
+    // Extract company IDs and remove duplicates using a Set
+    const companyIds = reports.map(r => r.company?.c_company_id).filter(id => id && id > 0);
+    const uniqueCompanies = new Set(companyIds).size;
+
+    console.log("Total Reports:", totalReports);
+    console.log("Unique Job IDs:", uniqueJobs);
+    console.log("Unique Company IDs:", uniqueCompanies);
+
+    // Update the stats on the page
+    $('#totalReports').text(totalReports);
+    $('#totalJobs').text(uniqueJobs);
+    $('#totalCompanies').text(uniqueCompanies);
+}
+
+
+        function renderReports(reports) {
+            const $list = $("#reportsList");
+            $list.empty();
+
+            if (!reports || reports.length === 0) {
+                $list.append(`
+                    <div class="no-reports">
+                        <i class="fas fa-inbox"></i>
+                        <p>No reports found</p>
+                    </div>
+                `);
+                return;
+            }
+
+            reports.forEach((r, idx) => {
+                const userImg = r.user?.c_profileImage
+                    ? `<img src="${r.user.c_profileImage}" alt="User" class="user-avatar" />`
+                    : `<div class="user-avatar d-flex align-items-center justify-content-center bg-light"><i class="fas fa-user text-secondary"></i></div>`;
+                const companyLogo = r.company?.c_company_logo
+                    ? `<img src="${r.company.c_company_logo}" alt="Company Logo" class="company-logo" />`
+                    : `<div class="company-logo d-flex align-items-center justify-content-center bg-light"><i class="fas fa-building text-secondary"></i></div>`;
+
+                const reportDate = new Date(r.c_report_date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                $list.append(`
+                    <div class="table-row">
+                        <div class="user-cell">
+                            ${userImg}
+                            <div class="user-info">
+                                <div class="user-name">${r.user?.c_fullName ?? 'N/A'}</div>
+                                <div class="user-email">${r.user?.Email ?? ''}</div>
+                            </div>
+                        </div>
+                        <div class="job-cell">
+                            <i class="fas fa-briefcase"></i>
+                            <span>${r.job_Post?.c_job_title ?? 'N/A'}</span>
+                        </div>
+                        <div class="company-cell">
+                            ${companyLogo}
+                            <span>${r.company?.c_company_name ?? 'N/A'}</span>
+                        </div>
+                        <div class="topic-cell">
+                            <span class="badge-topic">${r.c_report_topic ?? ''}</span>
+                        </div>
+                        <div class="desc-cell">
+                            ${r.c_report_desc ?? ''}
+                        </div>
+                    </div>
+                `);
+            });
+        }
+    });
+</script>
+}

@@ -1,0 +1,570 @@
+@{
+    Layout = "~/Views/Shared/_RecruiterLayout.cshtml";
+}
+
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --accent-color: #4895ef;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+        --success-color: #4bb543;
+        --border-radius: 12px;
+        --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+    }
+
+    .update-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .update-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        transition: var(--transition);
+        border: none;
+    }
+
+    .update-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .update-title {
+        font-weight: 700;
+        font-size: 2rem;
+        margin: 0;
+    }
+
+    .update-body {
+        padding: 2rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: var(--border-radius);
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: var(--transition);
+        height: auto;
+    }
+
+    .form-control:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.25rem rgba(72, 149, 239, 0.25);
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .btn-update {
+        background: var(--primary-color);
+        border: none;
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: var(--border-radius);
+        width: 100%;
+        transition: var(--transition);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+ 
+    .btn-update:hover {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+    }
+
+    .btn-cancel {
+        background: var(--secondary-color);
+        border: none;
+        padding: 0.75rem 2rem;
+        color:#424242;
+        background-color: #f5f5f5;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: var(--border-radius);
+        width: 100%;
+        border: 1px solid darkgray;
+        transition: var(--transition);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .btn-cancel:hover {
+        background-color: #a29b9b;
+        transform: translateY(-2px);
+    }
+
+    .profile-pic-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-pic-preview {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--light-color);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-right: 1.5rem;
+    }
+
+    .file-upload-wrapper {
+        position: relative;
+        flex-grow: 1;
+    }
+
+    .file-upload-label {
+        display: block;
+        padding: 0.5rem 1rem;
+        background: var(--light-color);
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        text-align: center;
+        transition: var(--transition);
+        border: 2px dashed #ced4da;
+    }
+
+    .file-upload-label:hover {
+        background: #e9ecef;
+    }
+
+    .file-upload-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .update-container {
+            padding: 0 0.5rem;
+        }
+
+        .update-header {
+            padding: 1.5rem;
+        }
+
+        .update-title {
+            font-size: 1.5rem;
+        }
+
+        .update-body {
+            padding: 1.5rem;
+        }
+
+        .profile-pic-container {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .profile-pic-preview {
+            margin-bottom: 1rem;
+            margin-right: 0;
+        }
+    }
+
+    /* Animation */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .update-card {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    /* SweetAlert customization */
+    .swal2-confirm {
+        background-color: var(--primary-color) !important;
+        transition: var(--transition) !important;
+    }
+
+    .swal2-confirm:hover {
+        background-color: var(--secondary-color) !important;
+    }
+
+    .input-group-text {
+        background-color: #e9ecef;
+        border: 2px solid #e9ecef;
+        border-right: none;
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        color: #495057;
+    }
+</style>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+
+<div class="update-container">
+    <div class="update-card">
+        <div class="update-header">
+            <h1 class="update-title">Update Company Details</h1>
+        </div>
+        <div class="update-body">
+            <form id="updateForm" enctype="multipart/form-data">
+                <input type="hidden" id="r_company_id" name="c_company_id" />
+                <input type="hidden" id="r_owner_id" name="c_owner_id"/>
+
+                <!-- Email Field -->
+                <div class="mb-4">
+                    <label for="r_email" class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input type="email" id="r_email" name="c_company_email" class="form-control" required 
+                               pattern="[a-z0-9._%+-]+@@[a-z0-9.-]+\.[a-z]{2,}$" 
+                               placeholder="Enter Company's Email" />
+                        <div class="invalid-feedback">
+                            Please enter a valid email address (e.g., example@domain.com).
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phone Field -->
+                <div class="mb-4">
+                    <label for="r_phone" class="form-label">Phone Number</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                        <input type="tel" id="r_phone" name="c_company_phone" class="form-control" required 
+                               pattern="\d{10}" 
+                               placeholder="Enter 10-digit phone number (e.g., 1234567890)" />
+                        <div class="invalid-feedback">
+                            Please enter exactly 10 digits (e.g., 1234567890).
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address Field -->
+                <div class="mb-4">
+                    <label for="r_address" class="form-label">Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                        <input type="text" id="r_address" name="c_company_address" class="form-control" required 
+                               placeholder="Enter company's Address" />
+                    </div>
+                </div>
+
+                <!-- Website Field -->
+                <div class="mb-4">
+                    <label for="r_website" class="form-label">Website</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                        <input type="text" id="r_website" name="c_website" class="form-control" required 
+                               placeholder="Enter Company's Website" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Company Logo</label>
+                    <div class="profile-pic-container">
+                        <img id="profilePicPreview" src="https://via.placeholder.com/150" alt="Profile Preview"
+                             class="profile-pic-preview">
+                        <div class="file-upload-wrapper">
+                            <label for="r_image" class="file-upload-label">
+                                <span id="file-upload-text">Choose a Company Logo</span>
+                            </label>
+                            <input type="file" id="r_image" name="CompanyLogo" class="file-upload-input"
+                                   accept="image/*">
+                            <input type="hidden" id="bypass_image" name="c_company_logo" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Legal Documents (PDF Only)</label>
+                    <div id="existing-docs" class="mb-3"></div>
+                    <div class="file-upload-wrapper">
+                        <label for="r_doc" class="file-upload-label">
+                            <span id="legal-upload-text">Choose Legal Documents (PDF)</span>
+                        </label>
+                        <input type="file" id="r_doc" name="LegalDocuments" class="file-upload-input"
+                               accept="application/pdf" multiple>
+                        <input type="hidden" id="bypass_doc" name="c_legal_documents" />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-update btn-primary mt-3">
+                    <i class="fas fa-save me-2"></i>Update Profile
+                </button>
+
+                <button type="button" class="btn btn-cancel btn-secondary mt-2"
+                        onclick="window.location.href='/RecruiterDashboard/CompanyDetails';" style="width: 100%;">
+                    <i class="fa-solid fa-circle-xmark me-2"></i>Cancel
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+$(document).ready(function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get("id");
+    $("#r_owner_id").val(userId);
+
+    // Validation functions
+    function validateEmail(email) {
+        const emailRegex = /^[a-z0-9._%+-]+@@[a-z0-9.-]+\.[a-z]{2,}$/i;
+        return emailRegex.test(email);
+    }
+
+    function validatePhone(phone) {
+        const phoneRegex = /^\d{10}$/;
+        return phoneRegex.test(phone);
+    }
+
+    // Real-time validation
+    $('#r_email').on('input', function () {
+        const email = $(this).val();
+        if (email && !validateEmail(email)) {
+            $(this).addClass('is-invalid');
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+
+    $('#r_phone').on('input', function () {
+        const phone = $(this).val();
+        if (phone && !validatePhone(phone)) {
+            $(this).addClass('is-invalid');
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+
+    // Company logo preview
+    $('#r_image').change(function () {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                $('#profilePicPreview').attr('src', e.target.result);
+                $('#file-upload-text').text(file.name);
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Legal Documents file label preview
+    $('#r_doc').change(function () {
+        const files = this.files;
+        const label = $('#legal-upload-text');
+        const existingDocs = $("#bypass_doc").val().split(',').filter(doc => doc.trim()).length;
+        if (files.length + existingDocs > 5) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Too many files',
+                text: 'Total documents cannot exceed 5.'
+            });
+            this.value = '';
+            label.text('Choose Legal Documents (PDF)');
+            return;
+        }
+        if (files.length > 0) {
+            const names = Array.from(files).map(f => f.name).join(', ');
+            label.text(names);
+        } else {
+            label.text('Choose Legal Documents (PDF)');
+        }
+    });
+
+    // Fetch company details
+    if (userId) {
+        $.ajax({
+            url: "http://localhost:5086/api/CompanyApi/getCompany?id=" + userId,
+            type: "GET",
+            success: function (data) {
+                console.log("✅ Fetched Company Data:", data);
+                $("#r_owner_id").val(data.c_owner_id);
+                $("#r_company_id").val(data.c_company_id);
+                $("#r_email").val(data.c_company_email);
+                $("#r_phone").val(data.c_company_phone);
+                $("#r_address").val(data.c_company_address);
+                $("#r_website").val(data.c_website);
+
+                if (data.c_company_logo) {
+                    $('#profilePicPreview').attr('src', data.c_company_logo);
+                    $("#bypass_image").val(data.c_company_logo);
+                }
+
+                if (data.c_legal_documents && data.c_legal_documents.length > 0) {
+                    let docPreviewHtml = '';
+                    data.c_legal_documents.forEach((url, index) => {
+                        const filename = url.split('/').pop();
+                        docPreviewHtml += `
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <a href="${url}" target="_blank">${filename}</a>
+                                <button type="button" class="btn btn-sm btn-danger remove-doc" data-index="${index}">Remove</button>
+                            </div>`;
+                    });
+                    $("#existing-docs").html(docPreviewHtml);
+                    $("#bypass_doc").val(data.c_legal_documents.join(',')); // Store as comma-separated
+                }
+
+                // Validate fetched email and phone
+                if (data.c_company_email && !validateEmail(data.c_company_email)) {
+                    $('#r_email').addClass('is-invalid');
+                }
+                if (data.c_company_phone && !validatePhone(data.c_company_phone)) {
+                    $('#r_phone').addClass('is-invalid');
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error fetching company details.'
+                });
+            }
+        });
+    }
+
+    // Remove document from UI and update hidden field
+    $(document).on('click', '.remove-doc', function () {
+        const indexToRemove = $(this).data("index");
+        let docs = $("#bypass_doc").val().split(',').filter(doc => doc.trim());
+        docs.splice(indexToRemove, 1); // Remove the selected doc
+        $("#bypass_doc").val(docs.join(','));
+        $(this).parent().remove(); // Remove from UI
+    });
+
+    // Submit form with FormData
+    $("#updateForm").submit(function (e) {
+        e.preventDefault();
+
+        // Validate before submission
+        const email = $("#r_email").val();
+        const phone = $("#r_phone").val();
+
+        if (!validateEmail(email)) {
+            $("#r_email").addClass('is-invalid');
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Email',
+                text: 'Please enter a valid email address.'
+            });
+            return;
+        }
+
+        if (!validatePhone(phone)) {
+            $("#r_phone").addClass('is-invalid');
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Phone Number',
+                text: 'Please enter exactly 10 digits.'
+            });
+            return;
+        }
+
+        let formData = new FormData();
+
+        // Append basic fields
+        formData.append("c_owner_id", $("#r_owner_id").val());
+        formData.append("c_company_id", $("#r_company_id").val());
+        formData.append("c_company_email", email);
+        formData.append("c_company_phone", phone);
+        formData.append("c_company_address", $("#r_address").val());
+        formData.append("c_website", $("#r_website").val());
+
+        // Company logo
+        let profilePic = $("#r_image")[0].files[0];
+        if (profilePic) {
+            formData.append("CompanyLogo", profilePic);
+        } else {
+            const existingLogo = $("#bypass_image").val();
+            if (existingLogo) {
+                formData.append("c_company_logo", existingLogo);
+            }
+        }
+
+        // Legal documents
+        let legalDocs = $("#r_doc")[0].files;
+        let existingDocs = $("#bypass_doc").val().split(',').filter(doc => doc.trim());
+
+        // Append existing documents (after user removals)
+        if (existingDocs.length > 0) {
+            existingDocs.forEach(doc => {
+                formData.append("c_legal_documents", doc.trim());
+            });
+        }
+
+        // Append new files
+        if (legalDocs.length > 0) {
+            for (let i = 0; i < legalDocs.length; i++) {
+                formData.append("LegalDocuments", legalDocs[i]);
+            }
+        }
+
+        // Debug FormData
+        console.log("🚀 Submitting FormData:");
+        for (var pair of formData.entries()) {
+            console.log(pair[0] + ": ", pair[1]);
+        }
+
+        $.ajax({
+            url: "http://localhost:5086/api/CompanyApi/UpdateCompanyDetails",
+            type: "PUT",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function () {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Company details updated successfully!',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = "/RecruiterDashboard/CompanyDetails";
+                });
+            },
+            error: function (xhr) {
+                let errorMsg = "Error updating company details.";
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMsg
+                });
+            }
+        });
+    });
+});
+</script>

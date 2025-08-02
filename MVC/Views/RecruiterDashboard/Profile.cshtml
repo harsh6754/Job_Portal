@@ -1,0 +1,911 @@
+@{
+    Layout = "~/Views/Shared/_RecruiterLayout.cshtml";
+}
+
+<style>
+    :root {
+        --primary-color: #2563eb;
+        --primary-light: #dbeafe;
+        --primary-dark: #1e40af;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --neutral-50: #f9fafb;
+        --neutral-100: #f3f4f6;
+        --neutral-200: #e5e7eb;
+        --neutral-300: #d1d5db;
+        --neutral-400: #9ca3af;
+        --neutral-500: #6b7280;
+        --neutral-600: #4b5563;
+        --neutral-700: #374151;
+        --neutral-800: #1f2937;
+        --neutral-900: #111827;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --radius-xl: 16px;
+    }
+
+    /* Base Styles */
+    body {
+        font-family: var(--font-sans);
+        background-color: #f5f8fb;
+        color: var(--neutral-700);
+    }
+
+    /* Modern Profile Container */
+    .recruiter-profile-container {
+        max-width: 1000px;
+        margin: 2rem auto 4rem;
+        padding: 0 1.5rem;
+        position: relative;
+    }
+
+    /* Page Header */
+    .profile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--neutral-200);
+    }
+
+    .profile-header h2 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--neutral-800);
+        margin: 0;
+    }
+
+    .profile-header-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .header-action-btn {
+        background-color: white;
+        border: 1px solid var(--neutral-200);
+        color: var(--neutral-600);
+        border-radius: var(--radius-md);
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .header-action-btn:hover {
+        border-color: var(--neutral-300);
+        color: var(--neutral-800);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Layout Grid */
+    .profile-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 1.5rem;
+    }
+
+    /* Sidebar Profile Card */
+    .profile-sidebar {
+        position: sticky;
+        top: 2rem;
+    }
+
+    .profile-card {
+        background-color: white;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        position: relative;
+        border: 1px solid var(--neutral-200);
+    }
+
+    .profile-card-header {
+        padding: 1.5rem;
+        text-align: center;
+        border-bottom: 1px solid var(--neutral-100);
+        position: relative;
+    }
+
+    .profile-bg-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--primary-light);
+        opacity: 0.1;
+        background-image: radial-gradient(var(--primary-color) 0.75px, transparent 0.75px);
+        background-size: 12px 12px;
+    }
+
+    .profile-image-wrapper {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 1rem;
+    }
+
+    .profile-image-container {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid white;
+        box-shadow: 0 0 0 2px var(--primary-light), var(--shadow-md);
+        position: relative;
+    }
+
+    .profile-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-image-edit {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 32px;
+        height: 32px;
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        box-shadow: var(--shadow-md);
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .profile-image-edit:hover {
+        transform: scale(1.1);
+    }
+
+    .profile-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--neutral-800);
+        margin: 0 0 0.25rem;
+    }
+
+    .profile-title {
+        color: var(--neutral-600);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .profile-verified {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.75rem;
+        color: var(--success-color);
+        background-color: rgba(16, 185, 129, 0.1);
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .profile-card-body {
+        padding: 1.5rem;
+    }
+
+    .profile-stat-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .profile-stat-item {
+        text-align: center;
+        padding: 0.75rem;
+        background-color: var(--neutral-50);
+        border-radius: var(--radius-md);
+        transition: transform 0.2s ease;
+    }
+
+    .profile-stat-item:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .profile-stat-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+    }
+
+    .profile-stat-label {
+        font-size: 0.75rem;
+        color: var(--neutral-600);
+    }
+
+    .profile-completion-section {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--neutral-100);
+    }
+
+    .completion-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .completion-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--neutral-700);
+    }
+
+    .completion-percentage {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .progress-bar {
+        height: 6px;
+        background-color: var(--neutral-200);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+
+    .completion-tips {
+        margin-top: 0.75rem;
+        font-size: 0.75rem;
+        color: var(--neutral-500);
+    }
+
+    .profile-card-actions {
+        padding: 1.5rem;
+        border-top: 1px solid var(--neutral-100);
+    }
+
+    .action-button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        margin-bottom: 0.75rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-secondary {
+        background-color: white;
+        color: var(--neutral-700);
+        border: 1px solid var(--neutral-300);
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--neutral-50);
+        border-color: var(--neutral-400);
+    }
+
+    /* Main Content Area */
+    .profile-main {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .content-card {
+        background-color: white;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--neutral-200);
+        overflow: hidden;
+    }
+
+    .content-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--neutral-100);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .content-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--neutral-800);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .content-card-title i {
+        color: var(--primary-color);
+        font-size: 1rem;
+    }
+
+    .content-card-body {
+        padding: 1.5rem;
+    }
+
+    /* Details List Styling */
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    .detail-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--neutral-500);
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+    .detail-value {
+        font-size: 0.938rem;
+        color: var(--neutral-800);
+        font-weight: 500;
+    }
+
+    .empty-value {
+        color: var(--neutral-400);
+        font-style: italic;
+        font-weight: normal;
+    }
+
+    /* Company Information Section */
+    .company-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .company-logo {
+        width: 64px;
+        height: 64px;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        background-color: var(--neutral-100);
+        border: 1px solid var(--neutral-200);
+    }
+
+    .company-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .company-details {
+        flex: 1;
+    }
+
+    .company-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--neutral-800);
+        margin-bottom: 0.25rem;
+    }
+
+    .company-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .company-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 0.813rem;
+        color: var(--neutral-600);
+    }
+
+    /* Activity Stats */
+    .activity-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .activity-stat {
+        background-color: var(--neutral-50);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        text-align: center;
+        transition: transform 0.2s ease;
+    }
+
+    .activity-stat:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .activity-stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--neutral-800);
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-stat-label {
+        font-size: 0.75rem;
+        color: var(--neutral-500);
+    }
+
+    /* Responsive Adjustments */
+    @@media (max-width: 900px) {
+        .profile-layout {
+            grid-template-columns: 1fr;
+        }
+        
+        .profile-sidebar {
+            position: static;
+        }
+        
+        .details-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .activity-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 640px) {
+        .profile-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .profile-header-actions {
+            width: 100%;
+        }
+        
+        .header-action-btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+
+<!-- Enhanced Recruiter Profile Section -->
+<!-- Replace the existing recruiter-profile-container with this improved layout -->
+<div class="recruiter-profile-container">
+    <!-- Page Header -->
+    <div class="profile-header">
+        <h2>Recruiter Profile</h2>
+        <div class="profile-header-actions">
+            <button class="header-action-btn" id="viewDashboardBtn">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </button>
+            <button class="header-action-btn" id="viewJobsBtn">
+                <i class="fas fa-briefcase"></i> My Jobs
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main Profile Layout -->
+    <div class="profile-layout">
+        <!-- Left Sidebar with Profile Card -->
+        <div class="profile-sidebar">
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <div class="profile-bg-pattern"></div>
+                    <div class="profile-image-wrapper">
+                        <div class="profile-image-container">
+                            <img id="r_image" src="/default.jpg" alt="Profile" class="profile-image" />
+                        </div>
+                        <div class="profile-image-edit" id="changePhotoBtn">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <h3 id="r_fullname_display" class="profile-name">Recruiter Name</h3>
+                    <p id="r_title" class="profile-title">Senior Technical Recruiter</p>
+                    <div class="profile-verified">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Verified Recruiter</span>
+                    </div>
+                </div>
+                
+                <div class="profile-card-body">
+                    <div class="profile-stat-list">
+                        <div class="profile-stat-item">
+                            <div class="profile-stat-value" id="jobs_posted">0</div>
+                            <div class="profile-stat-label">Jobs Posted</div>
+                        </div>
+                        <div class="profile-stat-item">
+                            <div class="profile-stat-value" id="active_jobs">0</div>
+                            <div class="profile-stat-label">Active Jobs</div>
+                        </div>
+                        <div class="profile-stat-item">
+                            <div class="profile-stat-value" id="applications">0</div>
+                            <div class="profile-stat-label">Applications</div>
+                        </div>
+                        <div class="profile-stat-item">
+                            <div class="profile-stat-value" id="shortlisted">0</div>
+                            <div class="profile-stat-label">Shortlisted</div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-completion-section">
+                        <div class="completion-title">
+                            <span class="completion-label">Profile Completion</span>
+                            <span class="completion-percentage" id="completion-percentage">80%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="completionBar" style="width: 80%"></div>
+                        </div>
+                        <p class="completion-tips" id="completion-tips">Complete your profile to attract more candidates</p>
+                    </div>
+                </div>
+                
+                <div class="profile-card-actions">
+                    <button id="updateBtn" class="action-button btn-primary">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                    <button id="changePasswordBtn" class="action-button btn-secondary">
+                        <i class="fas fa-lock"></i> Change Password
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="profile-main">
+            <!-- Personal Information Card -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <h4 class="content-card-title">
+                        <i class="fas fa-user-circle"></i> Personal Information
+                    </h4>
+                    <button class="header-action-btn" id="editPersonalInfoBtn">
+                        <i class="fas fa-pen"></i> Edit
+                    </button>
+                </div>
+                
+                <div class="content-card-body">
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Username</div>
+                            <div id="r_username" class="detail-value empty-value">Not provided</div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-label">Full Name</div>
+                            <div id="r_fullname" class="detail-value empty-value">Not provided</div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-label">Gender</div>
+                            <div id="r_gender" class="detail-value empty-value">Not provided</div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-label">Language</div>
+                            <div id="r_language" class="detail-value empty-value">Not provided</div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-label">Location</div>
+                            <div id="r_location" class="detail-value empty-value">Not provided</div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-label">Experience</div>
+                            <div id="r_experience" class="detail-value empty-value">Not provided</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Information Card -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <h4 class="content-card-title">
+                        <i class="fas fa-address-card"></i> Contact Information
+                    </h4>
+                    <button class="header-action-btn" id="editContactInfoBtn">
+                        <i class="fas fa-pen"></i> Edit
+                    </button>
+                </div>
+                
+                <div class="content-card-body">
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Email Address</div>
+                            <div id="r_email" class="detail-value empty-value">Not provided</div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-label">Phone Number</div>
+                            <div id="r_phone" class="detail-value empty-value">Not provided</div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-label">LinkedIn</div>
+                            <div id="r_linkedin" class="detail-value empty-value">Not provided</div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-label">Twitter</div>
+                            <div id="r_twitter" class="detail-value empty-value">Not provided</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+
+            
+            <!-- Activity Statistics Card -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <h4 class="content-card-title">
+                        <i class="fas fa-chart-line"></i> Recruitment Activity
+                    </h4>
+                </div>
+                
+                <div class="content-card-body">
+                    <div class="activity-stats">
+                        <div class="activity-stat">
+                            <div class="activity-stat-value">85%</div>
+                            <div class="activity-stat-label">Response Rate</div>
+                        </div>
+                        
+                        <div class="activity-stat">
+                            <div class="activity-stat-value">24h</div>
+                            <div class="activity-stat-label">Avg. Response Time</div>
+                        </div>
+                        
+                        <div class="activity-stat">
+                            <div class="activity-stat-value">12</div>
+                            <div class="activity-stat-label">Placements</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getUserIdFromToken() {
+        let token = localStorage.getItem("token");
+        if (!token) return null;
+
+        try {
+            let payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.uid;
+        } catch (e) {
+            console.error("Error decoding token:", e);
+            return null;
+        }
+    }
+
+    $(document).ready(function () {
+        // Load Font Awesome for icons
+        $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">');
+
+        var userId = getUserIdFromToken();
+        if (!userId) {
+            console.error("User ID not found in token.");
+            return;
+        }
+
+        // Fetch recruiter data
+        $.ajax({
+            url: "http://localhost:5086/api/CompanyApi/getRecruiter?id=" + userId,
+            type: "GET",
+            success: function (data) {
+                console.log("Recruiter data:", data);
+                
+                // Update profile fields
+                const setField = (id, value) => {
+                    if (value) $(`#${id}`).text(value).removeClass('empty-value');
+                };
+
+                setField('r_username', data.Name);
+                setField('r_fullname', data.c_fullName);
+                setField('r_email', data.Email);
+                setField('r_phone', data.c_phoneNumber);
+                setField('r_gender', data.c_gender);
+                
+                // Job title (placeholder - add to your data model if needed)
+                if (data.c_title) {
+                    setField('r_title', data.c_title);
+                }
+                
+                // Company info (placeholder - add to your data model if needed)
+                if (data.c_companyName) {
+                    setField('company_name', data.c_companyName);
+                    setField('company_location', data.c_companyLocation || 'Not specified');
+                    setField('company_size', data.c_companySize || 'Not specified');
+                    setField('company_website', data.c_companyWebsite || 'Not specified');
+                }
+                
+                // Also update the display name at the top
+                if (data.c_fullName) {
+                    $('#r_fullname_display').text(data.c_fullName);
+                } else if (data.Name) {
+                    $('#r_fullname_display').text(data.Name);
+                }
+                
+                if (data.c_profileImage) {
+                    $('#r_image').attr('src', data.c_profileImage);
+                }
+                
+                if (data.c_companyLogo) {
+                    $('#company_logo').attr('src', data.c_companyLogo);
+                }
+                
+                // Calculate profile completion
+                let completionFields = [
+                    data.Name,
+                    data.c_fullName,
+                    data.Email, 
+                    data.c_phoneNumber,
+                    data.c_gender,
+                    data.c_profileImage,
+                    data.c_companyName,
+                    data.c_title
+                ];
+                
+                let filledFields = completionFields.filter(field => field).length;
+                let completionPercentage = Math.round((filledFields / completionFields.length) * 100);
+                
+                $('#completion-percentage').text(completionPercentage + '%');
+                $('#completionBar').css('width', completionPercentage + '%');
+                
+                // Add visual cue for completion level
+                if (completionPercentage < 40) {
+                    $('#completionBar').css('background', 'linear-gradient(90deg, #ef4444, #f87171)');
+                    $('#completion-tips').text('Complete your profile to increase visibility to candidates');
+                } else if (completionPercentage < 70) {
+                    $('#completionBar').css('background', 'linear-gradient(90deg, #f59e0b, #fbbf24)');
+                    $('#completion-tips').text('Almost there! Add more details to stand out');
+                } else {
+                    $('#completion-tips').text('Great job! Your profile looks professional');
+                }
+                
+                // Placeholder data for stats - replace with actual API data when available
+                $('#jobs_posted').text(data.jobsPosted || '0');
+                $('#active_jobs').text(data.activeJobs || '0');
+                $('#applications').text(data.applications || '0');
+                $('#shortlisted').text(data.shortlisted || '0');
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching recruiter details:", error);
+                Toastify({
+                    text: "Error loading profile data. Please try again later.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#ef4444",
+                }).showToast();
+            }
+        });
+
+        // Button event handlers
+        $("#updateBtn, #editPersonalInfoBtn, #editContactInfoBtn").click(function () {
+            if (userId) {
+                $(this).html('<i class="fas fa-spinner fa-spin"></i> Loading...');
+                setTimeout(() => {
+                    window.location.href = "/RecruiterDashboard/UpdatePersonalDetail?id=" + userId;
+                }, 300);
+            } else {
+                Toastify({
+                    text: "Please login again to continue.",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#ef4444",
+                }).showToast();
+            }
+        });
+
+        $("#changePasswordBtn").click(function () {
+            if (userId) {
+                $(this).html('<i class="fas fa-spinner fa-spin"></i> Loading...');
+                setTimeout(() => {
+                    window.location.href = "/RecruiterDashboard/ChangePassword?id=" + userId;
+                }, 300);
+            } else {
+                Toastify({
+                    text: "Please login again to continue.",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#ef4444",
+                }).showToast();
+            }
+        });
+        
+        $("#editCompanyInfoBtn").click(function() {
+            if (userId) {
+                $(this).html('<i class="fas fa-spinner fa-spin"></i> Loading...');
+                setTimeout(() => {
+                    window.location.href = "/RecruiterDashboard/UpdateCompanyInfo?id=" + userId;
+                }, 300);
+            } else {
+                Toastify({
+                    text: "Please login again to continue.",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "#ef4444",
+                }).showToast();
+            }
+        });
+        
+        $("#viewDashboardBtn").click(function() {
+            window.location.href = "/RecruiterDashboard/Index";
+        });
+        
+        $("#viewJobsBtn").click(function() {
+            window.location.href = "/RecruiterDashboard/ManageJobs";
+        });
+        
+        $("#changePhotoBtn").click(function() {
+            // Placeholder for photo upload functionality
+            Toastify({
+                text: "Photo upload feature coming soon!",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#3b82f6",
+            }).showToast();
+        });
+        
+        // Add Toastify CSS for better notifications
+        $('head').append('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">');
+        
+        // Add Toastify JS
+        $.getScript("https://cdn.jsdelivr.net/npm/toastify-js", function() {
+            console.log("Toastify loaded");
+        });
+    });
+</script>

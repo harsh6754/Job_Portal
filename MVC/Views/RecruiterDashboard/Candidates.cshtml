@@ -1,0 +1,884 @@
+@{
+    ViewData["Title"] = "Manage Candidates";
+    Layout = "_RecruiterLayout";
+}
+
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-light: #eef1ff;
+        --secondary: #3f37c9;
+        --success: #10b981;
+        --success-light: #d1fae5;
+        --danger: #ef4444;
+        --danger-light: #fee2e2;
+        --warning: #f59e0b;
+        --warning-light: #fef3c7;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --border: #e2e8f0;
+    }
+
+    /* Global Styles */
+    .dashboard-container {
+        max-width: 1320px;
+        margin: auto;
+        padding: 1.5rem;
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    /* Animations */
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes slideInUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Card Styles */
+    .dashboard-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border);
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-card:hover {
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    /* Header */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .page-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+
+    .page-breadcrumb a {
+        color: #64748b;
+        text-decoration: none;
+    }
+
+    .page-breadcrumb a:hover {
+        color: var(--primary);
+    }
+
+    .page-breadcrumb .separator {
+        color: #cbd5e1;
+    }
+
+    .dashboard-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--dark);
+        position: relative;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .dashboard-title:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        border-radius: 2px;
+    }
+
+    /* Stats Cards */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        animation: slideInUp 0.5s ease-out forwards;
+    }
+
+    .stat-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border: 1px solid var(--border);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+
+    .stat-icon.purple {
+        background-color: #ede9fe;
+        color: #7c3aed;
+    }
+
+    .stat-icon.blue {
+        background-color: #e0f2fe;
+        color: #0284c7;
+    }
+
+    .stat-icon.green {
+        background-color: #d1fae5;
+        color: #059669;
+    }
+
+    .stat-icon.red {
+        background-color: #fee2e2;
+        color: #dc2626;
+    }
+
+    .stat-content h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--dark);
+    }
+
+    .stat-content p {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.875rem;
+    }
+
+    /* Filter Section */
+    .filter-section {
+        background-color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border);
+        animation: slideInUp 0.5s ease-out 0.1s forwards;
+    }
+
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .filter-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        background-color: #f8fafc;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    }
+
+    .form-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23475569' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 0.85rem;
+        padding-right: 2.5rem;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    /* Table Styles */
+    .table-container {
+        background-color: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border: 1px solid var(--border);
+        animation: slideInUp 0.5s ease-out 0.2s forwards;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+    }
+
+    .table th {
+        background-color: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+    }
+
+    .table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        color: #334155;
+        vertical-align: middle;
+    }
+
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .table tbody tr {
+        transition: all 0.2s;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    /* Profile Column */
+    .profile-column {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .profile-column img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--primary);
+    }
+
+    .profile-details .name {
+        font-weight: 600;
+        color: #334155;
+        display: block;
+    }
+
+    .profile-details .email {
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        gap: 0.35rem;
+    }
+
+    .status-badge.done {
+        background-color: var(--success-light);
+        color: var(--success);
+    }
+
+    .status-badge.rejected {
+        background-color: var(--danger-light);
+        color: var(--danger);
+    }
+
+    .status-badge.pending {
+        background-color: var(--warning-light);
+        color: var(--warning);
+    }
+
+    /* Action Buttons */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+
+    .btn-hire {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+    }
+
+    .btn-hire:hover {
+        background-color: var(--secondary);
+        transform: translateY(-1px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        display: none;
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+
+    .empty-state img {
+        width: 120px;
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    .empty-state h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: #64748b;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .filter-controls {
+            grid-template-columns: 1fr;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    @* <!-- Breadcrumb -->
+    <div class="page-breadcrumb">
+        <a href="../RecruiterDashboard/Index">Dashboard</a>
+        <span class="separator">/</span>
+        <span>Manage Candidates</span>
+    </div> *@
+
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Manage Candidates</h1>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalCandidates">0</h3>
+                <p>Total Candidates</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalJobs">0</h3>
+                <p>Active Jobs</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalHired">0</h3>
+                <p>Hired Candidates</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="pendingReview">0</h3>
+                <p>Pending Reviews</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-header">
+            <h2 class="filter-title">
+                <i class="fas fa-filter"></i> Filter Candidates
+            </h2>
+        </div>
+        <div class="filter-controls">
+            <div class="form-group">
+                <label for="jobTitleFilter" class="form-label">Job Title</label>
+                <select id="jobTitleFilter" class="form-select">
+                    <option value="">All Job Titles</option>
+                    <!-- Dynamic job titles will be populated here -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="statusFilter" class="form-label">Interview Status</label>
+                <select id="statusFilter" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="Done">Done</option>
+                    <option value="Pending">Pending</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-container">
+        <div class="table-responsive">
+            <table id="applicationsTable" class="table">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Candidate</th>
+                        <th>Contact</th>
+                        <th>Applied Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="applicationsTableBody">
+                    <!-- Dynamic rows will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png" alt="No data">
+            <h3>No candidates found</h3>
+            <p>There are no candidates matching your filter criteria</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let compid = null; // Declare compid globally
+    
+    $(document).ready(function () {
+        // Add Font Awesome if not already included
+        if (!$('link[href*="font-awesome"]').length) {
+            $('head').append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">');
+        }
+
+        function getUserIdFromToken() {
+            const token = localStorage.getItem("token");
+            if (!token) return null;
+
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                return payload.uid;
+            } catch (e) {
+                console.error("Error decoding token:", e);
+                return null;
+            }
+        }
+
+        const userId = getUserIdFromToken();
+
+        $.ajax({
+            url: `http://localhost:5086/api/CompanyApi/getCompanyId/${userId}`,
+            type: "GET",
+            success: function (response) {
+                console.log("Company ID:", response);
+
+                if (!response || response === 0) {
+                    setTimeout(() => {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Company Not Registered',
+                            text: 'You have not registered your company. Please complete the registration process.',
+                            confirmButtonColor: '#4361ee'
+                        }).then(() => {
+                            window.location = '../RecruiterDashboard/CompanyRegistration';
+                        });
+                    }, 500);
+                    return;
+                }
+
+                // Check if the company is approved
+                $.ajax({
+                    url: `http://localhost:5086/api/CompanyApi/getCompanyStatus/${response}`,
+                    type: "GET",
+                    success: function (isApproved) {
+                        if (!isApproved) {
+                            setTimeout(() => {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Company Not Approved',
+                                    text: 'Your company registration is pending approval. Please wait for approval.',
+                                    confirmButtonColor: '#4361ee'
+                                }).then(() => {
+                                    setTimeout(() => {
+                                        window.location = '../RecruiterDashboard/Index';
+                                    }, 500);
+                                });
+                            }, 500);
+                            return;
+                        }
+
+                        // Company is registered and approved
+                        compid = response;
+                        fetchApplications(compid);
+                        fetchDashboardStats(compid); // New function to fetch stats
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to verify company approval status. Please try again later.',
+                            confirmButtonColor: '#4361ee'
+                        });
+                        console.error("Company Approval Error:", xhr.status, xhr.statusText);
+                    }
+                });
+            },
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to fetch company information. Please try again later.',
+                    confirmButtonColor: '#4361ee'
+                });
+                console.error("Company ID Error:", xhr.status, xhr.statusText);
+            }
+        });
+
+        // Event listener for the Job Title filter
+        $("#jobTitleFilter, #statusFilter").on("change", function () {
+            filterTable();
+        });
+    });
+
+    function fetchDashboardStats(companyId) {
+        // This is a new function to fetch dashboard statistics
+        // You would need to create API endpoints to support these statistics
+        $.ajax({
+            url: `http://localhost:5086/api/ApplyJob/GetDashboardStats/${companyId}`,
+            method: "GET",
+            success: function (stats) {
+                // If you don't have this API yet, you can use dummy data or count from candidates
+                // $('#totalCandidates').text(stats.totalCandidates || 0);
+                // $('#totalJobs').text(stats.activeJobs || 0);
+                // $('#totalHired').text(stats.hiredCandidates || 0);
+                // $('#pendingReview').text(stats.pendingReviews || 0);
+            },
+            error: function () {
+                // Fallback to counting from the candidates data
+                let totalCandidates = $('#applicationsTableBody tr').length;
+                $('#totalCandidates').text(totalCandidates);
+                
+                // Count unique job titles
+                let jobTitles = new Set();
+                $('#applicationsTableBody tr').each(function() {
+                    jobTitles.add($(this).find('td:first').text());
+                });
+                $('#totalJobs').text(jobTitles.size);
+                
+                // Other stats can be approximated or left as 0
+                $('#totalHired').text('0');
+                $('#pendingReview').text('0');
+            }
+        });
+    }
+
+    function fetchApplications(companyId) {
+        $.ajax({
+            url: `http://localhost:5086/api/ApplyJob/GetInterviewDoneCandidates/${companyId}`,
+            method: "GET",
+            success: function (response) {
+                console.log(response);
+                const tableBody = $("#applicationsTableBody");
+                tableBody.empty();
+
+                if (response.length === 0) {
+                    $('#emptyState').show();
+                    return;
+                }
+
+                $('#emptyState').hide();
+                
+                const jobTitles = new Set(); // To store unique job titles
+                
+                // Update dashboard stats from response data
+                $('#totalCandidates').text(response.length);
+                
+                // Count unique job titles
+                response.forEach(app => {
+                    jobTitles.add(app.job_post.c_job_title);
+                });
+                $('#totalJobs').text(jobTitles.size);
+
+                response.forEach((app) => {
+                    // Format the status class
+                    let statusClass = app.c_interview_status.toLowerCase();
+                    if (app.c_interview_status === 'Done') {
+                        statusClass = 'done';
+                    } else if (app.c_interview_status === 'Rejected') {
+                        statusClass = 'rejected';
+                    } else {
+                        statusClass = 'pending';
+                    }
+
+                    const row = `
+                        <tr data-job-title="${app.job_post.c_job_title}" data-status="${app.c_interview_status}">
+                            <td>
+                                <span class="job-title">${app.job_post.c_job_title}</span>
+                            </td>
+                            <td>
+                                <div class="profile-column">
+                                    <img src="${app.user.c_profileImage || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'}" alt="Profile">
+                                    <div class="profile-details">
+                                        <span class="name">${app.user.c_fullName}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <span class="email"><i class="fas fa-envelope"></i> ${app.user.Email}</span><br>
+                                    <span class="phone"><i class="fas fa-phone"></i> ${app.user.c_phoneNumber}</span>
+                                </div>
+                            </td>
+                            <td>${formatDate(app.c_interview_date)}</td>
+                            <td>
+                                <span class="status-badge ${statusClass}">
+                                    <i class="fas fa-${statusClass === 'done' ? 'check-circle' : statusClass === 'rejected' ? 'times-circle' : 'clock'}"></i>
+                                    ${app.c_interview_status}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-hire" data-user-id="${app.user.c_userId}" data-email="${app.user.Email}"
+                                    data-fullname="${app.user.c_fullName}" data-companyname="${app.company.c_company_name}" 
+                                    data-companyemail="${app.company.c_company_email}" data-companylogo="${app.company.c_company_logo}" 
+                                    data-jobid="${app.job_post.c_job_id}" onclick="hireCandidate(this)">
+                                    <i class="fas fa-user-check"></i> Hire
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.append(row);
+                });
+
+                populateJobTitleFilter(jobTitles); // Populate the Job Title filter
+                updateDashboardStats(); // Update dashboard stats based on filtered data
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching applications:", error);
+                $('#emptyState').show();
+            },
+        });
+    }
+
+    function updateDashboardStats() {
+        // Update stats based on visible rows
+        const visibleRows = $('#applicationsTableBody tr:visible');
+        $('#totalCandidates').text(visibleRows.length);
+        
+        // Count unique job titles
+        let jobTitles = new Set();
+        visibleRows.each(function() {
+            jobTitles.add($(this).data('job-title'));
+        });
+        $('#totalJobs').text(jobTitles.size);
+    }
+
+    function populateJobTitleFilter(jobTitles) {
+        const jobTitleFilter = $("#jobTitleFilter");
+        jobTitleFilter.empty(); // Clear existing options
+        jobTitleFilter.append('<option value="">All Job Titles</option>'); // Default option
+
+        jobTitles.forEach((title) => {
+            jobTitleFilter.append(`<option value="${title}">${title}</option>`);
+        });
+    }
+
+    function filterTable() {
+        const selectedJobTitle = $("#jobTitleFilter").val();
+        const selectedStatus = $("#statusFilter").val();
+        let hasVisibleRows = false;
+
+        $("#applicationsTableBody tr").each(function () {
+            const jobTitle = $(this).data("job-title");
+            const status = $(this).data("status");
+            const showByJobTitle = !selectedJobTitle || jobTitle === selectedJobTitle;
+            const showByStatus = !selectedStatus || status === selectedStatus;
+
+            if (showByJobTitle && showByStatus) {
+                $(this).show();
+                hasVisibleRows = true;
+            } else {
+                $(this).hide();
+            }
+        });
+
+        // Show/hide empty state based on filtered results
+        if (hasVisibleRows) {
+            $('#emptyState').hide();
+        } else {
+            $('#emptyState').show();
+        }
+        
+        // Update dashboard stats based on filtered data
+        updateDashboardStats();
+    }
+
+    function hireCandidate(button) {
+        const userId = $(button).data("user-id");
+
+        if (!compid) {
+            console.error("Company ID is not defined.");
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Company ID is not available. Please try again later.",
+                confirmButtonColor: "#2563eb"
+            });
+            return;
+        }
+
+        const userEmail = $(button).data("email");
+        const fullName = $(button).data("fullname");
+        const companyName = $(button).data("companyname");
+        const companyEmail = $(button).data("companyemail");
+        const companyLogo = $(button).data("companylogo");
+        const jobid = $(button).data("jobid");
+
+        const status = "Hired"; // Default status for hiring
+
+        const formData = new FormData();
+        formData.append("c_user_id", userId);
+        formData.append("c_company_id", compid);
+        formData.append("c_status", status);
+        formData.append("c_job_id", jobid);
+        formData.append("c_user_email", userEmail);
+        formData.append("c_fullName", fullName);
+        formData.append("c_company_name", companyName);
+        formData.append("c_company_email", companyEmail);
+        formData.append("c_company_logo", companyLogo);
+        
+        Swal.fire({
+            title: "Confirm Hiring",
+            text: `Are you sure you want to hire ${fullName}?`,
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#4361ee",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, hire candidate",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading state
+                Swal.fire({
+                    title: 'Processing...',
+                    text: 'Please wait while we process your request',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                $.ajax({
+                    url: "http://localhost:5086/api/ApplyJob/HireCandidate",
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.data == 1) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Success",
+                                text: "Candidate has been successfully hired!",
+                                confirmButtonColor: "#4361ee"
+                            }).then(() => {
+                                fetchApplications(compid); // Refresh the table after hiring
+                            });
+                        } else if (response.data == 2) {
+                            Swal.fire({
+                                icon: "info",
+                                title: "Already Hired",
+                                text: "This candidate has already been hired.",
+                                confirmButtonColor: "#4361ee"
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error hiring candidate:", error);
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "Failed to hire the candidate. Please try again later.",
+                            confirmButtonColor: "#4361ee"
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+
+        const parts = dateString.split(' ')[0].split('-');
+        if (parts.length === 3) {
+            const day = parts[0];
+            const month = parts[1];
+            const year = parts[2];
+            return `${day}/${month}/${year}`;
+        }
+
+        return dateString;
+    }
+</script>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+}
