@@ -26,7 +26,7 @@ namespace Repositories.Implimentation
             try
             {
                 await _conn.OpenAsync();
-                var query = "SELECT * FROM t_user";
+                var query = "SELECT * FROM t_user WHERE c_role = 'Candidate' OR c_Role='Recruiter'";
                 using (var cmd = new NpgsqlCommand(query, _conn))
                 {
                     using (var reader = await cmd.ExecuteReaderAsync())
