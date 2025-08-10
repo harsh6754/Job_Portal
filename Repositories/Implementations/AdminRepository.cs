@@ -193,49 +193,65 @@ namespace Repositories.Implimentation
             return recruiters;
         }
 
-        public async Task<t_recruiter> GetRecruiterByCompanyId(int companyId)
+       public async Task<t_recruiter> GetRecruiterByCompanyId(int companyId)
+{
+    try
+    {
+        await _conn.OpenAsync();
+        var query = @"
+            SELECT 
+                c_company_id,
+                c_company_name,
+                c_owner_id,
+                c_company_email,
+                c_company_phone,
+                c_company_address,
+                c_company_reg_number,
+                c_tax_id_number,
+                c_industry,
+                c_website,
+                c_verified_status,
+                c_legal_documents,
+                c_company_logo
+            FROM t_companies
+            WHERE c_company_id = @companyId";
+        using (var cmd = new NpgsqlCommand(query, _conn))
         {
-            try
+            cmd.Parameters.AddWithValue("@companyId", companyId);
+            using (var reader = await cmd.ExecuteReaderAsync())
             {
-                await _conn.OpenAsync();
-                var query = "SELECT * FROM t_companies WHERE c_company_id = @companyId";
-                using (var cmd = new NpgsqlCommand(query, _conn))
+                if (await reader.ReadAsync())
                 {
-                    cmd.Parameters.AddWithValue("@companyId", companyId);
-                    using (var reader = await cmd.ExecuteReaderAsync())
+                    return new t_recruiter
                     {
-                        if (await reader.ReadAsync())
-                        {
-                            return new t_recruiter
-                            {
-                                c_company_id = reader.GetInt32(0),
-                                c_company_name = reader.GetString(1),
-                                c_owner_id = reader.GetInt32(2),
-                                c_company_email = reader.GetString(3),
-                                c_company_phone = reader.GetString(4),
-                                c_company_address = reader.GetString(5),
-                                c_company_reg_number = reader.GetString(6),
-                                c_tax_id_number = reader.GetString(7),
-                                c_industry = reader.GetString(8),
-                                c_website = reader.IsDBNull(9) ? null : reader.GetString(9),
-                                c_verified_status = reader.IsDBNull(10) ? null : reader.GetBoolean(10),
-                                c_legal_documents = reader.IsDBNull(11) ? null : reader.GetValue(11) as string[],
-                                c_company_logo = reader.IsDBNull(12) ? null : reader.GetString(12)
-                            };
-                        }
-                    }
+                        c_company_id = reader.GetInt32(0),
+                        c_company_name = reader.GetString(1),
+                        c_owner_id = reader.GetInt32(2),
+                        c_company_email = reader.GetString(3),
+                        c_company_phone = reader.GetString(4),
+                        c_company_address = reader.GetString(5),
+                        c_company_reg_number = reader.GetString(6),
+                        c_tax_id_number = reader.GetString(7),
+                        c_industry = reader.GetString(8),
+                        c_website = reader.IsDBNull(9) ? null : reader.GetString(9),
+                        c_verified_status = reader.IsDBNull(10) ? (bool?)null : reader.GetBoolean(10),
+                        c_legal_documents = reader.IsDBNull(11) ? null : reader.GetFieldValue<string[]>(11),
+                        c_company_logo = reader.IsDBNull(12) ? null : reader.GetString(12)
+                    };
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
-            finally
-            {
-                await _conn.CloseAsync();
-            }
-            return null;
         }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+    }
+    finally
+    {
+        await _conn.CloseAsync();
+    }
+    return new t_recruiter();
+}
 
         public async Task<bool> UpdateRecruiterStatus(int companyId, bool approved = true)
         {
