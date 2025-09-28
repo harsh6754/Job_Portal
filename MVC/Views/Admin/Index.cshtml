@@ -597,7 +597,7 @@
             });
 
             $.getJSON("http://localhost:5086/api/AdminApi/get-recruiter-count", function (data) {
-                $("#totalRecruiters").text(data.totalUsers);
+                $("#totalRecruiters").text(data.totalRecruiters);
             });
 
             $.getJSON("http://localhost:5086/api/AdminApi/get-jobpost-count", function (data) {

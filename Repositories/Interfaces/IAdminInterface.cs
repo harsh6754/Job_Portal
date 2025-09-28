@@ -17,6 +17,12 @@ namespace Repositories.Interfaces
         public Task<bool> DeleteUser(int id);
 
         public Task<int> GetUsersCount();
+       
+        public Task<int> GetAllCandidatesCount();
+        
+        public Task<int> GetAllBlockedUsersCount();
+
+        public Task<int> GetAllUsersCount();
 
         public Task<int> GetJobPostCount();
 

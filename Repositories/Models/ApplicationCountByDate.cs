@@ -7,7 +7,7 @@ namespace Repositories.Models
 {
     public class ApplicationCountByDate
     {
-        public DateTime ApplyDate { get; set; }
+    public DateTime ApplyDate { get; set; }
     public int ApplicationCount { get; set; }
     }
 }

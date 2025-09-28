@@ -100,12 +100,33 @@ namespace API.Controllers
             return Ok(new { totalUsers = count });
         }
 
+        [HttpGet("get-alluser-count")]
+        public async Task<IActionResult> GetAllUserCount()
+        {
+            var count = await _adminRepository.GetAllUsersCount();
+            return Ok(new { totalUsers = count });
+        }
+
 
         [HttpGet("get-recruiter-count")]
         public async Task<IActionResult> GetRecruiterCount()
         {
             var count = await _adminRepository.GetRecruitersCount();
-            return Ok(new { totalUsers = count });
+            return Ok(new { totalRecruiters = count });
+        }
+
+        [HttpGet("get-blockeduser-count")]
+        public async Task<IActionResult> GetAllBlockedUserCount()
+        {
+            var count = await _adminRepository.GetAllBlockedUsersCount();
+            return Ok(new { totalBlocked = count });
+        }
+
+        [HttpGet("get-candidate-count")]
+        public async Task<IActionResult> GetCandidateCount()
+        {
+            var count = await _adminRepository.GetAllCandidatesCount();
+            return Ok(new { totalCandidates = count });
         }
 
         [HttpGet("getrecruiter")]
@@ -114,6 +135,7 @@ namespace API.Controllers
             var recruiter = await _adminRepository.GetRecruiters();
             return Ok(recruiter);
         }
+
 
         [HttpGet("getrecruiter/{companyId}")]
         public async Task<IActionResult> GetRecruiterById(int companyId)

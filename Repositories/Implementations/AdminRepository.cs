@@ -105,6 +105,73 @@ namespace Repositories.Implimentation
                 await _conn.CloseAsync();
             }
         }
+
+        public async Task<int> GetAllUsersCount()
+        {
+            try
+            {
+                await _conn.OpenAsync();
+                var query = "SELECT COUNT(*) FROM t_user where c_role='Candidate' OR c_role='Recruiter'";
+                using (var cmd = new NpgsqlCommand(query, _conn))
+                {
+                    return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return 0;
+            }
+            finally
+            {
+                await _conn.CloseAsync();
+            }
+        }
+
+        public async Task<int> GetAllBlockedUsersCount()
+        {
+            try
+            {
+                await _conn.OpenAsync();
+                var query = "SELECT COUNT(*) FROM t_user where c_is_blocked=true";
+                using (var cmd = new NpgsqlCommand(query, _conn))
+                {
+                    return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return 0;
+            }
+            finally
+            {
+                await _conn.CloseAsync();
+            }
+        }
+
+        public async Task<int> GetAllCandidatesCount()
+        {
+            try
+            {
+                await _conn.OpenAsync();
+                var query = "SELECT COUNT(*) FROM t_user where c_role='Candidate'";
+                using (var cmd = new NpgsqlCommand(query, _conn))
+                {
+                    return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return 0;
+            }
+            finally
+            {
+                await _conn.CloseAsync();
+            }
+        }
+
         public async Task<int> GetRecruitersCount()
         {
             try

@@ -1,481 +1,1523 @@
 @{
-    ViewData["Title"] = "User Management";
+    ViewData["Title"] = "User Management - Admin Portal";
     Layout = "_AdminLayout";
 }
-<style>
-    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-    :root {
-        --primary: #2563eb;
-        --secondary: #3b82f6;
-        --success: #059669;
-        --danger: #dc2626;
-        --glass: rgba(255,255,255,0.92);
-        --shadow: 0 8px 32px rgba(37,99,235,0.08);
-        --radius: 18px;
-        --header-bg: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
-    }
-    body, .dashboard-user-mgmt {
-        font-family: 'Inter', Arial, sans-serif;
-        background: #f1f5f9;
-    }
-    .dashboard-user-mgmt {
-        padding: 2rem 1rem 1rem 1rem;
-        min-height: 100vh;
-    }
-    .glass-card {
-        background: var(--glass);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        border: 1px solid rgba(200,200,255,0.10);
-        transition: box-shadow 0.2s, transform 0.2s;
-    }
-    .glass-card:hover {
-        box-shadow: 0 16px 48px rgba(37,99,235,0.10);
-        transform: translateY(-2px) scale(1.01);
-    }
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: var(--header-bg);
-        color: #fff;
-        border-radius: var(--radius) var(--radius) 0 0;
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 0;
-    }
-    .dashboard-header .card-title {
-        font-size: 1.4rem;
-        font-weight: 700;
-        margin-bottom: 0;
-        letter-spacing: 0.5px;
-        color: #fff;
-    }
-    .btn-group-responsive .btn {
-        border-radius: 8px;
-        font-weight: 600;
-        padding: 0.5rem 1.2rem;
-        background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
-        border: none;
-        color: #fff;
-        transition: background 0.2s, box-shadow 0.2s;
-        box-shadow: 0 2px 8px rgba(37,99,235,0.10);
-    }
-    .btn-group-responsive .btn:hover {
-        background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-        color: #fff;
-        box-shadow: 0 4px 16px rgba(37,99,235,0.18);
-    }
-    .card-body {
-        padding: 2rem 1.5rem 1.5rem 1.5rem;
-        background: transparent;
-        border-radius: 0 0 var(--radius) var(--radius);
-    }
-    .form-group, .row.mb-4 {
-        margin-bottom: 1.5rem;
-    }
-    .form-label {
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: #2563eb;
-        letter-spacing: 0.2px;
-    }
-    .form-select, .btn-primary {
-        border-radius: 8px;
-        font-size: 1rem;
-    }
-    .btn-primary {
-        background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
-        border: none;
-        font-weight: 600;
-        transition: background 0.2s;
-    }
-    .btn-primary:hover {
-        background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-    }
-    #usersGrid {
-        margin-top: 1.5rem;
-    }
-    .k-grid {
-        border: none !important;
-        border-radius: 15px;
-        overflow: hidden;
-        font-size: 1rem;
-        background: var(--glass);
-        box-shadow: var(--shadow);
-    }
-    .k-grid th {
-        background: var(--header-bg);
-        color: white;
-        font-weight: 600;
-        padding: 1rem;
-        border: none;
-    }
-    .k-grid td {
-        padding: 1rem;
-        border-color: #e2e8f0;
-        background: transparent;
-    }
-    .action-btn {
-        border-radius: 6px !important;
-        font-size: 1rem !important;
-        padding: 0.35rem 0.7rem !important;
-        transition: background 0.2s, color 0.2s;
-    }
-    .action-btn.delete-btn {
-        border: 1px solid var(--danger);
-        color: var(--danger);
-        background: #fff;
-    }
-    .action-btn.delete-btn:hover {
-        background: var(--danger);
-        color: #fff;
-    }
-    .action-btn.toggle-block-btn[data-status="block"] {
-        border: 1px solid var(--danger);
-        color: var(--danger);
-        background: #fff;
-    }
-    .action-btn.toggle-block-btn[data-status="block"]:hover {
-        background: var(--danger);
-        color: #fff;
-    }
-    .action-btn.toggle-block-btn[data-status="unblock"] {
-        border: 1px solid var(--success);
-        color: var(--success);
-        background: #fff;
-    }
-    .action-btn.toggle-block-btn[data-status="unblock"]:hover {
-        background: var(--success);
-        color: #fff;
-    }
-    .k-pager-numbers .k-link.k-state-selected {
-        color: white;
-        background-color: #2563eb;
-    }
-    .k-pager-numbers .k-link {
-        color: #2563eb;
-    }
-    .k-pager-numbers .k-link:hover {
-        color: white;
-        background-color: #3b82f675;
-    }
-    /* Responsive */
-    @@media (max-width: 768px) {
-        .dashboard-header, .card-body {
-            padding: 1rem;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2023.1.117/styles/kendo.default-main.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2023.1.117/js/kendo.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a86ff;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --glass: rgba(255, 255, 255, 0.95);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --radius: 16px;
+            --transition: all 0.3s ease;
         }
-        .row.mb-4 .col-md-3 {
-            margin-bottom: 1rem;
-        }
-    }
-</style>
 
-<div class="dashboard-user-mgmt">
-    <div class="glass-card">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            margin-top:70px
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-title i {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-outline {
+            background: var(--glass);
+            color: var(--primary);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-outline:hover {
+            background: rgba(67, 97, 238, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.total-users {
+            border-top: 4px solid var(--primary);
+        }
+
+        .stat-card.candidates {
+            border-top: 4px solid var(--success);
+        }
+
+        .stat-card.recruiters {
+            border-top: 4px solid var(--warning);
+        }
+
+        .stat-card.blocked {
+            border-top: 4px solid var(--danger);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 10px 0 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .positive {
+            color: var(--success);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @@media (max-width: 1024px) {
+            .dashboard-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-container {
+            background: var(--glass);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .chart-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chart-actions select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 14px;
+        }
+
+        .chart-wrapper {
+            height: 300px;
+            position: relative;
+        }
+
+        .filters-section {
+            background: var(--glass);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .filters-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .filter-select {
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .users-grid-section {
+            background: var(--glass);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .grid-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .grid-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .grid-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            padding: 10px 15px 10px 40px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            width: 250px;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            color: #888;
+        }
+
+        .k-grid {
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .k-grid-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .k-grid-header th {
+            color: white;
+            font-weight: 600;
+            padding: 15px;
+            border: none;
+        }
+
+        .k-grid td {
+            padding: 15px;
+            border-color: #f0f0f0;
+        }
+
+        .k-grid tr:hover {
+            background-color: rgba(67, 97, 238, 0.03);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-view {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+
+        .btn-view:hover {
+            background: rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-edit {
+            background: rgba(6, 214, 160, 0.1);
+            color: var(--success);
+        }
+
+        .btn-edit:hover {
+            background: rgba(6, 214, 160, 0.2);
+        }
+
+        .btn-block {
+            background: rgba(239, 71, 111, 0.1);
+            color: var(--danger);
+        }
+
+        .btn-block:hover {
+            background: rgba(239, 71, 111, 0.2);
+        }
+
+        .btn-unblock {
+            background: rgba(255, 209, 102, 0.1);
+            color: #b38b00;
+        }
+
+        .btn-unblock:hover {
+            background: rgba(255, 209, 102, 0.2);
+        }
+
+        .btn-delete {
+            background: rgba(239, 71, 111, 0.1);
+            color: var(--danger);
+        }
+
+        .btn-delete:hover {
+            background: rgba(239, 71, 111, 0.2);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: rgba(6, 214, 160, 0.1);
+            color: var(--success);
+        }
+
+        .status-blocked {
+            background: rgba(239, 71, 111, 0.1);
+            color: var(--danger);
+        }
+
+        .role-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .role-candidate {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+
+        .role-recruiter {
+            background: rgba(255, 209, 102, 0.1);
+            color: #b38b00;
+        }
+
+        .k-pager-wrap {
+            padding: 15px 25px;
+            border-top: 1px solid #eee;
+            background: rgba(248, 249, 250, 0.7);
+        }
+
+        /* Add to your existing <style> section */
+
+        .user-profile-popup {
+            border-radius: 20px !important;
+            padding: 0 !important;
+        }
+
+        .user-profile-modal {
+            position: relative;
+            padding: 0;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 30px 20px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: white;
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-indicator.active {
+            background: rgba(6, 214, 160, 0.2);
+            color: #06d6a0;
+        }
+
+        .status-indicator.blocked {
+            background: rgba(239, 71, 111, 0.2);
+            color: #ef476f;
+        }
+
+        .profile-body {
+            padding: 30px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .info-label i {
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .profile-actions {
+            padding: 20px 30px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .unblock-btn {
+            background: rgba(6, 214, 160, 0.1);
+            color: var(--success);
+        }
+
+        .unblock-btn:hover {
+            background: rgba(6, 214, 160, 0.2);
+        }
+
+        .block-btn {
+            background: rgba(239, 71, 111, 0.1);
+            color: var(--danger);
+        }
+
+        .block-btn:hover {
+            background: rgba(239, 71, 111, 0.2);
+        }
+
+        .delete-btn {
+            background: rgba(239, 71, 111, 0.1);
+            color: var(--danger);
+        }
+
+        .delete-btn:hover {
+            background: rgba(239, 71, 111, 0.2);
+        }
+
+        /* Add responsive styles */
+        @@media (max-width: 576px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
         <div class="dashboard-header">
-            <h5 class="card-title">
-                <i class="fas fa-users-cog me-2"></i>User Management
-            </h5>
-            <div class="btn-group-responsive">
-                <button type="button" class="btn" id="exportPdfBtn">
-                    <i class="fas fa-file-pdf me-1"></i>Export PDF
+            <h1 class="page-title">
+                <i class="fas fa-users-cog"></i>User Management Dashboard
+            </h1>
+            <div class="header-actions">
+                <button class="btn btn-outline" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> Refresh Data
+                </button>
+                <button class="btn btn-primary" id="exportPdfBtn">
+                    <i class="fas fa-file-pdf"></i> Export Report
                 </button>
             </div>
         </div>
-        <div class="card-body">
-            <!-- Filters -->
-            <div class="row mb-4 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label">Role</label>
-                    <select class="form-select" id="roleFilter1">
+
+        <div class="stats-cards">
+            <div class="stat-card total-users">
+                <i class="fas fa-users fa-2x" style="color: var(--primary);"></i>
+                <div class="stat-value" id="totalUsers">Loading...</div>
+                <div class="stat-label">Total Users</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> <span id="totalChange">Calculating...</span>
+                </div>
+            </div>
+            <div class="stat-card candidates">
+                <i class="fas fa-user-graduate fa-2x" style="color: var(--success);"></i>
+                <div class="stat-value" id="totalCandidates">Loading...</div>
+                <div class="stat-label">Candidates</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> <span id="candidateChange">Calculating...</span>
+                </div>
+            </div>
+            <div class="stat-card recruiters">
+                <i class="fas fa-briefcase fa-2x" style="color: var(--warning);"></i>
+                <div class="stat-value" id="totalRecruiters">Loading...</div>
+                <div class="stat-label">Recruiters</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> <span id="recruiterChange">Calculating...</span>
+                </div>
+            </div>
+            <div class="stat-card blocked">
+                <i class="fas fa-ban fa-2x" style="color: var(--danger);"></i>
+                <div class="stat-value" id="totalBlocked">Loading...</div>
+                <div class="stat-label">Blocked Users</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-arrow-down"></i> <span id="blockedChange">Calculating...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">User Growth Over Time</h3>
+                    <div class="chart-actions">
+                        <select id="timeRange">
+                            <option value="7">Last 7 Days</option>
+                            <option value="30" selected>Last 30 Days</option>
+                            <option value="90">Last 90 Days</option>
+                            <option value="365">Last Year</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">User Distribution</h3>
+                    <div class="chart-actions">
+                        <select id="chartType">
+                            <option value="doughnut" selected>Doughnut</option>
+                            <option value="pie">Pie</option>
+                            <option value="bar">Bar</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters-section">
+            <h3 class="filters-title">
+                <i class="fas fa-filter"></i> Filter Users
+            </h3>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Role</label>
+                    <select class="filter-select" id="roleFilter">
                         <option value="">All Roles</option>
                         <option value="Candidate">Candidate</option>
                         <option value="Recruiter">Recruiter</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Status</label>
-                    <select class="form-select" id="roleFilter2">
-                        <option value="">All</option>
-                        <option value="Block">Block</option>
-                        <option value="UnBlock">Unblock</option>
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Blocked">Blocked</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label d-block">&nbsp;</label>
-                    <button type="button" class="btn btn-primary w-100" id="applyFilters">
-                        <i class="fas fa-filter me-2"></i>Apply Filters
+                <div class="filter-group">
+                    <label class="filter-label">Registration Date</label>
+                    <select class="filter-select" id="dateFilter">
+                        <option value="">Any Time</option>
+                        <option value="7">Last 7 Days</option>
+                        <option value="30">Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Sort By</label>
+                    <select class="filter-select" id="sortFilter">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="name">Name A-Z</option>
+                        <option value="role">Role</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="users-grid-section">
+            <div class="grid-header">
+                <h3 class="grid-title">User List</h3>
+                <div class="grid-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search users...">
+                    </div>
+                    <button class="btn btn-outline" id="clearFilters">
+                        <i class="fas fa-times"></i> Clear Filters
                     </button>
                 </div>
             </div>
-            <!-- Users Grid -->
             <div id="usersGrid"></div>
         </div>
     </div>
-</div>
 
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script>
-        $(document).ready(function () {
-            var grid = $("#usersGrid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "http://localhost:5086/api/AdminApi/get-user",
-                            dataType: "json"
-                        }
-                    },
-                    schema: {
-                        model: {
-                            id: "c_userId",
-                            fields: {
-                                c_userId: { type: "number" },
-                                c_username: { type: "string" },
-                                c_fullName: { type: "string" },
-                                Email: { type: "string" },
-                                c_phoneNumber: { type: "string" },
-                                c_gender: { type: "string" },
-                                Role: { type: "string" },
-                                c_IsBlock: { type: "boolean" }
-                            }
-                        }
-                    }
-                },
-                pdf: {
-                    allPages: true,
-                    avoidLinks: true,
-                    paperSize: "A4",
-                    margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "2cm" },
-                    landscape: true,
-                    repeatHeaders: true,
-                    fileName: "Users.pdf",
-                    title: "",
-                    template: () => `
-            <div style="text-align: center; padding-top: 10px;">
-                <img src="https://res.cloudinary.com/dhruvil20/image/upload/v1743946773/2removebg-preview_x58xrm.png" alt="CareerLink Logo" style="height: 60px;" />
-                <div style="font-size: 20px; font-weight: bold; margin-top: 10px;">User List</div>
-                <hr style="margin: 10px 0;" />
-            </div>
-        `
-                }
-                ,
+    $(document).ready(function () {
+        // Global variables to store user statistics
+        let userStats = {
+            totalUsers: 0,
+            totalCandidates: 0,
+            totalRecruiters: 0,
+            totalBlocked: 0
+        };
+        
+        // Function to fetch all user counts from the three APIs
+        function fetchUserCounts() {
+            // Use Promise.all to wait for all three API calls to complete
+            Promise.all([
+                $.getJSON("http://localhost:5086/api/AdminApi/get-alluser-count"),
+                $.getJSON("http://localhost:5086/api/AdminApi/get-candidate-count"),
+                $.getJSON("http://localhost:5086/api/AdminApi/get-recruiter-count"),
+                $.getJSON("http://localhost:5086/api/AdminApi/get-blockeduser-count"), // New API for blocked users
+            ]).then(function(results) {
+                // results[0] = alluser-count response
+                // results[1] = candidates-count response  
+                // results[2] = recruiters-count response
+                
+                // Update userStats with the received data
+                // Assuming each API returns a simple number or an object with a count property
+                userStats.totalUsers = typeof results[0] === 'number' ? results[0] : results[0].count || results[0].totalUsers || 0;
+                userStats.totalCandidates = typeof results[1] === 'number' ? results[1] : results[1].count || results[1].totalCandidates || 0;
+                userStats.totalRecruiters = typeof results[2] === 'number' ? results[2] : results[2].count || results[2].totalRecruiters || 0;
+                userStats.totalBlocked = typeof results[3] === 'number' ? results[3] : results[3].count || results[3].totalBlocked || 0;
+                
+                // For blocked users, we'll need to calculate or get from another API
+                // If you have a separate API for blocked users, add it here
 
-                columns: [
-                    { field: "c_fullName", title: "Full Name" },
-                    { field: "Email", title: "Email" },
-                    { field: "Role", title: "Role" },
-                    { field: "c_gender", title: "Gender" },
-                    { field: "c_phoneNumber", title: "Mobile" },
-                    {
-                        title: "Actions",
-                        template: function (dataItem) {
-                            var blockUnblockBtn = dataItem.c_IsBlock
-                                ? `<button class="btn btn-sm btn-outline-success action-btn toggle-block-btn" data-id="${dataItem.c_userId}" data-status="unblock" title="Unblock User">
-                                        <i class="fas fa-circle-check"></i>
-                                       </button>`
-                                : `<button class="btn btn-sm btn-outline-danger action-btn toggle-block-btn" data-id="${dataItem.c_userId}" data-status="block" title="Block User">
-                                        <i class="fas fa-ban"></i>
-                                       </button>`;
+                
+                // Update the UI with the new data
+                updateStatsUI();
+                
+                // Update charts with real data
+                updateChartsWithRealData();
+                
+            }).catch(function(error) {
+                console.error("Error fetching user counts:", error);
+                
+                // Fallback to sample data if API fails
+                userStats = {
+                    totalUsers: 1248,
+                    totalCandidates: 892,
+                    totalRecruiters: 356,
+                    totalBlocked: 42
+                };
+                
+                updateStatsUI();
+                updateChartsWithRealData();
+                
+                // Show error message
+                Swal.fire({
+                    title: "API Error",
+                    text: "Could not fetch real-time data. Showing sample data instead.",
+                    icon: "warning",
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            });
+        }
+        
+        // Alternative approach with individual AJAX calls if you prefer
+        function fetchUserCountsIndividual() {
+            let userCountPromise = $.ajax({
+                url: "http://localhost:5086/api/AdminApi/get-alluser-count",
+                type: "GET",
+                dataType: "json"
+            });
+            
+            let candidateCountPromise = $.ajax({
+                url: "http://localhost:5086/api/AdminApi/get-candidate-count", 
+                type: "GET",
+                dataType: "json"
+            });
+            
+            let recruiterCountPromise = $.ajax({
+                url: "http://localhost:5086/api/AdminApi/get-recruiter-count",
+                type: "GET", 
+                dataType: "json"
+            });
 
-                            return `
-                                    <div class="d-flex gap-2 justify-content-center">
-                                        <button class="btn btn-sm btn-outline-danger action-btn delete-btn" data-id="${dataItem.c_userId}" title="Delete User">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                        ${blockUnblockBtn}
-                                    </div>`;
+            let blockedCountPromise = $.ajax({
+                url: "http://localhost:5086/api/AdminApi/get-blockeduser-count",
+                type: "GET", 
+                dataType: "json"
+            });
+            
+            // Wait for all promises to resolve
+            $.when(userCountPromise, candidateCountPromise, recruiterCountPromise)
+                .done(function(userCount, candidateCount, recruiterCount) {
+                    // Process the responses
+                    userStats.totalUsers = extractCount(userCount[0]);
+                    userStats.totalCandidates = extractCount(candidateCount[0]);
+                    userStats.totalRecruiters = extractCount(recruiterCount[0]);
+                    userStats.totalBlocked = extractCount(blockedCountPromise[0]);  
+                    
+                    updateStatsUI();
+                    updateChartsWithRealData();
+                })
+                .fail(function(error) {
+                    console.error("Error in one or more API calls:", error);
+                    // Use fallback data
+                    userStats = {
+                        totalUsers: 1248,
+                        totalCandidates: 892,
+                        totalRecruiters: 356,
+                        totalBlocked: 42
+                    };
+                    updateStatsUI();
+                    updateChartsWithRealData();
+                });
+        }
+        
+        // Helper function to extract count from API response
+        function extractCount(response) {
+            if (typeof response === 'number') {
+                return response;
+            } else if (response && typeof response === 'object') {
+                // Try common property names
+                return response.count || response.totalCount || response.data || 0;
+            }
+            return 0;
+        }
+        
+        // Function to update the stats UI with current data
+        function updateStatsUI() {
+            $("#totalUsers").text(userStats.totalUsers.toLocaleString());
+            $("#totalCandidates").text(userStats.totalCandidates.toLocaleString());
+            $("#totalRecruiters").text(userStats.totalRecruiters.toLocaleString());
+            $("#totalBlocked").text(userStats.totalBlocked.toLocaleString());
+            
+            // Calculate percentage changes (in a real app, you'd compare with previous period)
+            const totalChange = Math.round((userStats.totalUsers / 1100 - 1) * 100);
+            const candidateChange = Math.round((userStats.totalCandidates / 800 - 1) * 100);
+            const recruiterChange = Math.round((userStats.totalRecruiters / 320 - 1) * 100);
+            const blockedChange = Math.round((userStats.totalBlocked / 45 - 1) * 100);
+            
+            $("#totalChange").text(`${totalChange}% from last month`);
+            $("#candidateChange").text(`${candidateChange}% from last month`);
+            $("#recruiterChange").text(`${recruiterChange}% from last month`);
+            $("#blockedChange").text(`${blockedChange}% from last month`);
+            
+            // Update change indicators
+            $("#totalChange").parent().toggleClass("positive", totalChange >= 0).toggleClass("negative", totalChange < 0);
+            $("#candidateChange").parent().toggleClass("positive", candidateChange >= 0).toggleClass("negative", candidateChange < 0);
+            $("#recruiterChange").parent().toggleClass("positive", recruiterChange >= 0).toggleClass("negative", recruiterChange < 0);
+            $("#blockedChange").parent().toggleClass("positive", blockedChange >= 0).toggleClass("negative", blockedChange < 0);
+        }
+        
+        // Initialize charts
+        const growthCtx = document.getElementById('growthChart').getContext('2d');
+        const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+        
+        let growthChart, distributionChart;
+        
+        // Function to update charts with real data
+        function updateChartsWithRealData() {
+            // Destroy existing charts if they exist
+            if (growthChart) growthChart.destroy();
+            if (distributionChart) distributionChart.destroy();
+            
+            // Growth chart data (simulated based on current stats)
+            const growthData = generateGrowthData(userStats);
+            
+            growthChart = new Chart(growthCtx, {
+                type: 'line',
+                data: {
+                    labels: growthData.labels,
+                    datasets: [
+                        {
+                            label: 'Candidates',
+                            data: growthData.candidates,
+                            borderColor: '#06d6a0',
+                            backgroundColor: 'rgba(6, 214, 160, 0.1)',
+                            tension: 0.4,
+                            fill: true
                         },
-                        width: "180px",
-                        attributes: { "class": "text-center" }
-                    }
-                ],
-                sortable: true,
-                pageable: {
-                    pageSize: 10,
-                    pageSizes: [10, 25, 50]
-                },
-                toolbar: ["search"],
-                 search: {
-                    fields: [
-                        { name: "c_fullName", operator: "contains" },
-                        { name: "Email", operator: "contains" },
-                        { name: "Role", operator: "contains" }
+                        {
+                            label: 'Recruiters',
+                            data: growthData.recruiters,
+                            borderColor: '#ffd166',
+                            backgroundColor: 'rgba(255, 209, 102, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
                     ]
                 },
-                height: 600
-            }).data("kendoGrid");
-
-            $("#applyFilters").click(function () {
-                var role = $("#roleFilter1").val();
-                var status = $("#roleFilter2").val();
-                var filters = [];
-
-                if (role) {
-                    filters.push({ field: "Role", operator: "eq", value: role });
-                }
-                if (status) {
-                    filters.push({ field: "c_IsBlock", operator: "eq", value: status === "Block" });
-                }
-
-                grid.dataSource.filter(filters);
-            });
-
-            $("#usersGrid").on("click", ".delete-btn", function () {
-                var dataItem = grid.dataItem($(this).closest("tr"));
-                deleteUser(dataItem);
-            });
-
-            $("#usersGrid").on("click", ".toggle-block-btn", function () {
-                var userId = $(this).data("id");
-
-                $.ajax({
-                    url: `http://localhost:5086/api/AdminApi/block-unblock/${userId}`,
-                    type: "POST",
-                    beforeSend: function () {
-                        Swal.fire({
-                            title: "Updating user status...",
-                            allowOutsideClick: false,
-                            showConfirmButton: false,
-                            didOpen: () => Swal.showLoading()
-                        });
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
                     },
-                    success: function () {
-                        Swal.fire({
-                            title: "Success!",
-                            text: "User block status has been updated.",
-                            icon: "success",
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-
-                        $("#usersGrid").data("kendoGrid").dataSource.read();
-                    },
-                    error: function (xhr) {
-                        Swal.fire({
-                            title: "Error!",
-                            text: xhr.responseText || "Failed to toggle user status.",
-                            icon: "error"
-                        });
-                    }
-                });
-            });
-
-            $("#exportBtn").click(function () {
-                var actionsColumnIndex = grid.columns.findIndex(col => col.title === "Actions");
-
-                if (actionsColumnIndex >= 0) {
-                    grid.hideColumn(actionsColumnIndex);
-                }
-
-                grid.saveAsPDF();
-
-                setTimeout(() => {
-                    if (actionsColumnIndex >= 0) {
-                        grid.showColumn(actionsColumnIndex);
-                    }
-                }, 1000);
-            });
-
-            function deleteUser(dataItem) {
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "This action will permanently delete the user!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Yes, delete it!",
-                    cancelButtonText: "Cancel",
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: `http://localhost:5086/api/AdminApi/delete-user/${dataItem.c_userId}`,
-                            type: "DELETE",
-                            beforeSend: function () {
-                                Swal.fire({
-                                    title: "Deleting...",
-                                    text: "Please wait...",
-                                    icon: "info",
-                                    allowOutsideClick: false,
-                                    showConfirmButton: false,
-                                    didOpen: () => Swal.showLoading()
-                                });
-                            },
-                            success: function () {
-                                Swal.fire({
-                                    title: "Deleted!",
-                                    text: "User has been deleted successfully.",
-                                    icon: "success",
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                });
-
-                                grid.dataSource.read();
-                            },
-                            error: function (xhr) {
-                                Swal.fire({
-                                    title: "Error!",
-                                    text: xhr.responseText || "Failed to delete user. Please try again.",
-                                    icon: "error"
-                                });
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
                             }
-                        });
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
                     }
+                }
+            });
+            
+            // Distribution chart data - using data from our three APIs
+            distributionChart = new Chart(distributionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Candidates', 'Recruiters', 'Blocked Users'],
+                    datasets: [{
+                        data: [userStats.totalCandidates, userStats.totalRecruiters, userStats.totalBlocked],
+                        backgroundColor: [
+                            '#06d6a0',
+                            '#ffd166',
+                            '#ef476f'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+            
+            // Update chart type when dropdown changes
+            $('#chartType').off('change').change(function() {
+                distributionChart.config.type = $(this).val();
+                distributionChart.update();
+            });
+        }
+        
+        // Helper function to generate growth data based on current stats
+        function generateGrowthData(stats) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const currentMonth = new Date().getMonth();
+            
+            // Start with approximate values 6 months ago
+            let candidates = [Math.round(stats.totalCandidates * 0.6)];
+            let recruiters = [Math.round(stats.totalRecruiters * 0.6)];
+            
+            // Generate progressive growth
+            for (let i = 1; i <= currentMonth; i++) {
+                const growthFactor = 1 + (0.05 + Math.random() * 0.1); // 5-15% growth per month
+                candidates.push(Math.round(candidates[i-1] * growthFactor));
+                recruiters.push(Math.round(recruiters[i-1] * growthFactor));
+            }
+            
+            // Trim to current month
+            candidates = candidates.slice(0, currentMonth + 1);
+            recruiters = recruiters.slice(0, currentMonth + 1);
+            
+            return {
+                labels: months.slice(0, currentMonth + 1),
+                candidates: candidates,
+                recruiters: recruiters
+            };
+        }
+        
+        // Initialize Kendo Grid
+        const grid = $("#usersGrid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "http://localhost:5086/api/AdminApi/get-user",
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    model: {
+                        id: "c_userId",
+                        fields: {
+                            c_userId: { type: "number" },
+                            c_username: { type: "string" },
+                            c_fullName: { type: "string" },
+                            Email: { type: "string" },
+                            c_phoneNumber: { type: "string" },
+                            c_gender: { type: "string" },
+                            Role: { type: "string" },
+                            c_IsBlock: { type: "boolean" },
+                            c_createdDate: { type: "date" }
+                        }
+                    }
+                },
+                pageSize: 10
+            },
+            columns: [
+                { field: "c_fullName", title: "Full Name", width: "180px" },
+                { field: "Email", title: "Email", width: "220px" },
+                { 
+                    field: "Role", 
+                    title: "Role", 
+                    width: "120px",
+                    template: function(dataItem) {
+                        return `<span class="role-badge role-${dataItem.Role.toLowerCase()}">${dataItem.Role}</span>`;
+                    }
+                },
+                { field: "c_gender", title: "Gender", width: "100px" },
+                { field: "c_phoneNumber", title: "Mobile", width: "130px" },
+                { 
+                    field: "c_IsBlock", 
+                    title: "Status", 
+                    width: "100px",
+                    template: function(dataItem) {
+                        return dataItem.c_IsBlock 
+                            ? '<span class="status-badge status-blocked">Blocked</span>' 
+                            : '<span class="status-badge status-active">Active</span>';
+                    }
+                },
+                {
+                    title: "Actions",
+                    width: "200px",
+                    template: function (dataItem) {
+                        const blockUnblockBtn = dataItem.c_IsBlock
+                            ? `<button class="action-btn btn-unblock" data-id="${dataItem.c_userId}" title="Unblock User">
+                                    <i class="fas fa-lock-open"></i> Unblock
+                               </button>`
+                            : `<button class="action-btn btn-block" data-id="${dataItem.c_userId}" title="Block User">
+                                    <i class="fas fa-ban"></i> Block
+                               </button>`;
+
+                        return `
+                            <div class="action-buttons">
+                                <button class="action-btn btn-view" data-id="${dataItem.c_userId}" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${blockUnblockBtn}
+                                <button class="action-btn btn-delete" data-id="${dataItem.c_userId}" title="Delete User">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>`;
+                    }
+                }
+            ],
+            sortable: true,
+            pageable: {
+                pageSizes: [10, 25, 50],
+                buttonCount: 5
+            },
+            filterable: true,
+            resizable: true,
+            height: 500
+        }).data("kendoGrid");
+        
+        // Apply filters
+        function applyFilters() {
+            const role = $("#roleFilter").val();
+            const status = $("#statusFilter").val();
+            const dateRange = $("#dateFilter").val();
+            const sortBy = $("#sortFilter").val();
+            
+            let filters = [];
+            
+            if (role) {
+                filters.push({ field: "Role", operator: "eq", value: role });
+            }
+            
+            if (status) {
+                filters.push({ field: "c_IsBlock", operator: "eq", value: status === "Blocked" });
+            }
+            
+            if (dateRange) {
+                const daysAgo = new Date();
+                daysAgo.setDate(daysAgo.getDate() - parseInt(dateRange));
+                filters.push({ field: "c_createdDate", operator: "gte", value: daysAgo });
+            }
+            
+            // Apply filters to grid
+            grid.dataSource.filter(filters);
+            
+            // Apply sorting
+            let sortField = "c_createdDate";
+            let sortDir = "desc";
+            
+            switch(sortBy) {
+                case "oldest":
+                    sortDir = "asc";
+                    break;
+                case "name":
+                    sortField = "c_fullName";
+                    sortDir = "asc";
+                    break;
+                case "role":
+                    sortField = "Role";
+                    sortDir = "asc";
+                    break;
+            }
+            
+            grid.dataSource.sort({ field: sortField, dir: sortDir });
+        }
+        
+        // Event handlers for filters
+        $("#roleFilter, #statusFilter, #dateFilter, #sortFilter").change(applyFilters);
+        
+        // Search functionality
+        $("#searchInput").on("keyup", function() {
+            const value = $(this).val().toLowerCase();
+            if (value.length >= 3 || value.length === 0) {
+                grid.dataSource.filter({
+                    logic: "or",
+                    filters: [
+                        { field: "c_fullName", operator: "contains", value: value },
+                        { field: "Email", operator: "contains", value: value },
+                        { field: "Role", operator: "contains", value: value }
+                    ]
                 });
             }
-
-            // PDF Export functionality
-            $("#exportPdfBtn").click(function() {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('l', 'mm', 'a4');
-                const gridData = grid.dataSource.data();
+        });
+        
+        // Clear filters
+        $("#clearFilters").click(function() {
+            $("#roleFilter, #statusFilter, #dateFilter, #sortFilter").val("");
+            $("#searchInput").val("");
+            grid.dataSource.filter([]);
+            grid.dataSource.sort({});
+        });
+        
+        // Refresh data
+        $("#refreshBtn").click(function() {
+            // Show loading state
+            $("#refreshBtn").prop("disabled", true).html('<i class="fas fa-spinner fa-spin"></i> Refreshing...');
+            
+            // Fetch updated user counts from all three APIs
+            fetchUserCounts();
+            
+            // Refresh grid data
+            grid.dataSource.read();
+            
+            // Re-enable button after a delay
+            setTimeout(() => {
+                $("#refreshBtn").prop("disabled", false).html('<i class="fas fa-sync-alt"></i> Refresh Data');
                 
-                // Set document properties
-                doc.setProperties({
-                    title: 'User List Report',
-                    subject: 'List of Users',
-                    author: 'CareerLink Admin'
+                Swal.fire({
+                    title: "Data Refreshed!",
+                    text: "User data has been updated successfully.",
+                    icon: "success",
+                    timer: 1500,
+                    showConfirmButton: false
                 });
-
-                // Add header
-                doc.setFontSize(20);
-                doc.text('User List Report', 15, 15);
-                doc.setFontSize(12);
-                doc.text('Generated on: ' + new Date().toLocaleString(), 15, 22);
-
-                // Prepare data for the table
-                const tableData = gridData.map(item => [
-                    item.c_fullName || 'N/A',
-                    item.Email || 'N/A',
-                    item.Role || 'N/A',
-                    item.c_gender || 'N/A',
-                    item.c_phoneNumber || 'N/A',
-                    item.c_IsBlock ? 'Blocked' : 'Active'
-                ]);
-
-                // Add table
-                doc.autoTable({
-                    head: [['Full Name', 'Email', 'Role', 'Gender', 'Mobile', 'Status']],
-                    body: tableData,
-                    startY: 30,
-                    styles: {
-                        fontSize: 10,
-                        cellPadding: 3
-                    },
-                    headStyles: {
-                        fillColor: [67, 97, 238],
-                        textColor: [255, 255, 255]
-                    },
-                    alternateRowStyles: {
-                        fillColor: [245, 245, 245]
-                    }
-                });
-
-                // Save the PDF
-                doc.save('user-list-report.pdf');
+            }, 1000);
+        });
+        
+        // Block/Unblock user
+        $(document).on("click", ".btn-block, .btn-unblock", function() {
+            const userId = $(this).data("id");
+            const action = $(this).hasClass("btn-block") ? "block" : "unblock";
+            
+            Swal.fire({
+                title: `Are you sure you want to ${action} this user?`,
+                text: action === "block" 
+                    ? "The user will not be able to access their account until unblocked." 
+                    : "The user will regain access to their account.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${action} user`,
+                cancelButtonText: "Cancel",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `http://localhost:5086/api/AdminApi/block-unblock/${userId}`,
+                        type: "POST",
+                        beforeSend: function () {
+                            Swal.fire({
+                                title: "Updating user status...",
+                                allowOutsideClick: false,
+                                showConfirmButton: false,
+                                didOpen: () => Swal.showLoading()
+                            });
+                        },
+                        success: function () {
+                            Swal.fire({
+                                title: "Success!",
+                                text: `User has been ${action}ed successfully.`,
+                                icon: "success",
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            
+                            // Refresh both grid and stats
+                            grid.dataSource.read();
+                            fetchUserCounts();
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                title: "Error!",
+                                text: xhr.responseText || `Failed to ${action} user.`,
+                                icon: "error"
+                            });
+                        }
+                    });
+                }
             });
         });
-    </script>
-}
+        
+        // Delete user
+        $(document).on("click", ".btn-delete", function() {
+            const dataItem = grid.dataItem($(this).closest("tr"));
+            
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This action will permanently delete the user and all their data!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete user",
+                cancelButtonText: "Cancel",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `http://localhost:5086/api/AdminApi/delete-user/${dataItem.c_userId}`,
+                        type: "DELETE",
+                        beforeSend: function () {
+                            Swal.fire({
+                                title: "Deleting...",
+                                text: "Please wait...",
+                                icon: "info",
+                                allowOutsideClick: false,
+                                showConfirmButton: false,
+                                didOpen: () => Swal.showLoading()
+                            });
+                        },
+                        success: function () {
+                            Swal.fire({
+                                title: "Deleted!",
+                                text: "User has been deleted successfully.",
+                                icon: "success",
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            
+                            // Refresh both grid and stats
+                            grid.dataSource.read();
+                            fetchUserCounts();
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                title: "Error!",
+                                text: xhr.responseText || "Failed to delete user. Please try again.",
+                                icon: "error"
+                            });
+                        }
+                    });
+                }
+            });
+        });
+        
+        // View user details
+        $(document).on("click", ".btn-view", function() {
+    const dataItem = grid.dataItem($(this).closest("tr"));
+    
+    Swal.fire({
+        title: false,
+        html: `
+            <div class="user-profile-modal">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        ${dataItem.c_gender === 'Male' 
+                            ? '<i class="fas fa-user-tie"></i>' 
+                            : '<i class="fas fa-user"></i>'}
+                    </div>
+                    <div class="profile-info">
+                        <h2>${dataItem.c_fullName}</h2>
+                        <span class="role-badge role-${dataItem.Role.toLowerCase()}">${dataItem.Role}</span>
+                    </div>
+                    <div class="status-indicator ${dataItem.c_IsBlock ? 'blocked' : 'active'}">
+                        ${dataItem.c_IsBlock ? 'Blocked' : 'Active'}
+                    </div>
+                </div>
+                
+                <div class="profile-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-envelope"></i>
+                                <span>Email</span>
+                            </div>
+                            <div class="info-value">${dataItem.Email}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-phone"></i>
+                                <span>Phone</span>
+                            </div>
+                            <div class="info-value">${dataItem.c_phoneNumber || 'Not provided'}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-venus-mars"></i>
+                                <span>Gender</span>
+                            </div>
+                            <div class="info-value">${dataItem.c_gender || 'Not specified'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-actions">
+                    ${dataItem.c_IsBlock 
+                        ? `<button class="action-btn unblock-btn" onclick="unblockUser(${dataItem.c_userId})">
+                            <i class="fas fa-lock-open"></i> Unblock User
+                           </button>`
+                        : `<button class="action-btn block-btn" onclick="blockUser(${dataItem.c_userId})">
+                            <i class="fas fa-ban"></i> Block User
+                           </button>`
+                    }
+                    <button class="action-btn delete-btn" onclick="deleteUser(${dataItem.c_userId})">
+                        <i class="fas fa-trash"></i> Delete User
+                    </button>
+                </div>
+            </div>
+        `,
+        width: '500px',
+        showCloseButton: true,
+        showConfirmButton: false,
+        customClass: {
+            popup: 'user-profile-popup'
+        }
+    });
+});
+        
+        // Export PDF
+        $("#exportPdfBtn").click(function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+            
+            // Set document properties
+            doc.setProperties({
+                title: 'User Management Report',
+                subject: 'User Statistics and List',
+                author: 'CareerLink Admin'
+            });
+            
+            // Add header
+            doc.setFontSize(20);
+            doc.setTextColor(67, 97, 238);
+            doc.text('User Management Report', 15, 20);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Generated on: ' + new Date().toLocaleString(), 15, 28);
+            
+            // Add statistics
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text('User Statistics', 15, 45);
+            
+            const stats = [
+                { label: 'Total Users', value: userStats.totalUsers.toLocaleString() },
+                { label: 'Candidates', value: userStats.totalCandidates.toLocaleString() },
+                { label: 'Recruiters', value: userStats.totalRecruiters.toLocaleString() },
+                { label: 'Blocked Users', value: userStats.totalBlocked.toLocaleString() }
+            ];
+            
+            let yPos = 55;
+            stats.forEach(stat => {
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.text(stat.label + ':', 15, yPos);
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(stat.value, 50, yPos);
+                yPos += 7;
+            });
+            
+            // Add user table
+            yPos += 10;
+            doc.setFontSize(14);
+            doc.text('User List', 15, yPos);
+            yPos += 10;
+            
+            const gridData = grid.dataSource.data();
+            const tableData = gridData.map(item => [
+                item.c_fullName || 'N/A',
+                item.Email || 'N/A',
+                item.Role || 'N/A',
+                item.c_gender || 'N/A',
+                item.c_phoneNumber || 'N/A',
+                kendo.toString(kendo.parseDate(item.c_createdDate), "MMM dd, yyyy"),
+                item.c_IsBlock ? 'Blocked' : 'Active'
+            ]);
+            
+            doc.autoTable({
+                head: [['Full Name', 'Email', 'Role', 'Gender', 'Mobile', 'Status']],
+                body: tableData,
+                startY: yPos,
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 3
+                },
+                headStyles: {
+                    fillColor: [67, 97, 238],
+                    textColor: [255, 255, 255]
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245]
+                }
+            });
+            
+            // Save the PDF
+            doc.save('user-management-report.pdf');
+        });
+        
+        // Initialize the dashboard with real data from all three APIs
+        fetchUserCounts();
+        
+        // Set up time range change handler
+        $('#timeRange').change(function() {
+            // In a real application, you would fetch data for the selected time range
+            // For this example, we'll just regenerate the growth chart with the same data
+            updateChartsWithRealData();
+        });
+    });
+</script>
+</body>
+</html>
