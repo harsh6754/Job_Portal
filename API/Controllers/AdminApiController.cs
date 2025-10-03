@@ -73,12 +73,6 @@ namespace API.Controllers
             return Ok(notifications);
         }
 
-        // [HttpPost("send-email")]
-        // public IActionResult SendEmail([FromBody] EmailRequest request)
-        // {
-        //     _emailService.SendEmail(request.ToEmail, request.UserName, request.Link);
-        //     return Ok("Email sent successfully.");
-        // }
 
         [HttpGet("get-user")]
         public async Task<IActionResult> GetUser()
@@ -207,12 +201,7 @@ namespace API.Controllers
             return Ok(pending);
         }
 
-        // [HttpGet("get-jobpost-count")]
-        // public async Task<IActionResult> GetJobPostCount()
-        // {
-        //     var count = await _adminRepository.GetJobPostCount();
-        //     return Ok(new { totalJobs = count });
-        // }
+    
 
         [HttpGet("get-registration-stats")]
         public async Task<IActionResult> GetRegistrationStats([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)

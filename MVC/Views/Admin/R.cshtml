@@ -1,46 +1,151 @@
 @{
-    ViewData["Title"] = "Recruiter Management";
+    ViewData["Title"] = "Company Management";
     Layout = "_AdminLayout";
 }
 
 <style>
     :root {
-        --primary-color: #4361ee;
+        --primary: #4361ee;
         --primary-light: rgba(67, 97, 238, 0.1);
-        --success-color: #10b981;
-        --danger-color: #ef4444;
-        --warning-color: #f59e0b;
-        --secondary-color: #6b7280;
+        --primary-dark: #3a56e8;
+        --success: #10b981;
+        --success-light: rgba(16, 185, 129, 0.1);
+        --danger: #ef4444;
+        --danger-light: rgba(239, 68, 68, 0.1);
+        --warning: #f59e0b;
+        --warning-light: rgba(245, 158, 11, 0.1);
+        --secondary: #6b7280;
+        --light-bg: #f8fafc;
+        --dark-text: #1e293b;
+        --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        --hover-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
     }
 
-    /* Base Card Styles */
-    .card {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        margin: 1rem 0;
-        overflow: hidden;
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    .card-header {
-        background: white;
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .card-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin: 0;
-        color: #1f2937;
-    }
-
-    .card-body {
+    .company-management-container {
+        background-color: var(--light-bg);
+        min-height: 100vh;
         padding: 1.5rem;
     }
 
-    /* Header Styles */
+    /* Header Section */
     .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .page-title i {
+        color: var(--primary);
+        font-size: 1.5rem;
+    }
+
+    /* Stats Cards */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--primary);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--hover-shadow);
+    }
+
+    .stat-card.pending {
+        border-left-color: var(--warning);
+    }
+
+    .stat-card.verified {
+        border-left-color: var(--success);
+    }
+
+    .stat-card.rejected {
+        border-left-color: var(--danger);
+    }
+
+    .stat-card.total {
+        border-left-color: var(--primary);
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--secondary);
+        font-weight: 500;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .stat-icon.total {
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .stat-icon.pending {
+        background: var(--warning-light);
+        color: var(--warning);
+    }
+
+    .stat-icon.verified {
+        background: var(--success-light);
+        color: var(--success);
+    }
+
+    .stat-icon.rejected {
+        background: var(--danger-light);
+        color: var(--danger);
+    }
+
+    /* Main Card */
+    .main-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -48,125 +153,170 @@
         gap: 1rem;
     }
 
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--dark-text);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
     /* Button Styles */
     .btn {
         border-radius: 8px;
-        padding: 0.5rem 1rem;
+        padding: 0.625rem 1.25rem;
         font-weight: 500;
         transition: all 0.2s ease;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
+        border: none;
+        cursor: pointer;
     }
 
     .btn-primary {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
+        background-color: var(--primary);
+        color: white;
     }
 
     .btn-primary:hover {
-        background-color: #3a56e8;
+        background-color: var(--primary-dark);
         transform: translateY(-2px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
     }
 
     .btn-outline-success {
-        color: var(--success-color);
-        border-color: var(--success-color);
+        background-color: transparent;
+        border: 1px solid var(--success);
+        color: var(--success);
     }
 
     .btn-outline-success:hover {
-        background-color: var(--success-color);
+        background-color: var(--success);
         color: white;
     }
 
     .btn-outline-danger {
-        color: var(--danger-color);
-        border-color: var(--danger-color);
+        background-color: transparent;
+        border: 1px solid var(--danger);
+        color: var(--danger);
     }
 
     .btn-outline-danger:hover {
-        background-color: var(--danger-color);
+        background-color: var(--danger);
         color: white;
     }
 
     .btn-success {
-        background-color: var(--success-color);
-        border-color: var(--success-color);
+        background-color: var(--success);
+        color: white;
     }
 
     .btn-danger {
-        background-color: var(--danger-color);
-        border-color: var(--danger-color);
+        background-color: var(--danger);
+        color: white;
     }
 
     .btn-sm {
-        padding: 0.375rem 0.75rem;
+        padding: 0.5rem 1rem;
         font-size: 0.875rem;
     }
 
     /* Filter Section */
     .filter-section {
         background: white;
-        @* border:   1px solid #3a56e8; *@
         border-radius: 12px;
-        padding: 1rem;
-        @* margin-bottom: 1.5rem; *@
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--card-shadow);
     }
 
-    .form-select {
+    .filter-row {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--dark-text);
+    }
+
+    .form-select, .form-control {
         border-radius: 8px;
-        padding: 0.5rem 1rem;
-        border: 1px solid #e5e7eb;
+        padding: 0.625rem 1rem;
+        border: 1px solid #e2e8f0;
+        width: 100%;
+        transition: all 0.2s ease;
     }
 
-    .form-select:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+    .form-select:focus, .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
     }
 
     /* Grid Styles */
     .k-grid {
         border-radius: 12px;
         overflow: hidden;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     .k-grid-header {
-        background-color: #f9fafb;
+        background-color: #f8fafc;
     }
 
     .k-grid-content {
         background: white;
     }
 
+    .k-grid tr {
+        transition: background-color 0.2s ease;
+    }
+
     .k-grid tr:hover {
-        background-color: rgba(67, 97, 238, 0.05);
+        background-color: rgba(67, 97, 238, 0.04);
     }
 
     /* Badges */
     .badge {
-        padding: 0.35rem 0.65rem;
+        padding: 0.5rem 0.75rem;
         border-radius: 6px;
-        font-weight: 500;
+        font-weight: 600;
         font-size: 0.75rem;
     }
 
     .bg-success {
-        background-color: var(--success-color) !important;
+        background-color: var(--success) !important;
     }
 
     .bg-danger {
-        background-color: var(--danger-color) !important;
+        background-color: var(--danger) !important;
     }
 
     .bg-warning {
-        background-color: var(--warning-color) !important;
+        background-color: var(--warning) !important;
     }
 
     /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
     .action-btn {
         width: 32px;
         height: 32px;
@@ -175,29 +325,50 @@
         justify-content: center;
         border-radius: 8px;
         transition: all 0.2s ease;
+        border: none;
+        background: transparent;
+    }
+
+    .action-btn.view {
+        color: var(--primary);
+        background: var(--primary-light);
+    }
+
+    .action-btn.approve {
+        color: var(--success);
+        background: var(--success-light);
+    }
+
+    .action-btn.reject {
+        color: var(--danger);
+        background: var(--danger-light);
     }
 
     .action-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     /* Modal Styles */
     .modal-content {
-        border-radius: 12px;
+        border-radius: 16px;
         border: none;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
     }
 
     .modal-header {
-        background: var(--primary-color) !important;
+        background: linear-gradient(135deg, var(--primary), #5a6cea);
         color: white;
-        border-radius: 12px 12px 0 0 !important;
-        padding: 1.25rem;
+        border-radius: 16px 16px 0 0 !important;
+        padding: 1.5rem;
     }
 
     .modal-title {
         font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .modal-body {
@@ -205,64 +376,129 @@
     }
 
     .modal-footer {
-        border-top: 1px solid #e5e7eb;
-        padding: 1.25rem;
+        border-top: 1px solid #e2e8f0;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .btn-close-white {
+        filter: invert(1);
     }
 
     /* Company Details */
-    .company-detail-item {
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #e5e7eb;
+    .company-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
     }
 
-    .company-detail-item:last-child {
-        border-bottom: none;
+    .company-logo {
+        height: 80px;
+        width: 80px;
+        object-fit: contain;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 0.5rem;
+        background: white;
+        margin-bottom: 1rem;
     }
 
-    .company-detail-item i {
-        width: 24px;
-        color: var(--primary-color);
+    .company-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        color: var(--dark-text);
+    }
+
+    .company-industry {
+        color: var(--secondary);
+        font-size: 0.875rem;
+    }
+
+    .company-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+
+    .detail-icon {
+        width: 20px;
+        color: var(--primary);
+        margin-top: 0.125rem;
+    }
+
+    .detail-content {
+        flex: 1;
+    }
+
+    .detail-label {
+        font-size: 0.75rem;
+        color: var(--secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        font-weight: 500;
+        color: var(--dark-text);
     }
 
     /* Document Preview */
-    .legal-docs-preview {
-        background: white;
-        border-radius: 12px;
-        padding: 1rem;
-        border: 1px solid #e5e7eb;
+    .documents-section {
+        margin-top: 1.5rem;
     }
 
-    .doc-item {
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
         display: flex;
         align-items: center;
-        padding: 0.75rem;
-        background: #f9fafb;
-        border-radius: 8px;
-        margin-bottom: 0.75rem;
-        border: 1px solid #e5e7eb;
-        transition: all 0.2s ease;
+        gap: 0.5rem;
     }
 
-    .doc-item:hover {
-        transform: translateX(4px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    .documents-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .doc-card {
         background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .doc-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+        border-color: var(--primary);
     }
 
     .doc-icon {
-        width: 40px;
-        height: 40px;
+        width: 48px;
+        height: 48px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(67, 97, 238, 0.1);
+        background: var(--primary-light);
         border-radius: 8px;
-        margin-right: 1rem;
-    }
-
-    .doc-icon i {
+        color: var(--primary);
         font-size: 1.25rem;
-        color: var(--primary-color);
     }
 
     .doc-info {
@@ -272,18 +508,18 @@
     .doc-name {
         font-weight: 500;
         margin-bottom: 0.25rem;
-        color: #1f2937;
+        color: var(--dark-text);
     }
 
-    .doc-size {
+    .doc-meta {
         font-size: 0.75rem;
-        color: var(--secondary-color);
+        color: var(--secondary);
     }
 
     .doc-preview-btn {
         padding: 0.5rem 1rem;
-        border-radius: 8px;
-        background: var(--primary-color);
+        border-radius: 6px;
+        background: var(--primary);
         color: white;
         border: none;
         transition: all 0.2s ease;
@@ -294,134 +530,156 @@
     }
 
     .doc-preview-btn:hover {
-        background: #3a56e8;
+        background: var(--primary-dark);
         color: white;
         transform: translateY(-2px);
     }
 
     .no-docs {
         text-align: center;
-        padding: 1.5rem;
-        color: var(--secondary-color);
-        background: #f9fafb;
-        border-radius: 8px;
-        border: 1px dashed #e5e7eb;
+        padding: 2rem;
+        color: var(--secondary);
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px dashed #e2e8f0;
+    }
+
+    /* Bulk Actions */
+    .bulk-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
     }
 
     /* Responsive Adjustments */
+    @@media (max-width: 1200px) {
+        .stats-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
     @@media (max-width: 768px) {
-        .card-header {
+        .company-management-container {
             padding: 1rem;
         }
-
-        .card-body {
-            padding: 1rem;
+        
+        .stats-container {
+            grid-template-columns: 1fr;
         }
-
+        
         .dashboard-header {
             flex-direction: column;
             align-items: flex-start;
         }
-
-        .filter-section .row {
-            flex-direction: column;
-            gap: 1rem;
+        
+        .bulk-actions {
+            width: 100%;
+            margin-top: 1rem;
         }
-
-        .form-select,
-        #applyFilters {
+        
+        .card-header {
+            padding: 1rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .filter-row {
+            flex-direction: column;
+        }
+        
+        .filter-group {
             width: 100%;
         }
-
-        .k-grid {
-            font-size: 0.875rem;
+        
+        .company-details {
+            grid-template-columns: 1fr;
         }
-
-        .k-pager-numbers .k-link.k-state-selected {
-            color: white;
-            background-color: #3f51b5;
+        
+        .documents-grid {
+            grid-template-columns: 1fr;
         }
-
-        .k-pager-numbers .k-link {
-            color: #3f51b5;
+        
+        .action-buttons {
+            flex-direction: column;
+            gap: 0.25rem;
         }
-
-        .k-pager-numbers .k-link:hover {
-            color: white;
-            background-color: #3f51b575;
-        }
-
+        
         .action-btn {
-            width: 28px;
-            height: 28px;
+            width: 100%;
+            height: 36px;
         }
     }
 
-    /* Custom Styles for This Page */
-    #modalCompanyLogo {
-        height: 80px;
-        width: 80px;
-        object-fit: contain;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
-        padding: 0.5rem;
-        background: white;
-    }
-
-    #approveCompany,
-    #rejectCompany {
-        min-width: 120px;
-        margin-bottom: 0.5rem;
-    }
-
-    .btn-group-responsive {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-
-    .swal2-confirm {
-        background-color: var(--primary-color) !important;
-    }
-
+    /* Kendo Grid Customizations */
     .k-pager-numbers .k-link.k-state-selected {
         color: white;
-        background-color: #3f51b5;
+        background-color: var(--primary);
     }
 
     .k-pager-numbers .k-link {
-        color: #3f51b5;
+        color: var(--primary);
     }
 
     .k-pager-numbers .k-link:hover {
         color: white;
-        background-color: #3f51b575;
+        background-color: var(--primary-dark);
     }
 
     .k-grid-header .k-grid-filter.k-state-active,
     .k-grid-header .k-header-column-menu.k-state-active,
     .k-grid-header .k-hierarchy-cell .k-icon.k-state-active {
-        color: black;
-        background-color: white;
+        color: var(--primary);
+        background-color: var(--primary-light);
     }
 
-    .text-muted {
-        display: none;
-    }
-    .Test
-    {
-        margin-top: 15px;
-        margin-left: 15px;
+    .k-grid .k-checkbox:checked {
+        background-color: var(--primary);
+        border-color: var(--primary);
     }
 </style>
-<div class="Test">
-<div class="card">
-    <div class="card-header">
-        <div class="dashboard-header">
+
+<div class="company-management-container">
+    <!-- Stats Overview -->
+    <div class="stats-container">
+        <div class="stat-card total">
+            <div class="stat-icon total">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="stat-value" id="totalCompanies">0</div>
+            <div class="stat-label">Total Companies</div>
+        </div>
+        <div class="stat-card pending">
+            <div class="stat-icon pending">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-value" id="pendingCompanies">0</div>
+            <div class="stat-label">Pending Review</div>
+        </div>
+        <div class="stat-card verified">
+            <div class="stat-icon verified">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-value" id="verifiedCompanies">0</div>
+            <div class="stat-label">Verified</div>
+        </div>
+        <div class="stat-card rejected">
+            <div class="stat-icon rejected">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-value" id="rejectedCompanies">0</div>
+            <div class="stat-label">Rejected</div>
+        </div>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="main-card">
+        <div class="card-header">
             <h5 class="card-title">
-                <i class="fas fa-users-cog me-2"></i>Company Management
+                <i class="fas fa-list-alt me-2"></i>Company List
             </h5>
-            <div class="btn-group-responsive">
+            <div class="bulk-actions">
                 <button type="button" class="btn btn-outline-success" id="bulkApproveBtn">
                     <i class="fas fa-check-double me-1"></i>Bulk Approve
                 </button>
@@ -430,14 +688,12 @@
                 </button>
             </div>
         </div>
-    </div>
-    <div class="card-body">
-        <!-- Filters -->
-        <div class="filter-section">
-            <div class="row align-items-end g-3">
-                <div class="col-md-4 col-lg-3">
-                    <div class="form-group mb-0">
-                        <label class="form-label fw-bold mb-1">Verification Status</label>
+        <div class="card-body">
+            <!-- Filters -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label class="form-label">Verification Status</label>
                         <select class="form-select" id="verificationFilter">
                             <option value="">All Status</option>
                             <option value="pending">Pending</option>
@@ -445,17 +701,32 @@
                             <option value="false">Rejected</option>
                         </select>
                     </div>
-                </div>
-                <div class="col-md-4 col-lg-3">
-                    <button type="button" class="btn btn-primary w-100" id="applyFilters">
-                        <i class="fas fa-filter me-1"></i>Apply Filters
-                    </button>
+                    <div class="filter-group">
+                        <label class="form-label">Industry</label>
+                        <select class="form-select" id="industryFilter">
+                            <option value="">All Industries</option>
+                            <option value="Technology">Technology</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Education">Education</option>
+                            <option value="Manufacturing">Manufacturing</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="form-label">Registration Date</label>
+                        <input type="date" class="form-control" id="dateFilter">
+                    </div>
+                    <div class="filter-group">
+                        <button type="button" class="btn btn-primary w-100" id="applyFilters">
+                            <i class="fas fa-filter me-1"></i>Apply Filters
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Recruiters Grid -->
-        <div id="recruitersGrid"></div>
+            <!-- Companies Grid -->
+            <div id="companiesGrid"></div>
+        </div>
     </div>
 </div>
 
@@ -464,60 +735,85 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="companyModalLabel">
+                <h5 class="modal-title">
                     <i class="fas fa-building me-2"></i> Company Details
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div class="company-header">
+                    <img id="modalCompanyLogo" src="" alt="Company Logo" class="company-logo">
+                    <h3 id="modalCompanyName" class="company-name"></h3>
+                    <p id="modalCompanyIndustry" class="company-industry"></p>
+                </div>
+
+                <div class="company-details">
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Email</div>
+                            <div id="modalCompanyEmail" class="detail-value"></div>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Phone</div>
+                            <div id="modalCompanyPhone" class="detail-value"></div>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Address</div>
+                            <div id="modalCompanyAddress" class="detail-value"></div>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Registration Number</div>
+                            <div id="modalCompanyRegNumber" class="detail-value"></div>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Tax ID</div>
+                            <div id="modalCompanyTaxId" class="detail-value"></div>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-label">Website</div>
+                            <div id="modalCompanyWebsite" class="detail-value"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="text-center mb-4">
-                    <img id="modalCompanyLogo" src="" alt="Company Logo" class="img-fluid mb-3">
-                    <h5 id="modalCompanyName" class="mb-0"></h5>
-                    <p class="text-muted" id="modalCompanyIndustry"></p>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="company-detail-item">
-                            <i class="fas fa-envelope me-2"></i>
-                            <span id="modalCompanyEmail"></span>
-                        </div>
-                        <div class="company-detail-item">
-                            <i class="fas fa-phone me-2"></i>
-                            <span id="modalCompanyPhone"></span>
-                        </div>
-                        <div class="company-detail-item">
-                            <i class="fas fa-map-marker-alt me-2"></i>
-                            <span id="modalCompanyAddress"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="company-detail-item">
-                            <i class="fas fa-id-card me-2"></i>
-                            <span id="modalCompanyRegNumber"></span>
-                        </div>
-                        <div class="company-detail-item">
-                            <i class="fas fa-receipt me-2"></i>
-                            <span id="modalCompanyTaxId"></span>
-                        </div>
-                        <div class="company-detail-item">
-                            <i class="fas fa-globe me-2"></i>
-                            <span id="modalCompanyWebsite"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-center mt-4">
-                    <p class="mb-0"><strong>Status:</strong> <span id="companyStatus" class="badge"></span></p>
+                    <p class="mb-0"><strong>Verification Status:</strong> <span id="companyStatus" class="badge"></span></p>
                 </div>
 
                 <!-- Legal Documents Preview Section -->
-                <div class="mt-4">
-                    <h6 class="mb-3">
+                <div class="documents-section">
+                    <h6 class="section-title">
                         <i class="fas fa-file-alt me-2"></i>Legal Documents
                     </h6>
-                    <div class="legal-docs-preview" id="legalDocsPreview">
+                    <div class="documents-grid" id="legalDocsPreview">
                         <!-- Documents will be displayed here -->
                     </div>
                 </div>
@@ -533,14 +829,27 @@
         </div>
     </div>
 </div>
-</div
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function () {
             var selectedCompanyId = null;
 
-            var grid = $("#recruitersGrid").kendoGrid({
+            // Initialize stats
+            function updateStats(data) {
+                var total = data.length;
+                var pending = data.filter(item => item.c_verified_status === null).length;
+                var verified = data.filter(item => item.c_verified_status === true).length;
+                var rejected = data.filter(item => item.c_verified_status === false).length;
+                
+                $("#totalCompanies").text(total);
+                $("#pendingCompanies").text(pending);
+                $("#verifiedCompanies").text(verified);
+                $("#rejectedCompanies").text(rejected);
+            }
+
+            var grid = $("#companiesGrid").kendoGrid({
                 dataSource: {
                     transport: {
                         read: {
@@ -564,11 +873,17 @@
                                 c_website: { type: "string" },
                                 c_verified_status: { type: "boolean" },
                                 c_legal_documents: { type: "object" },
-                                c_company_logo: { type: "string" }
+                                c_company_logo: { type: "string" },
+                                c_created_at: { type: "date" }
                             }
                         }
                     },
-                    pageSize: 10
+                    pageSize: 10,
+                    change: function(e) {
+                        if (this.view().length > 0) {
+                            updateStats(this.view());
+                        }
+                    }
                 },
                 columns: [
                     {
@@ -586,7 +901,7 @@
                         template: function (dataItem) {
                             return dataItem.c_company_logo
                                 ? `<img src="${dataItem.c_company_logo}" alt="Logo" style="width: 40px; height: 40px; object-fit: contain; border-radius: 6px;">`
-                                : '<i class="fas fa-building" style="font-size: 1.5rem; color: #9ca3af;"></i>';
+                                : '<div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 6px;"><i class="fas fa-building" style="color: #94a3b8;"></i></div>';
                         },
                         width: "70px",
                         attributes: { "class": "text-center" }
@@ -600,6 +915,18 @@
                         field: "c_company_email",
                         title: "Contact",
                         template: '<div>#: c_company_email #</div><div class="text-muted small">#: c_company_phone || "N/A" #</div>'
+                    },
+                    {
+                        field: "c_created_at",
+                        title: "Registered",
+                        template: function(dataItem) {
+                            if (dataItem.c_created_at) {
+                                var date = new Date(dataItem.c_created_at);
+                                return kendo.toString(date, 'MMM dd, yyyy');
+                            }
+                            return "N/A";
+                        },
+                        width: "120px"
                     },
                     {
                         field: "c_verified_status",
@@ -620,31 +947,30 @@
                         title: "Actions",
                         template: function (dataItem) {
                             return `
-                                                <div class="d-flex gap-2 justify-content-center">
-                                                    <button class="btn btn-sm btn-outline-primary action-btn view-details-btn" data-id="${dataItem.c_company_id}" title="View Details">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-outline-success action-btn approve-btn" data-id="${dataItem.c_company_id}" title="Approve">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-outline-danger action-btn reject-btn" data-id="${dataItem.c_company_id}" title="Reject">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                </div>`;
+                                <div class="action-buttons">
+                                    <button class="action-btn view" data-id="${dataItem.c_company_id}" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn approve" data-id="${dataItem.c_company_id}" title="Approve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="action-btn reject" data-id="${dataItem.c_company_id}" title="Reject">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>`;
                         },
-                        width: "150px",
+                        width: "140px",
                         attributes: { "class": "text-center" }
                     }
                 ],
                 toolbar: ["search"],
-                 search: {
+                search: {
                     fields: [
                         { name: "c_company_name", operator: "contains" },
                         { name: "c_company_email", operator: "contains" },
                         { name: "c_company_phone", operator: "contains" }
                     ]
                 },
-                
                 resizable: true,
                 selectable: "multiple, row",
                 pageable: {
@@ -652,13 +978,13 @@
                     buttonCount: 5,
                     messages: {
                         display: "Showing {0}-{1} of {2} items",
-                        empty: "No recruiters found",
+                        empty: "No companies found",
                         itemsPerPage: "items per page"
                     }
                 },
                 height: 600,
                 noRecords: {
-                    template: '<div class="text-center p-4 text-muted">No recruiters found matching your criteria</div>'
+                    template: '<div class="text-center p-4 text-muted"><i class="fas fa-building fa-2x mb-3"></i><p>No companies found matching your criteria</p></div>'
                 },
                 dataBound: function () {
                     // Handle select all checkbox
@@ -680,9 +1006,9 @@
                     });
 
                     // Attach event handlers to action buttons
-                    $(".approve-btn").click(handleApproveClick);
-                    $(".reject-btn").click(handleRejectClick);
-                    $(".view-details-btn").click(handleViewDetailsClick);
+                    $(".approve").click(handleApproveClick);
+                    $(".reject").click(handleRejectClick);
+                    $(".view").click(handleViewDetailsClick);
                 }
             }).data("kendoGrid");
 
@@ -780,13 +1106,13 @@
                 const legalDocsPreview = $("#legalDocsPreview");
                 if (company.c_legal_documents && company.c_legal_documents.length > 0) {
                     const docsHtml = company.c_legal_documents.map(doc => `
-                                        <div class="doc-item">
+                                        <div class="doc-card">
                                             <div class="doc-icon">
                                                 <i class="fas fa-file-pdf"></i>
                                             </div>
                                             <div class="doc-info">
                                                 <div class="doc-name">${doc.split('/').pop()}</div>
-                                                <div class="doc-size">${getFileSize(doc)}</div>
+                                                <div class="doc-meta">PDF Document</div>
                                             </div>
                                             <button class="doc-preview-btn" data-doc-url="${doc}">
                                                 <i class="fas fa-eye"></i> Preview
@@ -797,7 +1123,7 @@
                 } else {
                     legalDocsPreview.html(`
                                         <div class="no-docs">
-                                            <i class="fas fa-folder-open"></i>
+                                            <i class="fas fa-folder-open fa-2x mb-3"></i>
                                             <p>No legal documents available</p>
                                         </div>
                                     `);
@@ -806,13 +1132,11 @@
                 $("#companyDetailsModal").modal("show");
             }
 
-            function getFileSize(url) {
-                // This is a placeholder - you should implement actual file size detection
-                return 'PDF Document';
-            }
-
             $("#applyFilters").click(function () {
                 var verification = $("#verificationFilter").val();
+                var industry = $("#industryFilter").val();
+                var date = $("#dateFilter").val();
+                
                 var dataSource = grid.dataSource;
                 var filters = [];
 
@@ -822,6 +1146,14 @@
                     } else {
                         filters.push({ field: "c_verified_status", operator: "eq", value: verification === "true" });
                     }
+                }
+
+                if (industry !== "") {
+                    filters.push({ field: "c_industry", operator: "contains", value: industry });
+                }
+
+                if (date !== "") {
+                    filters.push({ field: "c_created_at", operator: "gte", value: new Date(date) });
                 }
 
                 dataSource.filter(filters);
@@ -857,7 +1189,7 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
-                            text: isApproved ? 'Recruiter approved successfully.' : 'Recruiter rejected successfully.',
+                            text: isApproved ? 'Company approved successfully.' : 'Company rejected successfully.',
                             timer: 1500,
                             showConfirmButton: false
                         });
@@ -871,7 +1203,7 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: xhr.responseText || 'An error occurred while updating the recruiter status.'
+                            text: xhr.responseText || 'An error occurred while updating the company status.'
                         });
                     }
                 });
@@ -880,8 +1212,8 @@
             $("#approveCompany").click(function () {
                 if (selectedCompanyId) {
                     Swal.fire({
-                        title: 'Approve Recruiter',
-                        text: 'Are you sure you want to approve this recruiter?',
+                        title: 'Approve Company',
+                        text: 'Are you sure you want to approve this company?',
                         icon: 'question',
                         showCancelButton: true,
                         confirmButtonText: 'Yes, Approve',
@@ -898,7 +1230,7 @@
             $("#rejectCompany").click(function () {
                 if (selectedCompanyId) {
                     Swal.fire({
-                        title: 'Reject Recruiter',
+                        title: 'Reject Company',
                         html: '<div class="form-group text-start">' +
                             '<label for="rejectReason" class="form-label">Reason for Rejection:</label>' +
                             '<textarea id="rejectReason" class="form-control" rows="3" placeholder="Please specify the reason for rejection..." required></textarea>' +
@@ -943,7 +1275,7 @@
                     Swal.fire({
                         icon: 'warning',
                         title: 'No Selection',
-                        text: 'Please select at least one recruiter to approve.',
+                        text: 'Please select at least one company to approve.',
                         timer: 1500,
                         showConfirmButton: false
                     });
@@ -951,8 +1283,8 @@
                 }
 
                 Swal.fire({
-                    title: "Bulk Approve Recruiters",
-                    text: `You are about to approve ${selectedIds.length} recruiter(s). Continue?`,
+                    title: "Bulk Approve Companies",
+                    text: `You are about to approve ${selectedIds.length} company(s). Continue?`,
                     icon: "question",
                     showCancelButton: true,
                     confirmButtonText: "Yes, Approve All",
@@ -968,7 +1300,7 @@
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Success!',
-                                    text: `${selectedIds.length} recruiter(s) approved successfully.`,
+                                    text: `${selectedIds.length} company(s) approved successfully.`,
                                     timer: 1500,
                                     showConfirmButton: false
                                 });
@@ -1005,7 +1337,7 @@
                     Swal.fire({
                         icon: 'warning',
                         title: 'No Selection',
-                        text: 'Please select at least one recruiter to reject.',
+                        text: 'Please select at least one company to reject.',
                         timer: 1500,
                         showConfirmButton: false
                     });
@@ -1013,7 +1345,7 @@
                 }
 
                 Swal.fire({
-                    title: 'Bulk Reject Recruiters',
+                    title: 'Bulk Reject Companies',
                     html: '<div class="form-group text-start">' +
                         '<label for="rejectReason" class="form-label">Reason for Rejection:</label>' +
                         '<textarea id="rejectReason" class="form-control" rows="3" placeholder="Please specify the reason for rejection..." required></textarea>' +
@@ -1041,7 +1373,7 @@
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Success!',
-                                    text: `${selectedIds.length} recruiter(s) rejected successfully.`,
+                                    text: `${selectedIds.length} company(s) rejected successfully.`,
                                     timer: 1500,
                                     showConfirmButton: false
                                 });

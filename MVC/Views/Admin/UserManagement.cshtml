@@ -659,33 +659,21 @@
                 <i class="fas fa-users fa-2x" style="color: var(--primary);"></i>
                 <div class="stat-value" id="totalUsers">Loading...</div>
                 <div class="stat-label">Total Users</div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> <span id="totalChange">Calculating...</span>
-                </div>
             </div>
             <div class="stat-card candidates">
                 <i class="fas fa-user-graduate fa-2x" style="color: var(--success);"></i>
                 <div class="stat-value" id="totalCandidates">Loading...</div>
                 <div class="stat-label">Candidates</div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> <span id="candidateChange">Calculating...</span>
-                </div>
             </div>
             <div class="stat-card recruiters">
                 <i class="fas fa-briefcase fa-2x" style="color: var(--warning);"></i>
                 <div class="stat-value" id="totalRecruiters">Loading...</div>
                 <div class="stat-label">Recruiters</div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> <span id="recruiterChange">Calculating...</span>
-                </div>
             </div>
             <div class="stat-card blocked">
                 <i class="fas fa-ban fa-2x" style="color: var(--danger);"></i>
                 <div class="stat-value" id="totalBlocked">Loading...</div>
                 <div class="stat-label">Blocked Users</div>
-                <div class="stat-change negative">
-                    <i class="fas fa-arrow-down"></i> <span id="blockedChange">Calculating...</span>
-                </div>
             </div>
         </div>
 
@@ -801,12 +789,6 @@
                 $.getJSON("http://localhost:5086/api/AdminApi/get-recruiter-count"),
                 $.getJSON("http://localhost:5086/api/AdminApi/get-blockeduser-count"), // New API for blocked users
             ]).then(function(results) {
-                // results[0] = alluser-count response
-                // results[1] = candidates-count response  
-                // results[2] = recruiters-count response
-                
-                // Update userStats with the received data
-                // Assuming each API returns a simple number or an object with a count property
                 userStats.totalUsers = typeof results[0] === 'number' ? results[0] : results[0].count || results[0].totalUsers || 0;
                 userStats.totalCandidates = typeof results[1] === 'number' ? results[1] : results[1].count || results[1].totalCandidates || 0;
                 userStats.totalRecruiters = typeof results[2] === 'number' ? results[2] : results[2].count || results[2].totalRecruiters || 0;
